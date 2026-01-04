@@ -27,7 +27,8 @@ namespace LupeonBot.Module
 
             m_body += "**[ 서버가입 ]**" + Environment.NewLine;
             m_body += Emote + " 1. 서버가입 버튼클릭" + Environment.NewLine;
-            m_body += Emote + " 2. 캐릭터명입력 후 완료" + Environment.NewLine + Environment.NewLine;
+            m_body += Emote + " 2. 캐릭터명입력" + Environment.NewLine;
+            m_body += Emote + " 3. 아래 이미지 참고하여 스토브 링크 입력 후 완료" + Environment.NewLine + Environment.NewLine;
             m_body += "**[ 유의사항 ]**" + Environment.NewLine;
             m_body += Emote + " 서버 내 채널이용은 기본인증을 완료해야 이용가능합니다." + Environment.NewLine;
             m_body += Emote + " 매주 수요일 정기점검 시간(~ 10:00)" + Environment.NewLine;
@@ -189,3 +190,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
