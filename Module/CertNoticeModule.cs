@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using DiscordBot;
@@ -228,7 +228,8 @@ namespace LupeonBot.Module
                 .WithAuthor("🔍 캐릭터정보 조회")
                 .WithDescription(charDesc)
                 .WithColor((Color)System.Drawing.Color.SkyBlue)
-                .WithFooter($"{m_disCord}({s_userid}) 신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
+                .WithFooter($"Develop by. 갱프　　　　　　　　신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
+                .WithImageUrl(Method.StoveProfileImagePath)
                 .WithThumbnailUrl(Method.m_ImgLink);
 
             var comps = new ComponentBuilder()
