@@ -302,26 +302,16 @@ namespace LupeonBot.Module
                 await RespondAsync("❌ 관리자만 사용할 수 있습니다.", ephemeral: true);
                 return;
             }
-
-            var modal = new ModalBuilder()
-                .WithTitle("기준레벨 입력")
-                .WithCustomId("SetStdLvModal")
-                .AddTextInput(label: "기준레벨 (예: 1680.00)",
-                              customId: "StdLv",
-                              placeholder: "1680.00",
-                              style: TextInputStyle.Short,
-                              required: true,
-                              maxLength: 10);
-
-            await RespondWithModalAsync(modal.Build());
+            
+            await RespondWithModalAsync<SetStdLvModalData>("SetStdLvModal");
         }
 
         public class SetStdLvModalData : IModal
         {
             public string Title => "기준레벨 입력";
 
-            [InputLabel("기준레벨 (예: 1640.00)")]
-            [ModalTextInput("StdLv", placeholder: "1640.00", maxLength: 10)]
+            [InputLabel("기준레벨 (예: 1680.00)")]
+            [ModalTextInput("StdLv", placeholder: "1680.00", maxLength: 10)]
             public string StdLv { get; set; } = "";
         }
 
@@ -413,3 +403,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
