@@ -190,7 +190,7 @@ namespace LupeonBot.Module
                         && !roleIds.Contains(targetRole);
                 })
                 .ToList();
-            int total = targetUsers.Count;
+            int total = targetUsers.Count();
             int processed = 0, added = 0, skipped = 0, failed = 0;
 
             // ✅ 실패 유저 모아두기 (멘션용)
@@ -281,6 +281,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
