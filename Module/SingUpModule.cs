@@ -117,8 +117,17 @@ namespace LupeonBot.Module
             //    return;
             //}
 
-            var dbRow = await SupabaseClient.GetSingUpByUserIdAsync(Context.User.Id.ToString());
+            DateTime NowKst() { return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, kst); }
+            DateTime dt = NowKst();
 
+            if(Method.m_보유캐릭_배열 == null)
+            {
+                await ModifyOriginalResponseAsync(m => m.Content = $"❌ 가입실패, 캐릭터명을 확인해주세요.");
+                return;
+            }
+            
+            var dbRow = await SupabaseClient.GetSingUpByUserIdAsync(Context.User.Id.ToString());
+                    
             if (dbRow == null)
             {
                 var (ok, body) = await SupabaseClient.UpsertSingUpAsync(
@@ -126,8 +135,8 @@ namespace LupeonBot.Module
                     stoveId: m_StoveId,
                     userNm: user.Username,
                     characters: Method.m_보유캐릭_배열,
-                    joinDate: DateTime.Now.ToString("yyyy-MM-dd"),
-                    joinTime: DateTime.Now.ToString("HH:mm")
+                    joinDate: dt.ToShortDateString(); // 2026-01-06
+                    joinTime: dt.ToShortTimeString(); // 오전 01:23
                     );
 
                 if (!ok)
@@ -149,48 +158,49 @@ namespace LupeonBot.Module
                 await user.RemoveRoleAsync(902213602889568316); // 미인증
                 await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 가입처리 되었습니다.");
 
-                //#region 유저정보
-                ////계정생성일
-                //string creatDate = user.CreatedAt.ToString("yyyy-MM-dd");
-                ////서버가입일
-                //string JoinDate = user.JoinedAt.ToString();
-                //DateTime dt = DateTime.Parse(JoinDate);
-                //JoinDate = dt.ToShortDateString();
+                #region 유저정보
+                //계정생성일
+                string creatDate = user.CreatedAt.ToString("yyyy-MM-dd");
+                //서버가입일
+                string JoinDate = user.JoinedAt.ToString();
+                DateTime dt = DateTime.Parse(JoinDate);
+                JoinDate = dt.ToShortDateString();
 
-                ////디스코드정보
-                //string s_disCord = string.Empty;
-                //s_disCord = "``유저정보 :``" + user.Mention + " (" + user.Username + ")" + Environment.NewLine;
-                //s_disCord += "``아 이 디 :``" + user.Id + Environment.NewLine;
-                //s_disCord += "``계정생성일 :``" + creatDate + Environment.NewLine;
-                //s_disCord += "``서버가입일 :``" + JoinDate;
+                //디스코드정보
+                string s_disCord = string.Empty;
+                s_disCord = "``유저정보 :``" + user.Mention + " (" + user.Username + ")" + Environment.NewLine;
+                s_disCord += "``아 이 디 :``" + user.Id + Environment.NewLine;
+                s_disCord += "``계정생성일 :``" + creatDate + Environment.NewLine;
+                s_disCord += "``서버가입일 :``" + JoinDate;
 
-                ////로아정보
-                //string m_lostArk = string.Empty;
-                //m_lostArk = "``레벨 :``" + Method.m_아이템레벨 + Environment.NewLine;
-                //m_lostArk += "``캐릭터 :``" + m_NickNm + Environment.NewLine;
-                //m_lostArk += "``클래스 :``" + Method.m_직업 + Environment.NewLine;
-                //m_lostArk += "``서버 :``" + Method.m_서버;
+                //로아정보
+                string m_lostArk = string.Empty;
+                m_lostArk = "``레벨 :``" + Method.m_아이템레벨 + Environment.NewLine;
+                m_lostArk += "``캐릭터 :``" + m_NickNm + Environment.NewLine;
+                m_lostArk += "``클래스 :``" + Method.m_직업 + Environment.NewLine;
+                m_lostArk += "``서버 :``" + Method.m_서버;
 
-                //string m_CharList = string.Empty;
-                //m_CharList = "``보유캐릭 :``" + Method.m_보유캐릭;
+                string m_CharList = string.Empty;
+                m_CharList = "``보유캐릭 :``" + Method.m_보유캐릭;
 
-                ////갱신정보
-                //string m_renewal = string.Empty;
-                //m_renewal = "가입일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
-                //#endregion 유저정보
+                //갱신정보
+                string m_renewal = string.Empty;
+                m_renewal = "가입일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+                #endregion 유저정보
 
-                //var Embed = new EmbedBuilder();
-                //Embed.WithTitle("서버가입정보");
-                //Embed.WithColor(Discord.Color.DarkTeal);
-                //Embed.AddField("**Discord**", s_disCord, true);
-                //Embed.AddField("**LostArk**", m_lostArk, true);
-                //Embed.AddField("**CharList**", m_CharList, false);
-                //Embed.WithFooter(m_renewal);
+                var Embed = new EmbedBuilder();
+                Embed.WithTitle("서버가입정보");
+                Embed.WithColor(Discord.Color.DarkTeal);
+                Embed.AddField("**Discord**", s_disCord, true);
+                Embed.AddField("**LostArk**", m_lostArk, true);
+                Embed.AddField("**CharList**", m_CharList, false);
+                Embed.WithFooter(m_renewal);
 
-                //await user.Guild.GetTextChannel(903242262677454958).SendMessageAsync(embed: Embed.Build());
+                await user.Guild.GetTextChannel(903242262677454958).SendMessageAsync(embed: Embed.Build());
             }
         }
     }
 }
+
 
 
