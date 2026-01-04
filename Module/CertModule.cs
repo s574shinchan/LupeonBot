@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -167,7 +167,7 @@ namespace LupeonBot.Module
                         userId: s_userid.ToString(),
                         stoveId: m_StoveId,
                         userNm: m_disCord,
-                        characters: Method.m_보유캐릭,
+                        characters: Method.m_보유캐릭_배열,
                         joinDate: target.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd"),
                         joinTime: target.CreatedAt.ToLocalTime().ToString("HH:mm"),
                         certDate: DateTime.Now.ToString("yyyy-MM-dd"),
