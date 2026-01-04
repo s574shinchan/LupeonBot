@@ -168,10 +168,34 @@ namespace LupeonBot.Module
                 await RespondAsync("관리자만 사용 가능합니다.", ephemeral: true);
                 return;
             }
-
-            int total = gu.Guild.Users.Count;
+            
+            await DeferAsync(ephemeral: true);
+            
+            var excludeRole = 902213602889568316UL;
+            var targetRole  = 1457383863943954512UL;
+            
+            // ✅ KST 타임존 (윈도우: Korea Standard Time / 리눅스: Asia/Seoul)
+            TimeZoneInfo kst;
+            try { kst = TimeZoneInfo.FindSystemTimeZoneById("Korea Standard Time"); }
+            catch { kst = TimeZoneInfo.FindSystemTimeZoneById("Asia/Seoul"); }
+            
+            string NowKst() => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, kst).ToString("yyyy-MM-dd HH:mm:ss");
+            
+            var targetUsers = gu.Guild.Users
+                .Where(u => !u.IsBot)
+                .Where(u =>
+                {
+                    var roleIds = u.Roles.Select(r => r.Id).ToHashSet();
+                    return !roleIds.Contains(excludeRole)
+                        && !roleIds.Contains(targetRole);
+                })
+                .ToList();
+            int total = targetUsers.Count;
             int processed = 0, added = 0, skipped = 0, failed = 0;
 
+            // ✅ 실패 유저 모아두기 (멘션용)
+            var failedUsers = new List<SocketGuildUser>();
+    
             EmbedBuilder BuildProgressEmbed(string desc, Color color)
             {
                 return new EmbedBuilder()
@@ -188,28 +212,30 @@ namespace LupeonBot.Module
 
             var msg = await Context.Channel.SendMessageAsync(embed: BuildProgressEmbed("시작합니다...", Color.Orange).Build());
 
-            foreach (var user in gu.Guild.Users)
+            foreach (var user in targetUsers)
             {
                 processed++;
 
                 try
                 {
-                    if (user.IsBot) { skipped++; continue; }
-                    if (user.Roles.Any(r => r.Id == 902213602889568316)) { skipped++; continue; }
-                    if (user.Roles.Any(r => r.Id == 1457383863943954512)) { skipped++; continue; }
-
-                    await user.AddRoleAsync(1457383863943954512);
+                    await user.AddRoleAsync(targetRole);
                     added++;
+        
+                    // Rate limit 보호
                     await Task.Delay(500);
                 }
                 catch
                 {
                     failed++;
+                    failedUsers.Add(user);
                 }
-
+        
+                // 5명마다 진행 로그 갱신
                 if (processed % 5 == 0 || processed == total)
                 {
-                    await msg.ModifyAsync(m => m.Embed = BuildProgressEmbed($"처리 중... `{processed}/{total}`", Color.Orange).Build());
+                    await msg.ModifyAsync(m =>
+                        m.Embed = BuildProgressEmbed($"처리 중... `{processed}/{total}`", Discord.Color.Orange).Build()
+                    );
                 }
             }
 
@@ -222,12 +248,35 @@ namespace LupeonBot.Module
                 .AddField("지급 성공", added, true)
                 .AddField("스킵", skipped, true)
                 .AddField("실패", failed, true)
-                .WithFooter($"완료: {DateTime.Now:yyyy-MM-dd HH:mm:ss}")
+                .WithFooter($"완료: {NowKst()}")
                 .Build();
 
             await msg.ModifyAsync(m => m.Embed = done);
+
+            if (ch != null && failedUsers.Count > 0)
+            {
+                // 멘션 스팸 방지: 너무 많으면 여러 메시지로 쪼개기 (예: 20명 단위)
+                const int chunkSize = 20;
+        
+                for (int i = 0; i < failedUsers.Count; i += chunkSize)
+                {
+                    var chunk = failedUsers.Skip(i).Take(chunkSize);
+                    var mentions = string.Join(" ", chunk.Select(u => u.Mention));
+        
+                    await ch.SendMessageAsync(
+                        $"⚠️ **루페온 역할 부여 실패 유저 목록** (KST {NowKst()})\n{mentions}"
+                    );
+                }
+            }
+        
+            // 슬래시커맨드 응답(관리자에게만)
+            await FollowupAsync(
+                $"완료. 대상:{total}, 성공:{added}, 실패:{failed} (KST {NowKst()})",
+                ephemeral: true
+            );
         }
     }
 }
+
 
 
