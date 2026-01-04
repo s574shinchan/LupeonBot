@@ -215,8 +215,7 @@ namespace LupeonBot.Module
             var 인증채널 = new EmbedBuilder()
                 .WithColor(Color.Green)
                 .WithDescription(guideDesc)
-                .WithFooter($"{m_disCord}({s_userid}) 신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
-                .Bulid();;
+                .WithFooter($"{m_disCord}({s_userid}) 신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto));
 
             // 캐릭터 정보 embed
             string charDesc =
@@ -228,17 +227,15 @@ namespace LupeonBot.Module
             var m_charInfo = new EmbedBuilder()
                 .WithAuthor("🔍 캐릭터정보 조회")
                 .WithDescription(charDesc)
-                .WithColor((Color)System.Drawing.Color.SkyBlue)                
-                .WithImageUrl(Method.StoveProfileImagePath)
-                .WithThumbnailUrl(Method.m_ImgLink)
+                .WithColor((Color)System.Drawing.Color.SkyBlue)
                 .WithFooter($"Develop by. 갱프　　　　　　　　신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
-                .Bulid();
+                .WithImageUrl(Method.StoveProfileImagePath)
+                .WithThumbnailUrl(Method.m_ImgLink);
 
             var comps = new ComponentBuilder()
                 .WithButton(label: "인증완료", customId: "Complete", style: ButtonStyle.Success)
                 .WithButton(label: "채널종료", customId: "ExitCert", style: ButtonStyle.Danger)
-                .WithButton(label: "타임아웃", customId: "CertTimeOut", style: ButtonStyle.Primary)
-                .Bulid();
+                .WithButton(label: "타임아웃", customId: "CertTimeOut", style: ButtonStyle.Primary);
 
             // 이미 채널 있으면 거기로 안내 후 메시지
             var existing = guildUser.Guild.TextChannels.FirstOrDefault(c => c.Name == $"인증채널_{s_userid}");
@@ -254,12 +251,12 @@ namespace LupeonBot.Module
             var trade = guildUser.Guild.GetRole(TradeRoleId);
 
             var permissions = new List<Overwrite>
-            {
+        {
             // 원본 그대로: allow/deny 비트값(68608) 쓰는 방식 유지
             new Overwrite(everyone.Id, PermissionTarget.Role, new OverwritePermissions(0, 68608)),
             new Overwrite(trade.Id,    PermissionTarget.Role, new OverwritePermissions(0, 68608)),
             new Overwrite(guildUser.Id, PermissionTarget.User, new OverwritePermissions(68608, 0))
-            };
+        };
 
             // 채널 생성은 RestTextChannel 반환
             Discord.Rest.RestTextChannel created;
@@ -279,7 +276,9 @@ namespace LupeonBot.Module
             }
 
             string headerText = $"신청자 : {guildUser.Mention}\n신청캐릭 : {m_NickNm}";
-            await created.SendMessageAsync(text: headerText, embeds: new[] { 인증채널, m_charInfo }, components: comps);
+            await created.SendMessageAsync(text: headerText,
+                                           embeds: new[] { 인증채널.Build(), m_charInfo.Build() },
+                                           components: comps.Build());
 
             await FollowupAsync($"✅ 인증채널이 생성되었습니다: <#{created.Id}>", ephemeral: true);
         }
@@ -303,7 +302,7 @@ namespace LupeonBot.Module
                 await RespondAsync("❌ 관리자만 사용할 수 있습니다.", ephemeral: true);
                 return;
             }
-            
+
             await RespondWithModalAsync<SetStdLvModalData>("SetStdLvModal");
         }
 
@@ -311,8 +310,8 @@ namespace LupeonBot.Module
         {
             public string Title => "기준레벨 입력";
 
-            [InputLabel("기준레벨 (예: 1680.00)")]
-            [ModalTextInput("StdLv", placeholder: "1680.00", maxLength: 10)]
+            [InputLabel("기준레벨 (예: 1640.00)")]
+            [ModalTextInput("StdLv", placeholder: "1640.00", maxLength: 10)]
             public string StdLv { get; set; } = "";
         }
 
@@ -404,5 +403,3 @@ namespace LupeonBot.Module
         }
     }
 }
-
-
