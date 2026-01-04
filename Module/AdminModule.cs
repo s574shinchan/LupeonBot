@@ -159,5 +159,33 @@ namespace LupeonBot.Module
 
             await FollowupAsync(embed: eb.Build(), ephemeral: true);
         }
+        
+        [SlashCommand("역할일괄부여", "메인역할인 '루페온' 역할을 모든 유저에게 일괄로 부여합니다. (미인증제외, 관리자전용)")]
+        public async Task SetMainRoleAddByAllUser()
+        {
+             if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
+             {
+                 await RespondAsync("관리자만 사용 가능합니다.", ephemeral: true);
+                 return;
+             }
+        
+             foreach (var user in gu.Guild.Users)
+             {
+                 // 봇이면 스킵
+                 if (user.IsBot) continue;
+        
+                 // 특정 역할 있으면 스킵
+                 if (user.Roles.Any(r => r.Id == 902213602889568316))
+                     continue;
+        
+                 // 이미 루페온 역할 있으면 스킵
+                 if (user.Roles.Any(r => r.Id == 1457383863943954512))
+                     continue;
+        
+                 await user.AddRoleAsync(1457383863943954512);
+                 await Task.Delay(500); // 0.5초
+             }
+         }
     }
 }
+
