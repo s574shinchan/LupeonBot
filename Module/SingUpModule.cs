@@ -125,14 +125,15 @@ namespace LupeonBot.Module
                     userId: user.Id.ToString(),
                     stoveId: m_StoveId,
                     userNm: user.Username,
-                    characters: Method.m_보유캐릭,
+                    characters: Method.m_보유캐릭_배열,
                     joinDate: DateTime.Now.ToString("yyyy-MM-dd"),
                     joinTime: DateTime.Now.ToString("HH:mm")
                     );
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
+                    var nosign = user.Guild.GetTextChannel(932836388217450556);
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 가입실패, {nosign.Mention} 채널로 이동하여 문의해주세요.");
                     return;
                 }
 
@@ -190,3 +191,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
