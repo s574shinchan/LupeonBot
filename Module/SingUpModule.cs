@@ -119,7 +119,9 @@ namespace LupeonBot.Module
 
             DateTime NowKst() { return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, kst); }
             DateTime dt = NowKst();
-
+            string m_joinDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
+            string m_joinTime = dt.ToString("HH:mm");   // 01:23:45  (24시간제, 고정)
+            
             if(Method.m_보유캐릭_배열 == null)
             {
                 await ModifyOriginalResponseAsync(m => m.Content = $"❌ 가입실패, 캐릭터명을 확인해주세요.");
@@ -135,8 +137,8 @@ namespace LupeonBot.Module
                     stoveId: m_StoveId,
                     userNm: user.Username,
                     characters: Method.m_보유캐릭_배열,
-                    joinDate: dt.ToShortDateString(); // 2026-01-06
-                    joinTime: dt.ToShortTimeString(); // 오전 01:23
+                    joinDate: m_joinDate; // 2026-01-06
+                    joinTime: m_joinTime; // 오전 01:23
                     );
 
                 if (!ok)
@@ -201,6 +203,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
