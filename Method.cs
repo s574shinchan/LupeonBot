@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
 using DiscordBot;
 using LupeonBot.Client;
@@ -26,12 +26,13 @@ namespace LupeonBot
         public static string m_직업 = string.Empty;
         public static string m_각인 = string.Empty;
         public static string m_보유캐릭 = string.Empty;
+        public static List<string> m_보유캐릭_배열 = new List<string>();
         public static string m_보유캐릭수 = string.Empty;
         public static string m_캐릭터명 = string.Empty;
         public static string m_ImgLink = string.Empty;
 
         public const string StoveProfileImagePath = "https://raw.githubusercontent.com/s574shinchan/LupeonBot/main/image/StoveProfile.png";
-        
+
         public static string GetSplitString(string source, char separator, int index)
         {
             if (string.IsNullOrEmpty(source)) return "";
@@ -156,6 +157,7 @@ namespace LupeonBot
 
             // 문자열용 (로그 출력용)
             m_보유캐릭 = BuildSiblingsLineText(siblings, nickName);
+            m_보유캐릭_배열 = BuildSiblingsListText(siblings, nickName);
         }
 
         public static async Task<List<CharacterSibling>> GetCertProfile(string nickName)
@@ -174,6 +176,7 @@ namespace LupeonBot
 
             // 문자열용 (로그 출력용)
             m_보유캐릭 = BuildSiblingsLineText(siblings, nickName);
+            m_보유캐릭_배열 = BuildSiblingsListText(siblings, nickName);
 
             return siblings;
         }
@@ -191,6 +194,22 @@ namespace LupeonBot
                 .ToList();
 
             return string.Join("/", list);
+        }
+
+        private static List<string> BuildSiblingsListText(List<CharacterSibling> siblings, string excludeName = null)
+        {
+            if (siblings == null || siblings.Count == 0) 
+                return new List<string>();
+
+            var list = siblings
+                .Select(x => (x.CharacterName ?? "").Trim())
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .Where(n => excludeName == null || !n.Equals(excludeName.Trim(), StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            return list;
         }
 
         public static async Task SendNoticeAsync(ISocketMessageChannel channel, string _mStdLv, ulong _CheckChannelId)
@@ -265,4 +284,3 @@ namespace LupeonBot
         }
     }
 }
-
