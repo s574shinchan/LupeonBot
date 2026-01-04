@@ -163,29 +163,71 @@ namespace LupeonBot.Module
         [SlashCommand("역할일괄부여", "메인역할인 '루페온' 역할을 모든 유저에게 일괄로 부여합니다. (미인증제외, 관리자전용)")]
         public async Task SetMainRoleAddByAllUser()
         {
-             if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
-             {
-                 await RespondAsync("관리자만 사용 가능합니다.", ephemeral: true);
-                 return;
-             }
-        
-             foreach (var user in gu.Guild.Users)
-             {
-                 // 봇이면 스킵
-                 if (user.IsBot) continue;
-        
-                 // 특정 역할 있으면 스킵
-                 if (user.Roles.Any(r => r.Id == 902213602889568316))
-                     continue;
-        
-                 // 이미 루페온 역할 있으면 스킵
-                 if (user.Roles.Any(r => r.Id == 1457383863943954512))
-                     continue;
-        
-                 await user.AddRoleAsync(1457383863943954512);
-                 await Task.Delay(500); // 0.5초
-             }
-         }
+            if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
+            {
+                await RespondAsync("관리자만 사용 가능합니다.", ephemeral: true);
+                return;
+            }
+
+            int total = gu.Guild.Users.Count;
+            int processed = 0, added = 0, skipped = 0, failed = 0;
+
+            EmbedBuilder BuildProgressEmbed(string desc, Color color)
+            {
+                return new EmbedBuilder()
+                    .WithTitle("🔄 루페온 역할 지급 진행중")
+                    .WithColor(color)
+                    .WithDescription(desc)
+                    .AddField("전체 유저", total, true)
+                    .AddField("처리됨", processed, true)
+                    .AddField("지급 성공", added, true)
+                    .AddField("스킵", skipped, true)
+                    .AddField("실패", failed, true)
+                    .WithFooter($"시간: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            }
+
+            var msg = await Context.Channel.SendMessageAsync(embed: BuildProgressEmbed("시작합니다...", Color.Orange).Build());
+
+            foreach (var user in gu.Guild.Users)
+            {
+                processed++;
+
+                try
+                {
+                    if (user.IsBot) { skipped++; continue; }
+                    if (user.Roles.Any(r => r.Id == 902213602889568316)) { skipped++; continue; }
+                    if (user.Roles.Any(r => r.Id == 1457383863943954512)) { skipped++; continue; }
+
+                    await user.AddRoleAsync(1457383863943954512);
+                    added++;
+                    await Task.Delay(500);
+                }
+                catch
+                {
+                    failed++;
+                }
+
+                if (processed % 5 == 0 || processed == total)
+                {
+                    await msg.ModifyAsync(m => m.Embed = BuildProgressEmbed($"처리 중... `{processed}/{total}`", Color.Orange).Build());
+                }
+            }
+
+            // 완료
+            var done = new EmbedBuilder()
+                .WithTitle("✅ 루페온 역할 지급 완료")
+                .WithColor(Color.Green)
+                .WithDescription("모든 작업이 완료되었습니다.")
+                .AddField("전체 유저", total, true)
+                .AddField("지급 성공", added, true)
+                .AddField("스킵", skipped, true)
+                .AddField("실패", failed, true)
+                .WithFooter($"완료: {DateTime.Now:yyyy-MM-dd HH:mm:ss}")
+                .Build();
+
+            await msg.ModifyAsync(m => m.Embed = done);
+        }
     }
 }
+
 
