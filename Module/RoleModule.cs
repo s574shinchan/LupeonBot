@@ -11,7 +11,7 @@ using static DiscordBot.Program;
 
 public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionContext>
 {
-        [SlashCommand("역할신청", "직업역할 선택 슬롯 표시")]
+    [SlashCommand("역할신청", "직업역할 선택 슬롯 표시")]
     public async Task RoleSelectAsync()
     {
         if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -58,7 +58,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
         var m_리퍼 = GetEmote("emblem_reaper");
         var m_소울이터 = GetEmote("emblem_souleater");
         var m_도화가 = GetEmote("emblem_artist");
-        var m_기상술사 = GetEmote("emblem_weather_artist");
+        var m_기상술사 = GetEmote("emblem_aeromancer");
         var m_환수사 = GetEmote("emblem_alchemist");
         var m_가디언나이트 = GetEmote("emblem_dragon_knight");
 
@@ -574,4 +574,5 @@ public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionCon
     }
 
 }
+
 
