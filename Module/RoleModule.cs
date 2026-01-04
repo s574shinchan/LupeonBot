@@ -149,7 +149,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
     //    var m_리퍼 = GetEmote("emblem_reaper");
     //    var m_소울이터 = GetEmote("emblem_souleater");
     //    var m_도화가 = GetEmote("emblem_artist");
-    //    var m_기상술사 = GetEmote("emblem_weather_artist");
+    //    var m_기상술사 = GetEmote("emblem_aeromancer");
     //    var m_환수사 = GetEmote("emblem_alchemist");
     //    var m_가디언나이트 = GetEmote("emblem_dragon_knight");
     //    #endregion 직업이모지
@@ -574,5 +574,6 @@ public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionCon
     }
 
 }
+
 
 
