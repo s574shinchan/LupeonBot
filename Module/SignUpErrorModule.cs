@@ -70,7 +70,7 @@ namespace LupeonBot.Module
             if (exist != null)
             {
                 await exist.SendMessageAsync($"{gu.Mention} 해당 채널에 양식대로 글 작성바랍니다.");
-                await FollowupAsync($"이미 생성된 채널이 있어요: #{exist.Name}", ephemeral: true);
+                await FollowupAsync($"이미 생성된 채널이 있어요: {exist.Mention}", ephemeral: true);
                 return;
             }
 
@@ -109,13 +109,9 @@ namespace LupeonBot.Module
             await created.AddPermissionOverwriteAsync(nosignup, new OverwritePermissions(0, 68608));
 
             // 6) 채널에 메시지 전송
-            await created.SendMessageAsync(
-                text: $"`문의자 : {gu.Mention}",
-                embed: embed,
-                components: components
-            );
+            await created.SendMessageAsync(text: $"문의자 : {gu.Mention}", embed: embed,components: components);
 
-            await FollowupAsync($"가입문의 채널을 생성했어요: #{created.Name}", ephemeral: true);
+            await FollowupAsync($"가입문의 채널을 생성했어요: {created.Mention}", ephemeral: true);
         }
 
         [ComponentInteraction("ExitSign")]
@@ -134,6 +130,7 @@ namespace LupeonBot.Module
 
     }
 }
+
 
 
 
