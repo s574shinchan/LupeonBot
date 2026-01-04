@@ -11,7 +11,7 @@ using static DiscordBot.Program;
 
 public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("역할신청", "직업역할 선택 슬롯 표시")]
+    [SlashCommand("역할신청", "직업역할 선택 슬롯 표시 (관리자 전용)")]
     public async Task RoleSelectAsync()
     {
         if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -109,7 +109,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
         await RespondAsync("표시완료", ephemeral: true);
     }
 
-    //[SlashCommand("역할신청", "직업역할 선택 버튼 표시")]
+    //[SlashCommand("역할신청", "직업역할 선택 버튼 표시 (관리자 전용)")]
     //public async Task RoleButtonAsync()
     //{
     //    if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -574,6 +574,7 @@ public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionCon
     }
 
 }
+
 
 
 
