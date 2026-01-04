@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using DiscordBot;
@@ -21,7 +21,7 @@ namespace LupeonBot.Module
         private string mStdLv = ""; // 파일에서 읽어온 값(이미 갖고 있는 방식대로 세팅)        
         private string Emote = "<:pdiamond:907957436483248159>";
 
-        [SlashCommand("신고공지", "문의, 신고, 인증갱신 공지를 표시합니다. (관리자전용)")]
+        [SlashCommand("신고공지", "문의및신고 공지를 표시합니다. (관리자전용)")]
         public async Task NoticeAsync()
         {
             if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -30,11 +30,10 @@ namespace LupeonBot.Module
                 return;
             }
 
-            var component = new ComponentBuilder()
+            ComponentBuilder component = new ComponentBuilder()
                 .WithButton(label: "문의하기", customId: "Inquiry", style: ButtonStyle.Primary)
                 .WithButton(label: "신고하기", customId: "Help", style: ButtonStyle.Danger)
-                .WithButton(label: "인증갱신", customId: "CertUpdate", style: ButtonStyle.Success)
-                .Build();
+                .WithButton(label: "인증갱신", customId: "CertUpdate", style: ButtonStyle.Success);
 
             string m_body = string.Empty;
             string Emote = "<:pdiamond:907957436483248159>";
@@ -50,12 +49,10 @@ namespace LupeonBot.Module
                 .WithTitle("고객센터 • 루페온")
                 .WithColor(Discord.Color.Blue)
                 .WithDescription(m_body)
-                .WithImageUrl(Method.StoveProfileImagePath)
-                .WithFooter("Develop by. 갱프")
-                .Build();
+                .WithFooter("Develop by. 갱프");
 
             //await admin.Guild.GetTextChannel(884395336959918100).SendMessageAsync(embed: NewEx.Build(), components: component.Build());
-            await Context.Channel.SendMessageAsync(embed: NewEx, components: component);
+            await Context.Channel.SendMessageAsync(embed: NewEx.Build(), components: component.Build());
             await RespondAsync("정상적으로 공지표시완료", ephemeral: true);
         }
 
@@ -354,7 +351,7 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 갱신실패, 문의하기 통해서 관리자에게 알려주세요.");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
                     return;
                 }
 
@@ -364,6 +361,20 @@ namespace LupeonBot.Module
                     await ModifyOriginalResponseAsync(m => m.Content = "❌ 저장된 정보와 신청자의 스토브 계정이 다릅니다.");
                     return;
                 }
+
+                //string m_Context = "갱신대상 : " + user.Mention + "``(" + user.Id.ToString() + ")``" + Environment.NewLine + Environment.NewLine
+                //                 + "갱신캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine
+                //                 + "위 정보로 거래소 인증이 완료되었습니다.";
+
+                //var s_embed = new EmbedBuilder()
+                //    .WithAuthor("✅ 갱신완료")
+                //    .WithDescription(m_Context)
+                //    .WithColor(Color.Green)
+                //    .WithThumbnailUrl(user.GetAvatarUrl(ImageFormat.Auto))
+                //    .WithFooter("Develop by. 갱프　　　　　　　　　갱신일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
+
+                //await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 처리되었습니다.");
+                //await ModifyOriginalResponseAsync(m => m.Embed = s_embed.Build());
             }
             else
             {
@@ -374,7 +385,7 @@ namespace LupeonBot.Module
                     userId: user.Id.ToString(),
                     stoveId: m_StoveId,
                     userNm: user.Username,
-                    characters: Method.m_보유캐릭,
+                    characters: Method.m_보유캐릭_배열,
                     joinDate: joindate,
                     joinTime: jointime, 
                     certDate: DateTime.Now.ToString("yyyy-MM-dd"),
@@ -383,15 +394,14 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 갱신실패, 문의하기 통해서 관리자에게 알려주세요.");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
                     return;
                 }
             }
 
-            string m_Context = "";
-            m_Context += "갱신대상 : " + user.Mention + "``(" + user.Id.ToString() + ")``" + Environment.NewLine + Environment.NewLine;
-            m_Context += "갱신캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine;
-            m_Context += "위 정보로 거래소 인증이 완료되었습니다.";
+            string m_Context = "갱신대상 : " + user.Mention + "``(" + user.Id.ToString() + ")``" + Environment.NewLine + Environment.NewLine
+                                 + "갱신캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine
+                                 + "위 정보로 거래소 인증이 완료되었습니다.";
 
             var ComPeleteEmbed = new EmbedBuilder()
                 .WithAuthor("✅ 갱신완료")
@@ -459,7 +469,3 @@ namespace LupeonBot.Module
         }
     }
 }
-
-
-
-
