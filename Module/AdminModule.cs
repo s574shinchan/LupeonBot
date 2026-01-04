@@ -13,7 +13,7 @@ namespace LupeonBot.Module
     {
         private const ulong BanLogChannelId = 598534025380102169;
 
-        [SlashCommand("추방", "추방대상과 사유를 입력하여 추방합니다.")]
+        [SlashCommand("추방", "추방대상과 사유를 입력하여 추방합니다.  (관리자전용)")]
         public async Task UserBanAsync(
             [Summary(description: "추방할 대상자")] string? 추방대상 = null, 
             [Summary(description: "추방 사유")] string? 추방사유 = null)
@@ -91,3 +91,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
