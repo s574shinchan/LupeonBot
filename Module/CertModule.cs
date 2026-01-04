@@ -1,4 +1,4 @@
-using Discord;
+﻿using Discord;
 using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -124,20 +124,30 @@ namespace LupeonBot.Module
                     }
 
                     // 2) DB 캐릭 배열
-                    var dbChars = (dbRow.Character ?? "")
-                        .Split('/', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(x => x.Trim())
-                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                    var dbChars = new HashSet<string>(
+                        dbRow.Character ?? Enumerable.Empty<string>(),
+                        StringComparer.OrdinalIgnoreCase);
+
+                    //var dbChars = (dbRow.Character ?? "")
+                    //    .Split('/', StringSplitOptions.RemoveEmptyEntries)
+                    //    .Select(x => x.Trim())
+                    //    .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
                     // 3) 신청자 캐릭이 DB에 모두 포함되어 있는지 확인
-                    foreach (var ch in dbChars)
+                    if (!dbChars.Contains(m_NickNm.Trim()))
                     {
-                        if (!m_NickNm.Contains(ch))
-                        {
-                            await ModifyOriginalResponseAsync(m => m.Content = $"❌ 디스코드 정보는 일치, 신청캐릭 `{m_NickNm}` 이(가) DB 캐릭 목록에 존재하지 않습니다.");
-                            return;
-                        }
+                        await ModifyOriginalResponseAsync(m => m.Content = $"❌ 디스코드 정보는 일치하지만, 신청 캐릭터 `{m_NickNm}` 이(가) DB 캐릭 목록에 존재하지 않습니다.");
+                        return;
                     }
+
+                    //foreach (var ch in dbChars)
+                    //{
+                    //    if (!m_NickNm.Contains(ch))
+                    //    {
+                    //        await ModifyOriginalResponseAsync(m => m.Content = $"❌ 디스코드 정보는 일치, 신청캐릭 `{m_NickNm}` 이(가) DB 캐릭 목록에 존재하지 않습니다.");
+                    //        return;
+                    //    }
+                    //}
 
                     // 5) 전부 통과 → 이미 가입
                     await ModifyOriginalResponseAsync(m => m.Content = "❗ 이미 가입된 정보입니다.");

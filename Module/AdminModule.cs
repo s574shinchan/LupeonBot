@@ -1,11 +1,13 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using LupeonBot.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static LupeonBot.Client.SupabaseClient;
 
 namespace LupeonBot.Module
 {
@@ -13,7 +15,7 @@ namespace LupeonBot.Module
     {
         private const ulong BanLogChannelId = 598534025380102169;
 
-        [SlashCommand("추방", "추방대상과 사유를 입력하여 추방합니다.  (관리자전용)")]
+        [SlashCommand("추방", "추방대상과 사유를 입력하여 추방합니다. (관리자전용)")]
         public async Task UserBanAsync(
             [Summary(description: "추방할 대상자")] string? 추방대상 = null, 
             [Summary(description: "추방 사유")] string? 추방사유 = null)
@@ -89,6 +91,73 @@ namespace LupeonBot.Module
                 await logCh.SendMessageAsync(embed: banEmbed.Build());
 
         }
+
+        [SlashCommand("인증내역조회", "인증된 정보를 조회합니다. (관리자전용)")]
+        public async Task GetCertUserInfoAsync([Summary(description: "디스코드 ID 또는 캐릭터명")] string? 조회대상 = null)
+        {
+            if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
+            {
+                await RespondAsync("관리자만 사용 가능합니다.", ephemeral: true);
+                return;
+            }
+
+            조회대상 = (조회대상 ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(조회대상))
+            {
+                await RespondAsync("조회할 **디스코드 ID** 또는 **캐릭터명**을 입력해주세요.", ephemeral: true);
+                return;
+            }
+
+            await DeferAsync(ephemeral: true);
+
+            CertInfoRow? row;
+
+            try
+            {
+                row = await FindCertInfoAsync(조회대상);
+            }
+            catch (Exception ex)
+            {
+                await FollowupAsync($"조회 중 오류가 발생했습니다.\n```{ex.Message}```", ephemeral: true);
+                return;
+            }
+
+            if (row == null)
+            {
+                await FollowupAsync($"조회 결과가 없습니다. (입력: `{조회대상}`)", ephemeral: true);
+                return;
+            }
+
+            // 출력용 문자열 구성
+            string userId = row.UserId ?? "(없음)";
+            string userNm = string.IsNullOrWhiteSpace(row.UserNm) ? "(없음)" : row.UserNm!;
+            string stoveId = string.IsNullOrWhiteSpace(row.StoveId) ? "(없음)" : row.StoveId!;
+            string chars = (row.Character?.Any() == true) ? string.Join("/", row.Character) : "(없음)";
+
+            string joinDt = $"{row.JoinDate ?? "-"} {row.JoinTime ?? ""}".Trim();
+            string certDt = $"{row.CertDate ?? "-"} {row.CertTime ?? ""}".Trim();
+
+            // 디스코드 멘션 가능한지 시도 (userid가 ulong이면)
+            string mention = userId;
+            if (ulong.TryParse(userId, out var uid))
+            {
+                mention = $"<@{uid}>";
+            }
+
+            var eb = new EmbedBuilder()
+                .WithColor(Color.Green)
+                .WithTitle("✅ 인증내역 조회 결과")
+                .AddField("입력항목 : ", $"`{조회대상}`", inline: true)
+                .AddField("Discord", $"{mention}", inline: true)
+                .AddField("UserId", $"`{userId}`", inline: true)
+                .AddField("사용자명", userNm, inline: true)
+                .AddField("가입일시", joinDt, inline: true)
+                .AddField("인증일시", certDt, inline: true)
+                .AddField("StoveId", stoveId, inline: true)
+                .AddField("캐릭터명", chars, inline: false)
+                .WithFooter("Develop by. 갱프");
+
+            await FollowupAsync(embed: eb.Build(), ephemeral: true);
+        }
     }
 }
-

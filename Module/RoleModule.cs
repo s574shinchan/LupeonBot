@@ -11,7 +11,7 @@ using static DiscordBot.Program;
 
 public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("역할신청", "직업역할 선택 슬롯 표시 (관리자전용)")]
+    [SlashCommand("역할신청", "직업역할 선택 슬롯 표시")]
     public async Task RoleSelectAsync()
     {
         if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -58,7 +58,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
         var m_리퍼 = GetEmote("emblem_reaper");
         var m_소울이터 = GetEmote("emblem_souleater");
         var m_도화가 = GetEmote("emblem_artist");
-        var m_기상술사 = GetEmote("emblem_aeromancer");
+        var m_기상술사 = GetEmote("emblem_weather_artist");
         var m_환수사 = GetEmote("emblem_alchemist");
         var m_가디언나이트 = GetEmote("emblem_dragon_knight");
 
@@ -109,7 +109,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
         await RespondAsync("표시완료", ephemeral: true);
     }
 
-    //[SlashCommand("역할신청", "직업역할 선택 버튼 표시 (관리자전용)")]
+    //[SlashCommand("역할신청", "직업역할 선택 버튼 표시")]
     //public async Task RoleButtonAsync()
     //{
     //    if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -149,7 +149,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
     //    var m_리퍼 = GetEmote("emblem_reaper");
     //    var m_소울이터 = GetEmote("emblem_souleater");
     //    var m_도화가 = GetEmote("emblem_artist");
-    //    var m_기상술사 = GetEmote("emblem_aeromancer");
+    //    var m_기상술사 = GetEmote("emblem_weather_artist");
     //    var m_환수사 = GetEmote("emblem_alchemist");
     //    var m_가디언나이트 = GetEmote("emblem_dragon_knight");
     //    #endregion 직업이모지
@@ -572,10 +572,4 @@ public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionCon
         // 여기선 안전하게 끝의 ", " 와 줄바꿈을 제거
         return s.TrimEnd('\r', '\n', ' ', ',');
     }
-
 }
-
-
-
-
-

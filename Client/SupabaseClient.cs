@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -32,12 +32,21 @@ namespace LupeonBot.Client
 
         private static HttpClient Client => _client ?? throw new Exception("SupabaseClient.Init()가 호출되지 않았습니다.");
 
+        public sealed class SignUpInfoRow
+        {
+            public string? UserId { get; set; }
+            public string? StoveId { get; set; }
+            public string? UserNm { get; set; }
+            public string Character { get; set; }
+            public string? JoinDate { get; set; }
+            public string? JoinTime { get; set; }
+        }
         public sealed class CertInfoRow
         {
             public string? UserId { get; set; }
             public string? StoveId { get; set; }
             public string? UserNm { get; set; }
-            public string? Character { get; set; }
+            public List<string> Character { get; set; }
             public string? JoinDate { get; set; }
             public string? JoinTime { get; set; }
             public string? CertDate { get; set; }
@@ -58,7 +67,7 @@ namespace LupeonBot.Client
         /// <param name="userId"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static async Task<CertInfoRow?> GetSingUpByUserIdAsync(string userId)
+        public static async Task<SignUpInfoRow?> GetSingUpByUserIdAsync(string userId)
         {
             var res = await Client.GetAsync($"rest/v1/signup?userid=eq.{Uri.EscapeDataString(userId)}&limit=1");
 
@@ -67,7 +76,7 @@ namespace LupeonBot.Client
             if (!res.IsSuccessStatusCode)
                 throw new Exception($"Supabase SELECT 실패\n{body}");
 
-            var list = JsonSerializer.Deserialize<List<CertInfoRow>>(body,
+            var list = JsonSerializer.Deserialize<List<SignUpInfoRow>>(body,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             return (list != null && list.Count > 0) ? list[0] : null;
@@ -181,17 +190,17 @@ namespace LupeonBot.Client
             // ✅ 컬럼명은 테이블 그대로 (UserId, UserUrl, ...)
             var payload = new[]
             {
-                new {
-                    userid = userId,
-                    stoveid = stoveId,
-                    usernm = userNm,
-                    character = characters,
-                    joindate = joinDate,
-                    jointime = joinTime,
-                    certdate = certDate,
-                    certtime = certTime
-                }
-            };
+            new {
+                userid = userId,
+                stoveid = stoveId,
+                usernm = userNm,
+                character = characters,
+                joindate = joinDate,
+                jointime = joinTime,
+                certdate = certDate,
+                certtime = certTime
+            }
+        };
 
             var json = JsonSerializer.Serialize(payload);
 
@@ -260,5 +269,44 @@ namespace LupeonBot.Client
 
             return true;
         }
+
+        /// <summary>
+        /// 디스코드id 또는 캐릭터명으로 인증내역검색
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static async Task<CertInfoRow?> FindCertInfoAsync(string input)
+        {
+            input = (input ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(input)) return null;
+
+            HttpResponseMessage res;
+
+            // 1) 디스코드ID면 userid로
+            if (ulong.TryParse(input, out _))
+            {
+                res = await Client.GetAsync($"rest/v1/certinfo?userid=eq.{Uri.EscapeDataString(input)}&limit=1");
+            }
+            else
+            {
+                // 2) 캐릭터명이면 배열 contains로
+                // cs.{...}는 {}가 특수라서 URL 인코딩 권장
+                var name = input; // 표시용
+                var encoded = Uri.EscapeDataString($"{{{name}}}");
+
+                res = await Client.GetAsync($"rest/v1/certinfo?character=cs.{encoded}&limit=1");
+            }
+
+            var body = await res.Content.ReadAsStringAsync();
+            if (!res.IsSuccessStatusCode)
+                throw new Exception($"조회 실패\n{body}");
+
+            var list = JsonSerializer.Deserialize<List<CertInfoRow>>(body,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return list?.FirstOrDefault();
+        }
+
     }
 }

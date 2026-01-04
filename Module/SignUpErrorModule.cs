@@ -12,7 +12,7 @@ namespace LupeonBot.Module
 {
     public class SignUpErrorModule : InteractionModuleBase<SocketInteractionContext>
     {
-        [SlashCommand("가입문의", "가입안되요 채널에 문의버튼생성 (관리자전용)")]
+        [SlashCommand("가입문의", "가입안되요 채널에 문의버튼생성")]
         public async Task SignUpErrorNoticeAsync()
         {
             if (Context.User is not SocketGuildUser user || !user.GuildPermissions.Administrator)
@@ -109,7 +109,11 @@ namespace LupeonBot.Module
             await created.AddPermissionOverwriteAsync(nosignup, new OverwritePermissions(0, 68608));
 
             // 6) 채널에 메시지 전송
-            await created.SendMessageAsync(text: $"문의자 : {gu.Mention}", embed: embed,components: components);
+            await created.SendMessageAsync(
+                text: $"`문의자 : {gu.Mention}",
+                embed: embed,
+                components: components
+            );
 
             await FollowupAsync($"가입문의 채널을 생성했어요: {created.Mention}", ephemeral: true);
         }
@@ -130,7 +134,3 @@ namespace LupeonBot.Module
 
     }
 }
-
-
-
-
