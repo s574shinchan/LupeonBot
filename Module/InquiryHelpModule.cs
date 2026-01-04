@@ -354,7 +354,7 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 갱신실패, 문의하기 통해서 관리자에게 알려주세요.");
                     return;
                 }
 
@@ -397,7 +397,7 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 갱신실패, 문의하기 통해서 관리자에게 알려주세요.");
                     return;
                 }
             }
@@ -472,5 +472,6 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
