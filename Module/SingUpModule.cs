@@ -145,7 +145,8 @@ namespace LupeonBot.Module
                         break;
                     }
                 }
-
+                await user.AddRoleAsync(1457383863943954512);   // 루페온
+                await user.RemoveRoleAsync(902213602889568316); // 미인증
                 await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 가입처리 되었습니다.");
 
                 //#region 유저정보
@@ -191,4 +192,5 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
