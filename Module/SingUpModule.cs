@@ -13,7 +13,7 @@ namespace LupeonBot.Module
 {
     public class SingUpModule : InteractionModuleBase<SocketInteractionContext>
     {
-        [SlashCommand("가입공지", "서버가입버튼 표시")]
+        [SlashCommand("가입공지", "서버가입버튼 표시 (관리자 전용)")]
         public async Task SignUpNoticeAsync()
         {
             if (Context.User is not SocketGuildUser user || !user.GuildPermissions.Administrator)
@@ -190,4 +190,5 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
