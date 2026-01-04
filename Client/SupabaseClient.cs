@@ -37,7 +37,7 @@ namespace LupeonBot.Client
             public string? UserId { get; set; }
             public string? StoveId { get; set; }
             public string? UserNm { get; set; }
-            public string Character { get; set; }
+            public List<string> Character { get; set; }
             public string? JoinDate { get; set; }
             public string? JoinTime { get; set; }
         }
@@ -122,7 +122,7 @@ namespace LupeonBot.Client
         /// <param name="joinDate"></param>
         /// <param name="joinTime"></param>
         /// <returns></returns>
-        public static async Task<(bool ok, string body)> UpsertSingUpAsync(string userId, string stoveId, string userNm, string characters, string joinDate, string joinTime)
+        public static async Task<(bool ok, string body)> UpsertSingUpAsync(string userId, string stoveId, string userNm, List<string> characters, string joinDate, string joinTime)
         {
             // ✅ 컬럼명은 테이블 그대로 (UserId, UserUrl, ...)
             var payload = new[]
@@ -310,3 +310,4 @@ namespace LupeonBot.Client
 
     }
 }
+
