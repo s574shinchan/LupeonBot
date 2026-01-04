@@ -207,7 +207,7 @@ namespace LupeonBot.Module
                     .AddField("지급 성공", added, true)
                     .AddField("스킵", skipped, true)
                     .AddField("실패", failed, true)
-                    .WithFooter($"시간: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                    .WithFooter($"시간: {NowKst()}");
             }
 
             var msg = await Context.Channel.SendMessageAsync(embed: BuildProgressEmbed("시작합니다...", Color.Orange).Build());
@@ -277,6 +277,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
