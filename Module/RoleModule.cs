@@ -11,106 +11,8 @@ using static DiscordBot.Program;
 
 public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionContext>
 {
-    //[SlashCommand("역할신청", "직업역할 선택 슬롯 표시")]
-    //public async Task RoleSelectAsync()
-    //{
-    //    if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
-    //    {
-    //        await RespondAsync("❌ 관리자만 사용할 수 있습니다.", ephemeral: true);
-    //        return;
-    //    }
-
-    //    ITextChannel textChannel = admin.Guild.GetTextChannel(1000806935634919454);
-
-    //    var embed = new EmbedBuilder()
-    //        .WithTitle("🎮 직업 역할 선택")
-    //        .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
-    //                         $"\n\n역할이 받아졌는지 확인 하는 방법" +
-    //                         $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
-    //        .WithColor(Color.Green)
-    //        .WithFooter("Develop by. 갱프");
-
-    //    Emote? GetEmote(string name) => EmoteCache.Emotes.TryGetValue(name, out var e) ? e : null;
-
-    //    var m_워로드 = GetEmote("emblem_warlord");
-    //    var m_버서커 = GetEmote("emblem_berserker");
-    //    var m_디스트로이어 = GetEmote("emblem_destroyer");
-    //    var m_홀리나이트 = GetEmote("emblem_holyknight");
-    //    var m_슬레이어 = GetEmote("emblem_slayer");
-    //    var m_발키리 = GetEmote("emblem_holyknight_female");
-    //    var m_배틀마스터 = GetEmote("emblem_battlemaster");
-    //    var m_인파이터 = GetEmote("emblem_infighter");
-    //    var m_기공사 = GetEmote("emblem_soulmaster");
-    //    var m_창술사 = GetEmote("emblem_lancemaster");
-    //    var m_스트라이커 = GetEmote("emblem_striker");
-    //    var m_브레이커 = GetEmote("emblem_infighter_male");
-    //    var m_데빌헌터 = GetEmote("emblem_devilhunter");
-    //    var m_블래스터 = GetEmote("emblem_blaster");
-    //    var m_호크아이 = GetEmote("emblem_hawkeye");
-    //    var m_건슬링어 = GetEmote("emblem_gunslinger");
-    //    var m_스카우터 = GetEmote("emblem_scouter");
-    //    var m_아르카나 = GetEmote("emblem_arcana");
-    //    var m_서머너 = GetEmote("emblem_summoner");
-    //    var m_바드 = GetEmote("emblem_bard");
-    //    var m_소서리스 = GetEmote("emblem_sorceress");
-    //    var m_블레이드 = GetEmote("emblem_blade");
-    //    var m_데모닉 = GetEmote("emblem_demonic");
-    //    var m_리퍼 = GetEmote("emblem_reaper");
-    //    var m_소울이터 = GetEmote("emblem_souleater");
-    //    var m_도화가 = GetEmote("emblem_artist");
-    //    var m_기상술사 = GetEmote("emblem_weather_artist");
-    //    var m_환수사 = GetEmote("emblem_alchemist");
-    //    var m_가디언나이트 = GetEmote("emblem_dragon_knight");
-
-    //    var selectMenu = new SelectMenuBuilder()
-    //        .AddOption(emote: m_버서커, label: "버서커", value: "버서커")
-    //        .AddOption(emote: m_디스트로이어, label: "디스트로이어", value: "디스트로이어")
-    //        .AddOption(emote: m_워로드, label: "워로드", value: "워로드")
-    //        .AddOption(emote: m_홀리나이트, label: "홀리나이트", value: "홀리나이트")
-    //        .AddOption(emote: m_슬레이어, label: "슬레이어", value: "슬레이어")
-    //        .AddOption(emote: m_발키리, label: "발키리", value: "발키리")
-    //        .AddOption(emote: m_아르카나, label: "아르카나", value: "아르카나")
-    //        .AddOption(emote: m_서머너, label: "서머너", value: "서머너")
-    //        .AddOption(emote: m_바드, label: "바드", value: "바드")
-    //        .AddOption(emote: m_소서리스, label: "소서리스", value: "소서리스")
-    //        .AddOption(emote: m_배틀마스터, label: "배틀마스터", value: "배틀마스터")
-    //        .AddOption(emote: m_인파이터, label: "인파이터", value: "인파이터")
-    //        .AddOption(emote: m_기공사, label: "기공사", value: "기공사")
-    //        .AddOption(emote: m_창술사, label: "창술사", value: "창술사")
-    //        .AddOption(emote: m_스트라이커, label: "스트라이커", value: "스트라이커")
-    //        .AddOption(emote: m_브레이커, label: "브레이커", value: "브레이커")
-    //        .WithCustomId("SelectRow1")
-    //        .WithMinValues(1)
-    //        .WithPlaceholder("원하는 직업을 선택하여 역할을 받을 수 있습니다.");
-
-    //    var selectMenu2 = new SelectMenuBuilder()
-    //        .AddOption(emote: m_블레이드, label: "블레이드", value: "블레이드")
-    //        .AddOption(emote: m_데모닉, label: "데모닉", value: "데모닉")
-    //        .AddOption(emote: m_리퍼, label: "리퍼", value: "리퍼")
-    //        .AddOption(emote: m_소울이터, label: "소울이터", value: "소울이터")
-    //        .AddOption(emote: m_호크아이, label: "호크아이", value: "호크아이")
-    //        .AddOption(emote: m_데빌헌터, label: "데빌헌터", value: "데빌헌터")
-    //        .AddOption(emote: m_블래스터, label: "블래스터", value: "블래스터")
-    //        .AddOption(emote: m_스카우터, label: "스카우터", value: "스카우터")
-    //        .AddOption(emote: m_건슬링어, label: "건슬링어", value: "건슬링어")
-    //        .AddOption(emote: m_도화가, label: "도화가", value: "도화가")
-    //        .AddOption(emote: m_기상술사, label: "기상술사", value: "기상술사")
-    //        .AddOption(emote: m_환수사, label: "환수사", value: "환수사")
-    //        .AddOption(emote: m_가디언나이트, label: "가디언나이트", value: "가디언나이트")
-    //        .WithCustomId("SelectRow2")
-    //        .WithMinValues(1)
-    //        .WithPlaceholder("원하는 직업을 선택하여 역할을 받을 수 있습니다.");
-
-    //    var components = new ComponentBuilder()
-    //        .WithSelectMenu(selectMenu)
-    //        .WithSelectMenu(selectMenu2);
-
-    //    await Context.Channel.SendMessageAsync(embed: embed.Build(), components: components.Build());
-    //    await RespondAsync("표시완료", ephemeral: true);
-    //}
-
-    [SlashCommand("역할신청", "직업역할 선택 버튼 표시 (관리자전용)")]
-    public async Task RoleButtonAsync()
+        [SlashCommand("역할신청", "직업역할 선택 슬롯 표시")]
+    public async Task RoleSelectAsync()
     {
         if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
         {
@@ -120,7 +22,14 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
 
         ITextChannel textChannel = admin.Guild.GetTextChannel(1000806935634919454);
 
-        #region 직업이모지
+        var embed = new EmbedBuilder()
+            .WithTitle("🎮 직업 역할 선택")
+            .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
+                             $"\n\n역할이 받아졌는지 확인 하는 방법" +
+                             $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
+            .WithColor(Color.Green)
+            .WithFooter("Develop by. 갱프");
+
         Emote? GetEmote(string name) => EmoteCache.Emotes.TryGetValue(name, out var e) ? e : null;
 
         var m_워로드 = GetEmote("emblem_warlord");
@@ -152,105 +61,196 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
         var m_기상술사 = GetEmote("emblem_weather_artist");
         var m_환수사 = GetEmote("emblem_alchemist");
         var m_가디언나이트 = GetEmote("emblem_dragon_knight");
-        #endregion 직업이모지
 
-        SocketRole? GetRoles(string name) => RoleCache.SocketRoles.TryGetValue(name, out var e) ? e : null;
+        var selectMenu = new SelectMenuBuilder()
+            .AddOption(emote: m_버서커, label: "버서커", value: "버서커")
+            .AddOption(emote: m_디스트로이어, label: "디스트로이어", value: "디스트로이어")
+            .AddOption(emote: m_워로드, label: "워로드", value: "워로드")
+            .AddOption(emote: m_홀리나이트, label: "홀리나이트", value: "홀리나이트")
+            .AddOption(emote: m_슬레이어, label: "슬레이어", value: "슬레이어")
+            .AddOption(emote: m_발키리, label: "발키리", value: "발키리")
+            .AddOption(emote: m_아르카나, label: "아르카나", value: "아르카나")
+            .AddOption(emote: m_서머너, label: "서머너", value: "서머너")
+            .AddOption(emote: m_바드, label: "바드", value: "바드")
+            .AddOption(emote: m_소서리스, label: "소서리스", value: "소서리스")
+            .AddOption(emote: m_배틀마스터, label: "배틀마스터", value: "배틀마스터")
+            .AddOption(emote: m_인파이터, label: "인파이터", value: "인파이터")
+            .AddOption(emote: m_기공사, label: "기공사", value: "기공사")
+            .AddOption(emote: m_창술사, label: "창술사", value: "창술사")
+            .AddOption(emote: m_스트라이커, label: "스트라이커", value: "스트라이커")
+            .AddOption(emote: m_브레이커, label: "브레이커", value: "브레이커")
+            .WithCustomId("SelectRow1")
+            .WithMinValues(1)
+            .WithPlaceholder("원하는 직업을 선택하여 역할을 받을 수 있습니다.");
 
-        #region 슈샤이어 | 로헨델
-        var Embed1 = new EmbedBuilder()
-            .WithTitle("🎮 직업 역할 선택 • 슈샤이어 | 로헨델")
-            .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
-                             $"\n\n역할이 받아졌는지 확인 하는 방법" +
-                             $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
-            .WithColor(Color.Green)
-            .WithFooter("Develop by. 갱프")
-            .Build();
+        var selectMenu2 = new SelectMenuBuilder()
+            .AddOption(emote: m_블레이드, label: "블레이드", value: "블레이드")
+            .AddOption(emote: m_데모닉, label: "데모닉", value: "데모닉")
+            .AddOption(emote: m_리퍼, label: "리퍼", value: "리퍼")
+            .AddOption(emote: m_소울이터, label: "소울이터", value: "소울이터")
+            .AddOption(emote: m_호크아이, label: "호크아이", value: "호크아이")
+            .AddOption(emote: m_데빌헌터, label: "데빌헌터", value: "데빌헌터")
+            .AddOption(emote: m_블래스터, label: "블래스터", value: "블래스터")
+            .AddOption(emote: m_스카우터, label: "스카우터", value: "스카우터")
+            .AddOption(emote: m_건슬링어, label: "건슬링어", value: "건슬링어")
+            .AddOption(emote: m_도화가, label: "도화가", value: "도화가")
+            .AddOption(emote: m_기상술사, label: "기상술사", value: "기상술사")
+            .AddOption(emote: m_환수사, label: "환수사", value: "환수사")
+            .AddOption(emote: m_가디언나이트, label: "가디언나이트", value: "가디언나이트")
+            .WithCustomId("SelectRow2")
+            .WithMinValues(1)
+            .WithPlaceholder("원하는 직업을 선택하여 역할을 받을 수 있습니다.");
 
-        var Component1 = new ComponentBuilder()
-            .WithButton(label: "버서커", customId: $"role:{GetRoles("버서커").Id}", style: ButtonStyle.Secondary, emote: m_버서커)
-            .WithButton(label: "워로드", customId: $"role:{GetRoles("워로드").Id}", style: ButtonStyle.Secondary, emote: m_워로드)
-            .WithButton(label: "디스트로이어", customId: $"role:{GetRoles("디스트로이어").Id}", style: ButtonStyle.Secondary, emote: m_디스트로이어)
-            .WithButton(label: "홀리나이트", customId: $"role:{GetRoles("홀리나이트").Id}", style: ButtonStyle.Secondary, emote: m_홀리나이트)
-            .WithButton(label: "슬레이어", customId: $"role:{GetRoles("슬레이어").Id}", style: ButtonStyle.Secondary, emote: m_슬레이어)
-            .WithButton(label: "발키리", customId: $"role:{GetRoles("발키리").Id}", style: ButtonStyle.Secondary, emote: m_발키리)
-            .WithButton(label: "아르카나", customId: $"role:{GetRoles("아르카나").Id}", style: ButtonStyle.Secondary, emote: m_아르카나)
-            .WithButton(label: "서머너", customId: $"role:{GetRoles("서머너").Id}", style: ButtonStyle.Secondary, emote: m_서머너)
-            .WithButton(label: "바드", customId: $"role:{GetRoles("바드").Id}", style: ButtonStyle.Secondary, emote: m_바드)
-            .WithButton(label: "소서리스", customId: $"role:{GetRoles("소서리스").Id}", style: ButtonStyle.Secondary, emote: m_소서리스)
-            .Build();
+        var components = new ComponentBuilder()
+            .WithSelectMenu(selectMenu)
+            .WithSelectMenu(selectMenu2);
 
-        await Context.Channel.SendMessageAsync(embed: Embed1, components: Component1);
-        #endregion 슈샤이어 | 로헨델
-
-        #region 애니츠 | 페이튼
-        var Embed2 = new EmbedBuilder()
-            .WithTitle("🎮 직업 역할 선택 • 애니츠 | 페이튼")
-            .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
-                             $"\n\n역할이 받아졌는지 확인 하는 방법" +
-                             $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
-            .WithColor(Color.Green)
-            .WithFooter("Develop by. 갱프")
-            .Build();
-
-        var Component2 = new ComponentBuilder()
-            .WithButton(label: "배틀마스터", customId: $"role:{GetRoles("배틀마스터").Id}", style: ButtonStyle.Secondary, emote: m_배틀마스터)
-            .WithButton(label: "인파이터", customId: $"role:{GetRoles("인파이터").Id}", style: ButtonStyle.Secondary, emote: m_인파이터)
-            .WithButton(label: "기공사", customId: $"role:{GetRoles("기공사").Id}", style: ButtonStyle.Secondary, emote: m_기공사)
-            .WithButton(label: "창술사", customId: $"role:{GetRoles("창술사").Id}", style: ButtonStyle.Secondary, emote: m_창술사)
-            .WithButton(label: "스트라이커", customId: $"role:{GetRoles("스트라이커").Id}", style: ButtonStyle.Secondary, emote: m_스트라이커)
-            .WithButton(label: "브레이커", customId: $"role:{GetRoles("브레이커").Id}", style: ButtonStyle.Secondary, emote: m_브레이커)
-            .WithButton(label: "블레이드", customId: $"role:{GetRoles("블레이드").Id}", style: ButtonStyle.Secondary, emote: m_블레이드)
-            .WithButton(label: "데모닉", customId: $"role:{GetRoles("데모닉").Id}", style: ButtonStyle.Secondary, emote: m_데모닉)
-            .WithButton(label: "리퍼", customId: $"role:{GetRoles("리퍼").Id}", style: ButtonStyle.Secondary, emote: m_리퍼)
-            .WithButton(label: "소울이터", customId: $"role:{GetRoles("소울이터").Id}", style: ButtonStyle.Secondary, emote: m_소울이터)
-            .Build();
-
-        await Context.Channel.SendMessageAsync(embed: Embed2, components: Component2);
-        #endregion 애니츠 | 페이튼
-
-        #region 아르데타인 | 스페셜리스트
-        var Embed3 = new EmbedBuilder()
-            .WithTitle("🎮 직업 역할 선택 • 아르데타인 | 스페셜리스트")
-            .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
-                             $"\n\n역할이 받아졌는지 확인 하는 방법" +
-                             $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
-            .WithColor(Color.Green)
-            .WithFooter("Develop by. 갱프")
-            .Build();
-
-        var Component3 = new ComponentBuilder()
-            .WithButton(label: "호크아이", customId: $"role:{GetRoles("호크아이").Id}", style: ButtonStyle.Secondary, emote: m_호크아이)
-            .WithButton(label: "데빌헌터", customId: $"role:{GetRoles("데빌헌터").Id}", style: ButtonStyle.Secondary, emote: m_데빌헌터)
-            .WithButton(label: "블래스터", customId: $"role:{GetRoles("블래스터").Id}", style: ButtonStyle.Secondary, emote: m_블래스터)
-            .WithButton(label: "스카우터", customId: $"role:{GetRoles("스카우터").Id}", style: ButtonStyle.Secondary, emote: m_스카우터)
-            .WithButton(label: "건슬링어", customId: $"role:{GetRoles("건슬링어").Id}", style: ButtonStyle.Secondary, emote: m_건슬링어)
-            .WithButton(label: "도화가", customId: $"role:{GetRoles("도화가").Id}", style: ButtonStyle.Secondary, emote: m_도화가)
-            .WithButton(label: "기상술사", customId: $"role:{GetRoles("기상술사").Id}", style: ButtonStyle.Secondary, emote: m_기상술사)
-            .WithButton(label: "환수사", customId: $"role:{GetRoles("환수사").Id}", style: ButtonStyle.Secondary, emote: m_환수사)
-            .Build();
-
-        await Context.Channel.SendMessageAsync(embed: Embed3, components: Component3);
-        #endregion 아르데타인 | 스페셜리스트
-
-        #region 가디언나이트
-        var GK = new EmbedBuilder()
-            .WithTitle("🎮 직업 역할 선택 • 가디언나이트")
-            .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
-                             $"\n\n역할이 받아졌는지 확인 하는 방법" +
-                             $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
-            .WithColor(Color.Green)
-            .WithFooter("Develop by. 갱프")
-            .Build();
-
-        var Cp_GK = new ComponentBuilder()
-            .WithButton(label: "가디언나이트", customId: $"role:{GetRoles("가디언나이트").Id}", style: ButtonStyle.Secondary, emote: m_가디언나이트)
-            .Build();
-
-        await Context.Channel.SendMessageAsync(embed: GK, components: Cp_GK);
-        #endregion 가디언나이트
-
+        await Context.Channel.SendMessageAsync(embed: embed.Build(), components: components.Build());
         await RespondAsync("표시완료", ephemeral: true);
     }
+
+    //[SlashCommand("역할신청", "직업역할 선택 버튼 표시")]
+    //public async Task RoleButtonAsync()
+    //{
+    //    if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
+    //    {
+    //        await RespondAsync("❌ 관리자만 사용할 수 있습니다.", ephemeral: true);
+    //        return;
+    //    }
+
+    //    ITextChannel textChannel = admin.Guild.GetTextChannel(1000806935634919454);
+
+    //    #region 직업이모지
+    //    Emote? GetEmote(string name) => EmoteCache.Emotes.TryGetValue(name, out var e) ? e : null;
+
+    //    var m_워로드 = GetEmote("emblem_warlord");
+    //    var m_버서커 = GetEmote("emblem_berserker");
+    //    var m_디스트로이어 = GetEmote("emblem_destroyer");
+    //    var m_홀리나이트 = GetEmote("emblem_holyknight");
+    //    var m_슬레이어 = GetEmote("emblem_slayer");
+    //    var m_발키리 = GetEmote("emblem_holyknight_female");
+    //    var m_배틀마스터 = GetEmote("emblem_battlemaster");
+    //    var m_인파이터 = GetEmote("emblem_infighter");
+    //    var m_기공사 = GetEmote("emblem_soulmaster");
+    //    var m_창술사 = GetEmote("emblem_lancemaster");
+    //    var m_스트라이커 = GetEmote("emblem_striker");
+    //    var m_브레이커 = GetEmote("emblem_infighter_male");
+    //    var m_데빌헌터 = GetEmote("emblem_devilhunter");
+    //    var m_블래스터 = GetEmote("emblem_blaster");
+    //    var m_호크아이 = GetEmote("emblem_hawkeye");
+    //    var m_건슬링어 = GetEmote("emblem_gunslinger");
+    //    var m_스카우터 = GetEmote("emblem_scouter");
+    //    var m_아르카나 = GetEmote("emblem_arcana");
+    //    var m_서머너 = GetEmote("emblem_summoner");
+    //    var m_바드 = GetEmote("emblem_bard");
+    //    var m_소서리스 = GetEmote("emblem_sorceress");
+    //    var m_블레이드 = GetEmote("emblem_blade");
+    //    var m_데모닉 = GetEmote("emblem_demonic");
+    //    var m_리퍼 = GetEmote("emblem_reaper");
+    //    var m_소울이터 = GetEmote("emblem_souleater");
+    //    var m_도화가 = GetEmote("emblem_artist");
+    //    var m_기상술사 = GetEmote("emblem_weather_artist");
+    //    var m_환수사 = GetEmote("emblem_alchemist");
+    //    var m_가디언나이트 = GetEmote("emblem_dragon_knight");
+    //    #endregion 직업이모지
+
+    //    SocketRole? GetRoles(string name) => RoleCache.SocketRoles.TryGetValue(name, out var e) ? e : null;
+
+    //    #region 슈샤이어 | 로헨델
+    //    var Embed1 = new EmbedBuilder()
+    //        .WithTitle("🎮 직업 역할 선택 • 슈샤이어 | 로헨델")
+    //        .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
+    //                         $"\n\n역할이 받아졌는지 확인 하는 방법" +
+    //                         $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
+    //        .WithColor(Color.Green)
+    //        .WithFooter("Develop by. 갱프")
+    //        .Build();
+
+    //    var Component1 = new ComponentBuilder()
+    //        .WithButton(label: "버서커", customId: $"role:{GetRoles("버서커").Id}", style: ButtonStyle.Secondary, emote: m_버서커)
+    //        .WithButton(label: "워로드", customId: $"role:{GetRoles("워로드").Id}", style: ButtonStyle.Secondary, emote: m_워로드)
+    //        .WithButton(label: "디스트로이어", customId: $"role:{GetRoles("디스트로이어").Id}", style: ButtonStyle.Secondary, emote: m_디스트로이어)
+    //        .WithButton(label: "홀리나이트", customId: $"role:{GetRoles("홀리나이트").Id}", style: ButtonStyle.Secondary, emote: m_홀리나이트)
+    //        .WithButton(label: "슬레이어", customId: $"role:{GetRoles("슬레이어").Id}", style: ButtonStyle.Secondary, emote: m_슬레이어)
+    //        .WithButton(label: "발키리", customId: $"role:{GetRoles("발키리").Id}", style: ButtonStyle.Secondary, emote: m_발키리)
+    //        .WithButton(label: "아르카나", customId: $"role:{GetRoles("아르카나").Id}", style: ButtonStyle.Secondary, emote: m_아르카나)
+    //        .WithButton(label: "서머너", customId: $"role:{GetRoles("서머너").Id}", style: ButtonStyle.Secondary, emote: m_서머너)
+    //        .WithButton(label: "바드", customId: $"role:{GetRoles("바드").Id}", style: ButtonStyle.Secondary, emote: m_바드)
+    //        .WithButton(label: "소서리스", customId: $"role:{GetRoles("소서리스").Id}", style: ButtonStyle.Secondary, emote: m_소서리스)
+    //        .Build();
+
+    //    await Context.Channel.SendMessageAsync(embed: Embed1, components: Component1);
+    //    #endregion 슈샤이어 | 로헨델
+
+    //    #region 애니츠 | 페이튼
+    //    var Embed2 = new EmbedBuilder()
+    //        .WithTitle("🎮 직업 역할 선택 • 애니츠 | 페이튼")
+    //        .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
+    //                         $"\n\n역할이 받아졌는지 확인 하는 방법" +
+    //                         $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
+    //        .WithColor(Color.Green)
+    //        .WithFooter("Develop by. 갱프")
+    //        .Build();
+
+    //    var Component2 = new ComponentBuilder()
+    //        .WithButton(label: "배틀마스터", customId: $"role:{GetRoles("배틀마스터").Id}", style: ButtonStyle.Secondary, emote: m_배틀마스터)
+    //        .WithButton(label: "인파이터", customId: $"role:{GetRoles("인파이터").Id}", style: ButtonStyle.Secondary, emote: m_인파이터)
+    //        .WithButton(label: "기공사", customId: $"role:{GetRoles("기공사").Id}", style: ButtonStyle.Secondary, emote: m_기공사)
+    //        .WithButton(label: "창술사", customId: $"role:{GetRoles("창술사").Id}", style: ButtonStyle.Secondary, emote: m_창술사)
+    //        .WithButton(label: "스트라이커", customId: $"role:{GetRoles("스트라이커").Id}", style: ButtonStyle.Secondary, emote: m_스트라이커)
+    //        .WithButton(label: "브레이커", customId: $"role:{GetRoles("브레이커").Id}", style: ButtonStyle.Secondary, emote: m_브레이커)
+    //        .WithButton(label: "블레이드", customId: $"role:{GetRoles("블레이드").Id}", style: ButtonStyle.Secondary, emote: m_블레이드)
+    //        .WithButton(label: "데모닉", customId: $"role:{GetRoles("데모닉").Id}", style: ButtonStyle.Secondary, emote: m_데모닉)
+    //        .WithButton(label: "리퍼", customId: $"role:{GetRoles("리퍼").Id}", style: ButtonStyle.Secondary, emote: m_리퍼)
+    //        .WithButton(label: "소울이터", customId: $"role:{GetRoles("소울이터").Id}", style: ButtonStyle.Secondary, emote: m_소울이터)
+    //        .Build();
+
+    //    await Context.Channel.SendMessageAsync(embed: Embed2, components: Component2);
+    //    #endregion 애니츠 | 페이튼
+
+    //    #region 아르데타인 | 스페셜리스트
+    //    var Embed3 = new EmbedBuilder()
+    //        .WithTitle("🎮 직업 역할 선택 • 아르데타인 | 스페셜리스트")
+    //        .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
+    //                         $"\n\n역할이 받아졌는지 확인 하는 방법" +
+    //                         $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
+    //        .WithColor(Color.Green)
+    //        .WithFooter("Develop by. 갱프")
+    //        .Build();
+
+    //    var Component3 = new ComponentBuilder()
+    //        .WithButton(label: "호크아이", customId: $"role:{GetRoles("호크아이").Id}", style: ButtonStyle.Secondary, emote: m_호크아이)
+    //        .WithButton(label: "데빌헌터", customId: $"role:{GetRoles("데빌헌터").Id}", style: ButtonStyle.Secondary, emote: m_데빌헌터)
+    //        .WithButton(label: "블래스터", customId: $"role:{GetRoles("블래스터").Id}", style: ButtonStyle.Secondary, emote: m_블래스터)
+    //        .WithButton(label: "스카우터", customId: $"role:{GetRoles("스카우터").Id}", style: ButtonStyle.Secondary, emote: m_스카우터)
+    //        .WithButton(label: "건슬링어", customId: $"role:{GetRoles("건슬링어").Id}", style: ButtonStyle.Secondary, emote: m_건슬링어)
+    //        .WithButton(label: "도화가", customId: $"role:{GetRoles("도화가").Id}", style: ButtonStyle.Secondary, emote: m_도화가)
+    //        .WithButton(label: "기상술사", customId: $"role:{GetRoles("기상술사").Id}", style: ButtonStyle.Secondary, emote: m_기상술사)
+    //        .WithButton(label: "환수사", customId: $"role:{GetRoles("환수사").Id}", style: ButtonStyle.Secondary, emote: m_환수사)
+    //        .Build();
+
+    //    await Context.Channel.SendMessageAsync(embed: Embed3, components: Component3);
+    //    #endregion 아르데타인 | 스페셜리스트
+
+    //    #region 가디언나이트
+    //    var GK = new EmbedBuilder()
+    //        .WithTitle("🎮 직업 역할 선택 • 가디언나이트")
+    //        .WithDescription($"아래 선택상자에서 원하는 직업 역할을 선택하세요." +
+    //                         $"\n\n역할이 받아졌는지 확인 하는 방법" +
+    //                         $"\n{textChannel.Mention} 채널에서 역할확인 버튼을 눌러서 확인가능")
+    //        .WithColor(Color.Green)
+    //        .WithFooter("Develop by. 갱프")
+    //        .Build();
+
+    //    var Cp_GK = new ComponentBuilder()
+    //        .WithButton(label: "가디언나이트", customId: $"role:{GetRoles("가디언나이트").Id}", style: ButtonStyle.Secondary, emote: m_가디언나이트)
+    //        .Build();
+
+    //    await Context.Channel.SendMessageAsync(embed: GK, components: Cp_GK);
+    //    #endregion 가디언나이트
+
+    //    await RespondAsync("표시완료", ephemeral: true);
+    //}
 }
 
 public sealed class RoleComponentModule : InteractionModuleBase<SocketInteractionContext>
@@ -574,3 +574,4 @@ public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionCon
     }
 
 }
+
