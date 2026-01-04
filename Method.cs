@@ -30,6 +30,8 @@ namespace LupeonBot
         public static string m_캐릭터명 = string.Empty;
         public static string m_ImgLink = string.Empty;
 
+        public const string StoveProfileImagePath = "https://raw.githubusercontent.com/s574shinchan/LupeonBot/main/image/StoveProfile.png";
+        
         public static string GetSplitString(string source, char separator, int index)
         {
             if (string.IsNullOrEmpty(source)) return "";
@@ -263,3 +265,4 @@ namespace LupeonBot
         }
     }
 }
+
