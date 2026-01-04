@@ -30,10 +30,11 @@ namespace LupeonBot.Module
                 return;
             }
 
-            ComponentBuilder component = new ComponentBuilder()
+            var component = new ComponentBuilder()
                 .WithButton(label: "문의하기", customId: "Inquiry", style: ButtonStyle.Primary)
                 .WithButton(label: "신고하기", customId: "Help", style: ButtonStyle.Danger)
-                .WithButton(label: "인증갱신", customId: "CertUpdate", style: ButtonStyle.Success);
+                .WithButton(label: "인증갱신", customId: "CertUpdate", style: ButtonStyle.Success)
+                .Build();
 
             string m_body = string.Empty;
             string Emote = "<:pdiamond:907957436483248159>";
@@ -49,10 +50,12 @@ namespace LupeonBot.Module
                 .WithTitle("고객센터 • 루페온")
                 .WithColor(Discord.Color.Blue)
                 .WithDescription(m_body)
-                .WithFooter("Develop by. 갱프");
+                .WithImageUrl(Method.StoveProfileImagePath)
+                .WithFooter("Develop by. 갱프")
+                .Build();
 
             //await admin.Guild.GetTextChannel(884395336959918100).SendMessageAsync(embed: NewEx.Build(), components: component.Build());
-            await Context.Channel.SendMessageAsync(embed: NewEx.Build(), components: component.Build());
+            await Context.Channel.SendMessageAsync(embed: NewEx, components: component);
             await RespondAsync("정상적으로 공지표시완료", ephemeral: true);
         }
 
@@ -469,4 +472,5 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
