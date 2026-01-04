@@ -12,7 +12,7 @@ namespace LupeonBot.Module
 {
     public class SignUpErrorModule : InteractionModuleBase<SocketInteractionContext>
     {
-        //[SlashCommand("가입문의", "가입안되요 채널에 문의버튼생성")]
+        [SlashCommand("가입문의", "가입안되요 채널에 문의버튼생성")]
         public async Task SignUpErrorNoticeAsync()
         {
             if (Context.User is not SocketGuildUser user || !user.GuildPermissions.Administrator)
@@ -134,3 +134,4 @@ namespace LupeonBot.Module
 
     }
 }
+
