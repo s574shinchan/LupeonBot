@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -175,23 +175,23 @@ namespace LupeonBot.Client
         /// <param name="certDate"></param>
         /// <param name="certTime"></param>
         /// <returns></returns>
-        public static async Task<(bool ok, string body)> UpsertCertInfoAsync(string userId, string stoveId, string userNm, string characters,
+        public static async Task<(bool ok, string body)> UpsertCertInfoAsync(string userId, string stoveId, string userNm, List<string> characters,
                                                                              string joinDate, string joinTime, string certDate, string certTime)
         {
             // ✅ 컬럼명은 테이블 그대로 (UserId, UserUrl, ...)
             var payload = new[]
             {
-            new {
-                userid = userId,
-                stoveid = stoveId,
-                usernm = userNm,
-                character = characters,
-                joindate = joinDate,
-                jointime = joinTime,
-                certdate = certDate,
-                certtime = certTime
-            }
-        };
+                new {
+                    userid = userId,
+                    stoveid = stoveId,
+                    usernm = userNm,
+                    character = characters,
+                    joindate = joinDate,
+                    jointime = joinTime,
+                    certdate = certDate,
+                    certtime = certTime
+                }
+            };
 
             var json = JsonSerializer.Serialize(payload);
 
