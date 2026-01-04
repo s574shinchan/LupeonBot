@@ -171,8 +171,8 @@ namespace LupeonBot.Module
             
             await DeferAsync(ephemeral: true);
             
-            var excludeRole = 902213602889568316UL;
-            var targetRole  = 1457383863943954512UL;
+            var excludeRole = 902213602889568316;
+            var targetRole  = 1457383863943954512;
             
             // ✅ KST 타임존 (윈도우: Korea Standard Time / 리눅스: Asia/Seoul)
             TimeZoneInfo kst;
@@ -281,6 +281,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
