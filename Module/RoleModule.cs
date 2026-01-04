@@ -109,7 +109,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
     //    await RespondAsync("표시완료", ephemeral: true);
     //}
 
-    [SlashCommand("역할신청", "직업역할 선택 버튼 표시")]
+    [SlashCommand("역할신청", "직업역할 선택 버튼 표시 (관리자전용)")]
     public async Task RoleButtonAsync()
     {
         if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -572,4 +572,5 @@ public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionCon
         // 여기선 안전하게 끝의 ", " 와 줄바꿈을 제거
         return s.TrimEnd('\r', '\n', ' ', ',');
     }
+
 }
