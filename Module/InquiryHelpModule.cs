@@ -21,7 +21,7 @@ namespace LupeonBot.Module
         private string mStdLv = ""; // 파일에서 읽어온 값(이미 갖고 있는 방식대로 세팅)        
         private string Emote = "<:pdiamond:907957436483248159>";
 
-        [SlashCommand("신고공지", "문의및신고 공지를 표시합니다. (관리자전용)")]
+        [SlashCommand("신고공지", "문의, 신고, 인증갱신 공지를 표시합니다. (관리자전용)")]
         public async Task NoticeAsync()
         {
             if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -469,3 +469,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
