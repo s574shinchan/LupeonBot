@@ -252,7 +252,11 @@ namespace LupeonBot.Module
                 .Build();
 
             await msg.ModifyAsync(m => m.Embed = done);
-
+            
+            // ✅ 실패 유저 멘션을 특정 채널로 알림
+            const ulong notifyChannelId = 1292061651092246580UL;
+            var ch = Context.Guild.GetTextChannel(notifyChannelId);
+            
             if (ch != null && failedUsers.Count > 0)
             {
                 // 멘션 스팸 방지: 너무 많으면 여러 메시지로 쪼개기 (예: 20명 단위)
@@ -277,6 +281,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
