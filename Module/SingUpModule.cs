@@ -137,8 +137,8 @@ namespace LupeonBot.Module
                     stoveId: m_StoveId,
                     userNm: user.Username,
                     characters: Method.m_보유캐릭_배열,
-                    joinDate: m_joinDate; // 2026-01-06
-                    joinTime: m_joinTime; // 오전 01:23
+                    joinDate: m_joinDate, // 2026-01-06
+                    joinTime: m_joinTime // 오전 01:23
                     );
 
                 if (!ok)
@@ -203,6 +203,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
