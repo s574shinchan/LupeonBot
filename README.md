@@ -1,0 +1,2 @@
+# LupeonBot
+Lupeon Discord bot
