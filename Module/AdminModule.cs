@@ -359,7 +359,8 @@ namespace LupeonBot.Module
             // ⭐ 실패 채널 기록용
             List<string> failedChannels = new();
 
-            foreach (var ch in category.Channels)
+            var channels = category.Channels;
+            foreach (var ch in channels)
             {
                 try
                 {
@@ -412,4 +413,5 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
