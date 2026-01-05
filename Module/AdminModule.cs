@@ -181,7 +181,7 @@ namespace LupeonBot.Module
             
             string NowKst() => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, kst).ToString("yyyy-MM-dd HH:mm:ss");
             
-            var targetUsers = gu.Guild.Users
+            List<SocketGuildUser> targetUsers = gu.Guild.Users
                 .Where(u => !u.IsBot)
                 .Where(u =>
                 {
@@ -190,7 +190,7 @@ namespace LupeonBot.Module
                         && !roleIds.Contains(targetRole);
                 })
                 .ToList();
-            int total = targetUsers.Count();
+            int total = targetUsers.Count;
             int processed = 0, added = 0, skipped = 0, failed = 0;
 
             // ✅ 실패 유저 모아두기 (멘션용)
@@ -281,6 +281,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
