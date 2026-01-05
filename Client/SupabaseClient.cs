@@ -225,7 +225,7 @@ namespace LupeonBot.Client
         /// <param name="certDate"></param>
         /// <param name="certTime"></param>
         /// <returns></returns>
-        public static async Task<(bool ok, string body)> UpdateCertOnlyAsync(string userId, string stoveId, string characters, string certDate, string certTime)
+        public static async Task<(bool ok, string body)> UpdateCertOnlyAsync(string userId, string stoveId, List<string> characters, string certDate, string certTime)
         {
             var payload = new
             {
@@ -310,4 +310,5 @@ namespace LupeonBot.Client
 
     }
 }
+
 
