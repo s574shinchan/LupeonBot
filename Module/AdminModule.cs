@@ -185,7 +185,7 @@ namespace LupeonBot.Module
                 .Where(u => !u.IsBot)
                 .Where(u =>
                 {
-                    ulong roleIds = u.Roles.Select(r => r.Id).ToHashSet();
+                    var roleIds = u.Roles.Select(r => r.Id).ToHashSet();
                     return !roleIds.Contains(excludeRole)
                         && !roleIds.Contains(targetRole);
                 })
@@ -281,6 +281,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
