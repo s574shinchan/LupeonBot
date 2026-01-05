@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using System;
@@ -31,82 +31,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
             .WithColor(Color.Green)
             .WithFooter("Develop by. 갱프");
 
-        Emote? GetEmote(string name) => EmoteCache.Emotes.TryGetValue(name, out var e) ? e : null;
-
-        var m_워로드 = GetEmote("emblem_warlord");
-        var m_버서커 = GetEmote("emblem_berserker");
-        var m_디스트로이어 = GetEmote("emblem_destroyer");
-        var m_홀리나이트 = GetEmote("emblem_holyknight");
-        var m_슬레이어 = GetEmote("emblem_slayer");
-        var m_발키리 = GetEmote("emblem_holyknight_female");
-        var m_배틀마스터 = GetEmote("emblem_battlemaster");
-        var m_인파이터 = GetEmote("emblem_infighter");
-        var m_기공사 = GetEmote("emblem_soulmaster");
-        var m_창술사 = GetEmote("emblem_lancemaster");
-        var m_스트라이커 = GetEmote("emblem_striker");
-        var m_브레이커 = GetEmote("emblem_infighter_male");
-        var m_데빌헌터 = GetEmote("emblem_devilhunter");
-        var m_블래스터 = GetEmote("emblem_blaster");
-        var m_호크아이 = GetEmote("emblem_hawkeye");
-        var m_건슬링어 = GetEmote("emblem_gunslinger");
-        var m_스카우터 = GetEmote("emblem_scouter");
-        var m_아르카나 = GetEmote("emblem_arcana");
-        var m_서머너 = GetEmote("emblem_summoner");
-        var m_바드 = GetEmote("emblem_bard");
-        var m_소서리스 = GetEmote("emblem_sorceress");
-        var m_블레이드 = GetEmote("emblem_blade");
-        var m_데모닉 = GetEmote("emblem_demonic");
-        var m_리퍼 = GetEmote("emblem_reaper");
-        var m_소울이터 = GetEmote("emblem_souleater");
-        var m_도화가 = GetEmote("emblem_artist");
-        var m_기상술사 = GetEmote("emblem_weather_artist");
-        var m_환수사 = GetEmote("emblem_alchemist");
-        var m_가디언나이트 = GetEmote("emblem_dragon_knight");
-
-        var selectMenu = new SelectMenuBuilder()
-            .AddOption(emote: m_버서커, label: "버서커", value: "버서커")
-            .AddOption(emote: m_디스트로이어, label: "디스트로이어", value: "디스트로이어")
-            .AddOption(emote: m_워로드, label: "워로드", value: "워로드")
-            .AddOption(emote: m_홀리나이트, label: "홀리나이트", value: "홀리나이트")
-            .AddOption(emote: m_슬레이어, label: "슬레이어", value: "슬레이어")
-            .AddOption(emote: m_발키리, label: "발키리", value: "발키리")
-            .AddOption(emote: m_아르카나, label: "아르카나", value: "아르카나")
-            .AddOption(emote: m_서머너, label: "서머너", value: "서머너")
-            .AddOption(emote: m_바드, label: "바드", value: "바드")
-            .AddOption(emote: m_소서리스, label: "소서리스", value: "소서리스")
-            .AddOption(emote: m_배틀마스터, label: "배틀마스터", value: "배틀마스터")
-            .AddOption(emote: m_인파이터, label: "인파이터", value: "인파이터")
-            .AddOption(emote: m_기공사, label: "기공사", value: "기공사")
-            .AddOption(emote: m_창술사, label: "창술사", value: "창술사")
-            .AddOption(emote: m_스트라이커, label: "스트라이커", value: "스트라이커")
-            .AddOption(emote: m_브레이커, label: "브레이커", value: "브레이커")
-            .WithCustomId("SelectRow1")
-            .WithMinValues(1)
-            .WithPlaceholder("원하는 직업을 선택하여 역할을 받을 수 있습니다.");
-
-        var selectMenu2 = new SelectMenuBuilder()
-            .AddOption(emote: m_블레이드, label: "블레이드", value: "블레이드")
-            .AddOption(emote: m_데모닉, label: "데모닉", value: "데모닉")
-            .AddOption(emote: m_리퍼, label: "리퍼", value: "리퍼")
-            .AddOption(emote: m_소울이터, label: "소울이터", value: "소울이터")
-            .AddOption(emote: m_호크아이, label: "호크아이", value: "호크아이")
-            .AddOption(emote: m_데빌헌터, label: "데빌헌터", value: "데빌헌터")
-            .AddOption(emote: m_블래스터, label: "블래스터", value: "블래스터")
-            .AddOption(emote: m_스카우터, label: "스카우터", value: "스카우터")
-            .AddOption(emote: m_건슬링어, label: "건슬링어", value: "건슬링어")
-            .AddOption(emote: m_도화가, label: "도화가", value: "도화가")
-            .AddOption(emote: m_기상술사, label: "기상술사", value: "기상술사")
-            .AddOption(emote: m_환수사, label: "환수사", value: "환수사")
-            .AddOption(emote: m_가디언나이트, label: "가디언나이트", value: "가디언나이트")
-            .WithCustomId("SelectRow2")
-            .WithMinValues(1)
-            .WithPlaceholder("원하는 직업을 선택하여 역할을 받을 수 있습니다.");
-
-        var components = new ComponentBuilder()
-            .WithSelectMenu(selectMenu)
-            .WithSelectMenu(selectMenu2);
-
-        await Context.Channel.SendMessageAsync(embed: embed.Build(), components: components.Build());
+        await Context.Channel.SendMessageAsync(embed: embed.Build(), components: RoleMenuUi.BuildMenus());
         await RespondAsync("표시완료", ephemeral: true);
     }
 
@@ -304,6 +229,47 @@ public sealed class RoleComponentModule : InteractionModuleBase<SocketInteractio
 
         await user.AddRoleAsync(role);
         await RespondAsync($"✅ `{role.Name}` 역할이 부여되었습니다.", ephemeral: true);
+    }
+
+    [ComponentInteraction("SelectRow:*")]
+    public async Task SelectRowAsync(string values)
+    {
+        await DeferAsync(ephemeral: true); // ✅ 필수
+
+        if (Context.User is not SocketGuildUser user)
+        {
+            await FollowupAsync("❌ 길드 유저만 사용 가능합니다.", ephemeral: true);
+            return;
+        }
+
+        // ✅ 선택값 꺼내기 (SelectMenu는 SocketMessageComponent로 들어옴)
+        if (Context.Interaction is not SocketMessageComponent smc)
+        {
+            await FollowupAsync("❌ 컴포넌트 상호작용이 아닙니다.", ephemeral: true);
+            return;
+        }
+
+        var picked = smc.Data.Values.FirstOrDefault(); // MaxValues(1)이면 1개만 들어옴
+        if (string.IsNullOrWhiteSpace(picked))
+        {
+            await FollowupAsync("❌ 선택값이 없습니다.", ephemeral: true);
+            return;
+        }
+
+        // ✅ 역할 이름 = 직업명 으로 바로 찾기
+        var role = Context.Guild.Roles.FirstOrDefault(r => r.Name.Equals(picked, StringComparison.OrdinalIgnoreCase));
+
+        // ✅ 있으면 제거 / 없으면 부여
+        if (user.Roles.Any(r => r.Id == role.Id))
+        {
+            await user.RemoveRoleAsync(role);
+            await FollowupAsync($"❌ `{role.Name}` 역할이 제거되었습니다.", ephemeral: true);
+        }
+        else
+        {
+            await user.AddRoleAsync(role);
+            await FollowupAsync($"✅ `{role.Name}` 역할이 부여되었습니다.", ephemeral: true);
+        }
     }
 
     // ✅ 삭제 제한 계산에서 제외할 역할들 (예: 인증/필수/운영진 등)
@@ -576,4 +542,91 @@ public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionCon
         return s.TrimEnd('\r', '\n', ' ', ',');
     }
 
+}
+
+/// <summary>
+/// 메뉴 생성 코드를 공용으로 빼둔 곳 (핵심)
+/// </summary>
+public static class RoleMenuUi
+{
+    public static MessageComponent BuildMenus()
+    {
+        Emote? GetEmote(string name) => EmoteCache.Emotes.TryGetValue(name, out var e) ? e : null;
+
+        var m_워로드 = GetEmote("emblem_warlord");
+        var m_버서커 = GetEmote("emblem_berserker");
+        var m_디스트로이어 = GetEmote("emblem_destroyer");
+        var m_홀리나이트 = GetEmote("emblem_holyknight");
+        var m_슬레이어 = GetEmote("emblem_slayer");
+        var m_발키리 = GetEmote("emblem_holyknight_female");
+        var m_배틀마스터 = GetEmote("emblem_battlemaster");
+        var m_인파이터 = GetEmote("emblem_infighter");
+        var m_기공사 = GetEmote("emblem_soulmaster");
+        var m_창술사 = GetEmote("emblem_lancemaster");
+        var m_스트라이커 = GetEmote("emblem_striker");
+        var m_브레이커 = GetEmote("emblem_infighter_male");
+        var m_데빌헌터 = GetEmote("emblem_devilhunter");
+        var m_블래스터 = GetEmote("emblem_blaster");
+        var m_호크아이 = GetEmote("emblem_hawkeye");
+        var m_건슬링어 = GetEmote("emblem_gunslinger");
+        var m_스카우터 = GetEmote("emblem_scouter");
+        var m_아르카나 = GetEmote("emblem_arcana");
+        var m_서머너 = GetEmote("emblem_summoner");
+        var m_바드 = GetEmote("emblem_bard");
+        var m_소서리스 = GetEmote("emblem_sorceress");
+        var m_블레이드 = GetEmote("emblem_blade");
+        var m_데모닉 = GetEmote("emblem_demonic");
+        var m_리퍼 = GetEmote("emblem_reaper");
+        var m_소울이터 = GetEmote("emblem_souleater");
+        var m_도화가 = GetEmote("emblem_artist");
+        var m_기상술사 = GetEmote("emblem_weather_artist");
+        var m_환수사 = GetEmote("emblem_alchemist");
+        var m_가디언나이트 = GetEmote("emblem_dragon_knight");
+
+        var selectMenu = new SelectMenuBuilder()
+            .AddOption(emote: m_버서커, label: "버서커", value: "버서커")
+            .AddOption(emote: m_디스트로이어, label: "디스트로이어", value: "디스트로이어")
+            .AddOption(emote: m_워로드, label: "워로드", value: "워로드")
+            .AddOption(emote: m_홀리나이트, label: "홀리나이트", value: "홀리나이트")
+            .AddOption(emote: m_슬레이어, label: "슬레이어", value: "슬레이어")
+            .AddOption(emote: m_발키리, label: "발키리", value: "발키리")
+            .AddOption(emote: m_아르카나, label: "아르카나", value: "아르카나")
+            .AddOption(emote: m_서머너, label: "서머너", value: "서머너")
+            .AddOption(emote: m_바드, label: "바드", value: "바드")
+            .AddOption(emote: m_소서리스, label: "소서리스", value: "소서리스")
+            .AddOption(emote: m_배틀마스터, label: "배틀마스터", value: "배틀마스터")
+            .AddOption(emote: m_인파이터, label: "인파이터", value: "인파이터")
+            .AddOption(emote: m_기공사, label: "기공사", value: "기공사")
+            .AddOption(emote: m_창술사, label: "창술사", value: "창술사")
+            .AddOption(emote: m_스트라이커, label: "스트라이커", value: "스트라이커")
+            .AddOption(emote: m_브레이커, label: "브레이커", value: "브레이커")
+            .WithCustomId("SelectRow:1")
+            .WithMinValues(1)
+            .WithMaxValues(1)
+            .WithPlaceholder("원하는 직업을 선택하여 역할을 받을 수 있습니다.");
+
+        var selectMenu2 = new SelectMenuBuilder()
+            .AddOption(emote: m_블레이드, label: "블레이드", value: "블레이드")
+            .AddOption(emote: m_데모닉, label: "데모닉", value: "데모닉")
+            .AddOption(emote: m_리퍼, label: "리퍼", value: "리퍼")
+            .AddOption(emote: m_소울이터, label: "소울이터", value: "소울이터")
+            .AddOption(emote: m_호크아이, label: "호크아이", value: "호크아이")
+            .AddOption(emote: m_데빌헌터, label: "데빌헌터", value: "데빌헌터")
+            .AddOption(emote: m_블래스터, label: "블래스터", value: "블래스터")
+            .AddOption(emote: m_스카우터, label: "스카우터", value: "스카우터")
+            .AddOption(emote: m_건슬링어, label: "건슬링어", value: "건슬링어")
+            .AddOption(emote: m_도화가, label: "도화가", value: "도화가")
+            .AddOption(emote: m_기상술사, label: "기상술사", value: "기상술사")
+            .AddOption(emote: m_환수사, label: "환수사", value: "환수사")
+            .AddOption(emote: m_가디언나이트, label: "가디언나이트", value: "가디언나이트")
+            .WithCustomId("SelectRow:2")
+            .WithMinValues(1)
+            .WithMaxValues(1)
+            .WithPlaceholder("원하는 직업을 선택하여 역할을 받을 수 있습니다.");
+
+        return new ComponentBuilder()
+            .WithSelectMenu(selectMenu)
+            .WithSelectMenu(selectMenu2)
+            .Build();
+    }
 }
