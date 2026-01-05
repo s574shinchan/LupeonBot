@@ -23,7 +23,7 @@ public sealed class CertUpdateModule : InteractionModuleBase<SocketInteractionCo
         m_body += Emote + " 인증된 데이터를 최신화 하기 위한 목적입니다." + Environment.NewLine + Environment.NewLine;
         m_body += "**[ 유의사항 ]**" + Environment.NewLine;
         m_body += Emote + " 기준레벨보다 낮은 경우 갱신되지 않습니다." + Environment.NewLine;
-        m_body += Emote + " 미갱신자는 추후 거래소 역할이 회수될 예정입니다."
+        m_body += Emote + " 미갱신자는 추후 거래소 역할이 회수될 예정입니다.";
         
         var embed = new EmbedBuilder()
           .WithTitle("거래소 인증갱신 • 루페온")
