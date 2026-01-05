@@ -80,7 +80,7 @@ namespace LupeonBot.Module
                 .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger)
                 .WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
 
-            string channelName = $"-문의_{s_userid}";
+            string channelName = $"문의채널_{s_userid}";
 
             // ✅ 기존 채널 있으면 그 채널로 안내만
             var exist = guild.TextChannels.FirstOrDefault(c => c.Name == channelName);
@@ -151,7 +151,7 @@ namespace LupeonBot.Module
                 .WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
 
             // ✅ 기존 채널 있으면 안내만
-            string chName = $"-신고_{s_userid}";
+            string chName = $"신고채널_{s_userid}";
             var exist = guild.TextChannels.FirstOrDefault(c => c.Name == chName);
 
             if (exist != null)
@@ -456,4 +456,5 @@ namespace LupeonBot.Module
             await Method.DeleteChannelAsync(Context.Guild, (ITextChannel)Context.Channel, Context.Channel.Name);
         }
     }
+
 }
