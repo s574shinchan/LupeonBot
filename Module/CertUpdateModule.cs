@@ -36,6 +36,9 @@ public sealed class CertUpdateModule : InteractionModuleBase<SocketInteractionCo
         var component = new ComponentBuilder()
           .WithButton(label: "인증정보갱신", customId: "CertInfoUpdate", style: ButtonStyle.Success)
           .Build();
+      
+      await Context.Channel.SendMessageAsync(embed: embed, components: component);
+      await RespondAsync("정상적으로 공지표시완료", ephemeral: true);
     }
 
     public class CertModalData : IModal
