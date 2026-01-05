@@ -33,14 +33,12 @@ public sealed class CertUpdateModule : InteractionModuleBase<SocketInteractionCo
           .WithColor(Discord.Color.Green)
           .WithDescription(m_body)
           .WithImageUrl(Method.StoveProfileImagePath)
-          .WithFooter("Develop by. 갱프")
-          .Build();
+          .WithFooter("Develop by. 갱프");
                 
         var component = new ComponentBuilder()
-          .WithButton(label: "인증정보갱신", customId: "CertInfoUpdate", style: ButtonStyle.Success)
-          .Build();
+          .WithButton(label: "인증정보갱신", customId: "CertInfoUpdate", style: ButtonStyle.Success);
       
-      await Context.Channel.SendMessageAsync(embed: embed, components: component);
+      await Context.Channel.SendMessageAsync(embed: embed.Build(), components: component.Build());
       await RespondAsync("정상적으로 공지표시완료", ephemeral: true);
     }
 
