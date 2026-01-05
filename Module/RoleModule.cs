@@ -12,6 +12,7 @@ using static DiscordBot.Program;
 public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("역할신청", "직업역할 선택 슬롯 표시")]
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
     public async Task RoleSelectAsync()
     {
         if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -110,6 +111,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
     }
 
     //[SlashCommand("역할신청", "직업역할 선택 버튼 표시")]
+    //[DefaultMemberPermissions(GuildPermission.Administrator)]
     //public async Task RoleButtonAsync()
     //{
     //    if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -348,6 +350,7 @@ public sealed class RoleComponentModule : InteractionModuleBase<SocketInteractio
 public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("역할확인", "본인이 가지고 있는 역할들을 확인 할 수 있는 버튼표시")]
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
     public async Task RoleCheck()
     {
         if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -572,4 +575,5 @@ public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionCon
         // 여기선 안전하게 끝의 ", " 와 줄바꿈을 제거
         return s.TrimEnd('\r', '\n', ' ', ',');
     }
+
 }
