@@ -1,13 +1,16 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using DiscordBot;
+
+using LupeonBot.Client;
+
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using static DiscordBot.Program;
 
 public sealed class CertUpdateModule : InteractionModuleBase<SocketInteractionContext>
 {
