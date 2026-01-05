@@ -44,15 +44,11 @@ namespace LupeonBot.Module
             // 3) 디스코드 표기명 (네 코드 그대로, 단 검사 대상은 target)
             string m_disCord = target.Username;
             string userNmTag = target.Mention;
-
+            
             // 4) 생성일(계정 생성일) & 날짜/시간 포맷
             DateTime createDate = new DateTime(target.CreatedAt.Year, target.CreatedAt.Month, target.CreatedAt.Day);
-
-            string m_시간 = DateTime.Now.Hour.ToString().PadLeft(2, '0') + ":" + DateTime.Now.Minute.ToString().PadLeft(2, '0');
-            string m_일자 = DateTime.Now.Year + DateTime.Now.Month.ToString().PadLeft(2, '0') + DateTime.Now.Day.ToString().PadLeft(2, '0');
-            m_일자 = Method.DateFormat(m_일자);
-
-            DateTime toDay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+            
+            DateTime toDay = DateTime.UtcNow.AddHours(9);
             TimeSpan tmGap = toDay.Subtract(createDate);
 
             if (tmGap.TotalDays < 7)
@@ -180,8 +176,8 @@ namespace LupeonBot.Module
                         characters: Method.m_보유캐릭_배열,
                         joinDate: target.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd"),
                         joinTime: target.CreatedAt.ToLocalTime().ToString("HH:mm"),
-                        certDate: DateTime.Now.ToString("yyyy-MM-dd"),
-                        certTime: DateTime.Now.ToString("HH:mm")
+                        certDate: dt.ToString("yyyy-MM-dd"),
+                        certTime: dt.ToString("HH:mm")
                     );
 
                     if (!ok)
@@ -387,3 +383,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
