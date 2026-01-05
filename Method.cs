@@ -185,12 +185,14 @@ namespace LupeonBot
         {
             if (siblings == null || siblings.Count == 0) return "";
 
+            var target = (nickName ?? "").Trim();
+
             var list = siblings
                 .Select(x => (x.CharacterName ?? "").Trim())
                 .Where(n => !string.IsNullOrWhiteSpace(n))
-                .Where(n => excludeName == null || !n.Equals(excludeName.Trim(), StringComparison.OrdinalIgnoreCase))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n.Equals(target, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(n => n, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
             return string.Join("/", list);
@@ -201,12 +203,14 @@ namespace LupeonBot
             if (siblings == null || siblings.Count == 0) 
                 return new List<string>();
 
+            var target = (nickName ?? "").Trim();
+
             var list = siblings
                 .Select(x => (x.CharacterName ?? "").Trim())
                 .Where(n => !string.IsNullOrWhiteSpace(n))
-                .Where(n => excludeName == null || !n.Equals(excludeName.Trim(), StringComparison.OrdinalIgnoreCase))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n.Equals(target, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(n => n, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
             return list;
@@ -284,3 +288,4 @@ namespace LupeonBot
         }
     }
 }
+
