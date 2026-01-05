@@ -368,20 +368,6 @@ namespace LupeonBot.Module
                     await ModifyOriginalResponseAsync(m => m.Content = "❌ 저장된 정보와 신청자의 스토브 계정이 다릅니다.");
                     return;
                 }
-
-                //string m_Context = "갱신대상 : " + user.Mention + "``(" + user.Id.ToString() + ")``" + Environment.NewLine + Environment.NewLine
-                //                 + "갱신캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine
-                //                 + "위 정보로 거래소 인증이 완료되었습니다.";
-
-                //var s_embed = new EmbedBuilder()
-                //    .WithAuthor("✅ 갱신완료")
-                //    .WithDescription(m_Context)
-                //    .WithColor(Color.Green)
-                //    .WithThumbnailUrl(user.GetAvatarUrl(ImageFormat.Auto))
-                //    .WithFooter("Develop by. 갱프　　　　　　　　　갱신일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-
-                //await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 처리되었습니다.");
-                //await ModifyOriginalResponseAsync(m => m.Embed = s_embed.Build());
             }
             else
             {
@@ -406,9 +392,10 @@ namespace LupeonBot.Module
                 }
             }
 
-            string m_Context = "갱신대상 : " + user.Mention + "``(" + user.Id.ToString() + ")``" + Environment.NewLine + Environment.NewLine
-                                 + "갱신캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine
-                                 + "위 정보로 거래소 인증이 완료되었습니다.";
+            string m_Context = "";
+            m_Context += "갱신대상 : " + user.Mention + "``(" + user.Id.ToString() + ")``" + Environment.NewLine + Environment.NewLine;
+            m_Context += "갱신캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine;
+            m_Context += "위 정보로 거래소 인증이 완료되었습니다.";
 
             var ComPeleteEmbed = new EmbedBuilder()
                 .WithAuthor("✅ 갱신완료")
@@ -476,6 +463,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
