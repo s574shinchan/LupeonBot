@@ -160,7 +160,7 @@ namespace LupeonBot.Module
             await FollowupAsync(embed: eb.Build(), ephemeral: true);
         }
         
-        [SlashCommand("역할일괄부여", "메인역할인 '루페온' 역할을 모든 유저에게 일괄로 부여합니다. (미인증제외, 관리자전용)")]
+        //[SlashCommand("역할일괄부여", "메인역할인 '루페온' 역할을 모든 유저에게 일괄로 부여합니다. (미인증제외, 관리자전용)")]
         public async Task SetMainRoleAddByAllUser()
         {
             if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
@@ -281,6 +281,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
