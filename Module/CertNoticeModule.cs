@@ -39,6 +39,7 @@ namespace LupeonBot.Module
         // 0) 신청공지
         // ---------------------------
         [SlashCommand("신청공지", "거래소신청 공지를 표시합니다. (관리자전용)")]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task CertNotice()
         {
             var gu = Context.User as SocketGuildUser;
@@ -369,6 +370,7 @@ namespace LupeonBot.Module
         }
 
         [SlashCommand("레벨초기화", "거래소 인증 기준레벨을 초기화합니다. (관리자 전용)")]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task ResetStdLv()
         {
             var gu = Context.User as SocketGuildUser;
@@ -402,4 +404,5 @@ namespace LupeonBot.Module
             }
         }
     }
+
 }
