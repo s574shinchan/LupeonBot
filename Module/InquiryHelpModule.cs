@@ -22,6 +22,7 @@ namespace LupeonBot.Module
         private string Emote = "<:pdiamond:907957436483248159>";
 
         [SlashCommand("신고공지", "문의및신고 공지를 표시합니다. (관리자전용)")]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task NoticeAsync()
         {
             if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
@@ -474,4 +475,5 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
