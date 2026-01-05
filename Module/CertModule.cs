@@ -176,8 +176,8 @@ namespace LupeonBot.Module
                         characters: Method.m_보유캐릭_배열,
                         joinDate: target.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd"),
                         joinTime: target.CreatedAt.ToLocalTime().ToString("HH:mm"),
-                        certDate: dt.ToString("yyyy-MM-dd"),
-                        certTime: dt.ToString("HH:mm")
+                        certDate: toDay.ToString("yyyy-MM-dd"),
+                        certTime: toDay.ToString("HH:mm")
                     );
 
                     if (!ok)
@@ -383,4 +383,5 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
