@@ -78,8 +78,7 @@ namespace DiscordBot
 
             // ✅ InteractionService 생성
             _interactions = new InteractionService(client.Rest);
-            await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), services: null);
-
+            
             // ✅ Interaction 처리 이벤트 연결
             client.InteractionCreated += HandleInteraction;
 
@@ -123,8 +122,13 @@ namespace DiscordBot
             if (_registered) return; // ✅ Ready 중복 방지
             _registered = true;
 
+            await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), services: null);
+            var modules = _interactions.Modules.Select(m => m.Name);
+            Console.WriteLine("Loaded Modules: " + string.Join(", ", modules));
+            
             ulong guildId = 513799663086862336;
             await _interactions.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
+            Console.WriteLine("Slash commands registered to guild.");
 
             foreach (var guild in client.Guilds)
             {
@@ -209,4 +213,5 @@ namespace DiscordBot
             m_ImgLink = string.Empty;
         }
     }
+
 }
