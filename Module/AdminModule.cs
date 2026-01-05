@@ -171,8 +171,8 @@ namespace LupeonBot.Module
             
             await DeferAsync(ephemeral: true);
             
-            var excludeRole = 902213602889568316;
-            var targetRole  = 1457383863943954512;
+            const ulong excludeRole = 902213602889568316;
+            const ulong targetRole  = 1457383863943954512;
             
             // ✅ KST 타임존 (윈도우: Korea Standard Time / 리눅스: Asia/Seoul)
             TimeZoneInfo kst;
@@ -185,7 +185,7 @@ namespace LupeonBot.Module
                 .Where(u => !u.IsBot)
                 .Where(u =>
                 {
-                    var roleIds = u.Roles.Select(r => r.Id).ToHashSet();
+                    ulong roleIds = u.Roles.Select(r => r.Id).ToHashSet();
                     return !roleIds.Contains(excludeRole)
                         && !roleIds.Contains(targetRole);
                 })
@@ -194,7 +194,7 @@ namespace LupeonBot.Module
             int processed = 0, added = 0, skipped = 0, failed = 0;
 
             // ✅ 실패 유저 모아두기 (멘션용)
-            var failedUsers = new List<SocketGuildUser>();
+            List<SocketGuildUser> failedUsers = new List<SocketGuildUser>();
     
             EmbedBuilder BuildProgressEmbed(string desc, Color color)
             {
@@ -281,6 +281,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
