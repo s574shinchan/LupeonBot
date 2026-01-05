@@ -16,6 +16,7 @@ namespace LupeonBot.Module
         private const ulong BanLogChannelId = 598534025380102169;
 
         [SlashCommand("추방", "추방대상과 사유를 입력하여 추방합니다. (관리자전용)")]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task UserBanAsync(
             [Summary(description: "추방할 대상자")] string? 추방대상 = null, 
             [Summary(description: "추방 사유")] string? 추방사유 = null)
@@ -93,6 +94,7 @@ namespace LupeonBot.Module
         }
 
         [SlashCommand("인증내역조회", "인증된 정보를 조회합니다. (관리자전용)")]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task GetCertUserInfoAsync([Summary(description: "디스코드 ID 또는 캐릭터명")] string? 조회대상 = null)
         {
             if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
@@ -161,6 +163,7 @@ namespace LupeonBot.Module
         }
         
         //[SlashCommand("역할일괄부여", "메인역할인 '루페온' 역할을 모든 유저에게 일괄로 부여합니다. (미인증제외, 관리자전용)")]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task SetMainRoleAddByAllUser()
         {
             if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
@@ -281,6 +284,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
