@@ -350,7 +350,10 @@ namespace LupeonBot.Module
 
             var guild = Context.Guild;
             var channels = category.Channels;
-
+            var only3 = new OverwritePermissions(viewChannel: PermValue.Allow, 
+                                                 sendMessages: PermValue.Allow, 
+                                                 readMessageHistory: PermValue.Allow);
+            
             int totalRemoved = 0;
             int okChannels = 0;
 
@@ -361,21 +364,26 @@ namespace LupeonBot.Module
             {
                 try
                 {
-                    foreach (var ow in ch.PermissionOverwrites.Where(x => x.TargetType == PermissionTarget.Role))
+                    var roleOverwrites = ch.PermissionOverwrites
+                        .Where(x => x.TargetType == PermissionTarget.Role)
+                        .ToList();
+                        
+                    foreach (var ow in roleOverwrites)
                     {
                         if (!RolesToRemove.Contains(ow.TargetId))
                             continue;
-
+                            
                         if (ow.TargetId == TargetRoleId)
                             continue;
 
                         var role = guild.GetRole(ow.TargetId);
-                        if (role == null)
-                            continue;
+                        if (role == null) continue;
 
                         await ch.RemovePermissionOverwriteAsync(role);
                         totalRemoved++;
                     }
+
+                    await ch.AddPermissionOverwriteAsync(targetRole, only3);
 
                     okChannels++;
                 }
