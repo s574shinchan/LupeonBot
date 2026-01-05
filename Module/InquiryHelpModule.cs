@@ -351,7 +351,7 @@ namespace LupeonBot.Module
                 var (ok, body) = await SupabaseClient.UpdateCertOnlyAsync(
                     userId: user.Id.ToString(),
                     stoveId: dbRow.StoveId,
-                    characters: Method.m_보유캐릭,
+                    characters: Method.m_보유캐릭_배열,
                     certDate: m_CertDate,
                     certTime: m_CertTime
                     );
@@ -476,6 +476,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
