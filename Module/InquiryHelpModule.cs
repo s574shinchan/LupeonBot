@@ -25,24 +25,18 @@ namespace LupeonBot.Module
         [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task NoticeAsync()
         {
-            if (Context.User is not SocketGuildUser admin || !admin.GuildPermissions.Administrator)
-            {
-                await RespondAsync("❌ 관리자만 사용할 수 있습니다.", ephemeral: true);
-                return;
-            }
-
-            ComponentBuilder component = new ComponentBuilder()
+            var component = new ComponentBuilder()
                 .WithButton(label: "문의하기", customId: "Inquiry", style: ButtonStyle.Primary)
-                .WithButton(label: "신고하기", customId: "Help", style: ButtonStyle.Danger)
-                .WithButton(label: "인증갱신", customId: "CertUpdate", style: ButtonStyle.Success);
+                .WithButton(label: "신고하기", customId: "Help", style: ButtonStyle.Danger);
+                //.WithButton(label: "인증갱신", customId: "CertUpdate", style: ButtonStyle.Success);
 
             string m_body = string.Empty;
             string Emote = "<:pdiamond:907957436483248159>";
 
             m_body += "**[ 이용 방법 ]**" + Environment.NewLine;
             m_body += Emote + " 문의하기 : 루페온 디스코드와 관련된 내용 문의" + Environment.NewLine;
-            m_body += Emote + " 신고하기 : 루페온 디스코드를 통해 일어난 일 신고" + Environment.NewLine;
-            m_body += Emote + " 인증갱신 : 거래소 인증 후 캐릭을 변경하는 경우" + Environment.NewLine + Environment.NewLine;
+            m_body += Emote + " 신고하기 : 루페온 디스코드를 통해 일어난 일 신고" + Environment.NewLine + Environment.NewLine;
+            //m_body += Emote + " 인증갱신 : 거래소 인증 후 캐릭을 변경하는 경우" + Environment.NewLine + Environment.NewLine;
             m_body += "**[ 유의사항 ]**" + Environment.NewLine;
             m_body += Emote + " **채널생성 후 5분이상 내용작성이 없을 경우 타임아웃 1주일 입니다.**";
 
@@ -463,6 +457,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
