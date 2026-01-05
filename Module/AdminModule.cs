@@ -322,7 +322,6 @@ namespace LupeonBot.Module
         // ✅ 역할명(권장: 역할ID로 박아두는게 더 안전)
         private const ulong TargetRoleId = 1457383863943954512;       //루페온
 
-
         [SlashCommand("채널정리", "입력한 채널 직업역할제거, 루페온역할 부여")]
         [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task SetChannelRoleAsync([Summary("카테고리id", "정리할 카테고리 ID")] string categoryId)
@@ -349,7 +348,7 @@ namespace LupeonBot.Module
             }
 
             var guild = Context.Guild;
-            var channels = category.Channels;
+            var targetRole = guild.GetRole(TargetRoleId);
             var only3 = new OverwritePermissions(viewChannel: PermValue.Allow, 
                                                  sendMessages: PermValue.Allow, 
                                                  readMessageHistory: PermValue.Allow);
@@ -360,7 +359,7 @@ namespace LupeonBot.Module
             // ⭐ 실패 채널 기록용
             List<string> failedChannels = new();
 
-            foreach (var ch in channels)
+            foreach (var ch in category.Channels)
             {
                 try
                 {
@@ -413,3 +412,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
