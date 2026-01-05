@@ -117,7 +117,7 @@ namespace LupeonBot.Module
             //    return;
             //}
 
-            DateTime NowKst() { return return DateTimeOffset.UtcNow.AddHours(9); }
+            DateTimeOffset NowKst() { return return DateTimeOffset.UtcNow.AddHours(9); }
             DateTime dt = NowKst();
             string m_joinDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
             string m_joinTime = dt.ToString("HH:mm");   // 01:23:45  (24시간제, 고정)
@@ -203,6 +203,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
