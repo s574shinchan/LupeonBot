@@ -44,7 +44,7 @@ namespace LupeonBot.Module
                 .WithTitle("고객센터 • 루페온")
                 .WithColor(Discord.Color.Blue)
                 .WithDescription(m_body)
-                .WithImageUrl(Method.StoveProfileImagePath)
+                //.WithImageUrl(Method.StoveProfileImagePath)
                 .WithFooter("Develop by. 갱프");
 
             //await admin.Guild.GetTextChannel(884395336959918100).SendMessageAsync(embed: NewEx.Build(), components: component.Build());
@@ -457,6 +457,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
