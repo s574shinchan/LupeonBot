@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 
 public sealed class CertUpdateModule : InteractionModuleBase<SocketInteractionContext>
 {
+    private string mStdLv = ""; // 파일에서 읽어온 값
+    
     [SlashCommand("인증갱신공지", "기간내 거래소 인증데이터 갱신을 위한 버튼 표시")]
     [DefaultMemberPermissions(GuildPermission.Administrator)]
     public async Task CertInfoUpdate()
