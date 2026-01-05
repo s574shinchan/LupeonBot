@@ -51,8 +51,8 @@ public sealed class CertUpdateModule : InteractionModuleBase<SocketInteractionCo
         public string StoveUrl { get; set; } = "";
     }
 
-    ComponentInteraction("CertInfoUpdate")]
-    public async Task CertUpdateAsync()
+    [ComponentInteraction("CertInfoUpdate")]
+    public async Task CertInfoUpdateAsync()
     {
         try
         {
