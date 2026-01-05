@@ -185,7 +185,7 @@ namespace LupeonBot
         {
             if (siblings == null || siblings.Count == 0) return "";
 
-            var target = (nickName ?? "").Trim();
+            var target = (excludeName ?? "").Trim();
 
             var list = siblings
                 .Select(x => (x.CharacterName ?? "").Trim())
@@ -203,7 +203,7 @@ namespace LupeonBot
             if (siblings == null || siblings.Count == 0) 
                 return new List<string>();
 
-            var target = (nickName ?? "").Trim();
+            var target = (excludeName ?? "").Trim();
 
             var list = siblings
                 .Select(x => (x.CharacterName ?? "").Trim())
@@ -288,4 +288,5 @@ namespace LupeonBot
         }
     }
 }
+
 
