@@ -69,7 +69,7 @@ namespace LupeonBot.Module
             var guild = gu.Guild;
             string m_disCord = Context.User.Username;
             ulong s_userid = Context.User.Id;
-            string dateTime = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+            DateTime dt = DateTime.UtcNow.AddHours(9);
 
             string m_Description =
                 "**[문의 및 건의사항]**\n" +
@@ -78,7 +78,7 @@ namespace LupeonBot.Module
             var 문의건의 = new EmbedBuilder()
                .WithColor(Color.Blue)
                .WithDescription(m_Description)
-               .WithFooter($"{m_disCord}({s_userid}) 일시 : {dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto));
+               .WithFooter($"{m_disCord}({s_userid}) 일시 : {dt.ToString("yyyy-MM-dd HH:mm:ss")}", Context.User.GetAvatarUrl(ImageFormat.Auto));
 
             var m_Inquiry = new ComponentBuilder()
                 .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger)
@@ -132,7 +132,8 @@ namespace LupeonBot.Module
             var guild = gu.Guild;
             string m_disCord = Context.User.Username;
             ulong s_userid = Context.User.Id;
-            string dateTime = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+            
+            DateTime dt = DateTime.UtcNow.AddHours(9);
 
             // ✅ Embed 내용
             string m_Description =
@@ -146,7 +147,7 @@ namespace LupeonBot.Module
             var 문의신고 = new EmbedBuilder()
                 .WithColor(Color.Blue)
                 .WithDescription(m_Description)
-                .WithFooter($"{m_disCord}({s_userid}) 일시 : {dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto));
+                .WithFooter($"{m_disCord}({s_userid}) 일시 : {dt.ToString("yyyy-MM-dd HH:mm:ss")}", Context.User.GetAvatarUrl(ImageFormat.Auto));
 
             // ✅ 버튼
             var m_help = new ComponentBuilder()
@@ -337,6 +338,10 @@ namespace LupeonBot.Module
                 return;
             }
 
+            DateTime dt = DateTime.UtcNow.AddHours(9);
+            string m_CertDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
+            string m_CertTime = dt.ToString("HH:mm");      // 01:23
+            
             var dbRow = await SupabaseClient.GetCertInfoByUserIdAsync(user.Id.ToString());
 
             if (dbRow != null)
@@ -345,8 +350,8 @@ namespace LupeonBot.Module
                     userId: user.Id.ToString(),
                     stoveId: dbRow.StoveId,
                     characters: Method.m_보유캐릭,
-                    certDate: DateTime.Now.ToString("yyyy-MM-dd"),
-                    certTime: DateTime.Now.ToString("HH:mm")
+                    certDate: m_CertDate,
+                    certTime: m_CertTime
                     );
 
                 if (!ok)
@@ -388,8 +393,8 @@ namespace LupeonBot.Module
                     characters: Method.m_보유캐릭_배열,
                     joinDate: joindate,
                     joinTime: jointime, 
-                    certDate: DateTime.Now.ToString("yyyy-MM-dd"),
-                    certTime: DateTime.Now.ToString("HH:mm")
+                    certDate: m_CertDate,
+                    certTime: m_CertTime
                     );
 
                 if (!ok)
@@ -408,7 +413,7 @@ namespace LupeonBot.Module
                 .WithDescription(m_Context)
                 .WithColor(Color.Green)
                 .WithThumbnailUrl(user.GetAvatarUrl(ImageFormat.Auto))
-                .WithFooter("Develop by. 갱프　　　　　　　　　갱신일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
+                .WithFooter("Develop by. 갱프　　　　　　　　　갱신일시 : " + m_CertDate + " " + m_CertTime);
 
             await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 처리되었습니다.");
             await ModifyOriginalResponseAsync(m => m.Embed = ComPeleteEmbed.Build());
@@ -469,3 +474,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
