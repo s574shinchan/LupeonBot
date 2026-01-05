@@ -15,22 +15,6 @@ namespace LupeonBot
 {
     public class Method
     {
-        public static string m_Url = string.Empty;
-        public static string m_서버 = string.Empty;
-        public static string m_아이템레벨 = string.Empty;
-        public static string m_원정대레벨 = string.Empty;
-        public static string m_전투력 = string.Empty;
-        public static string m_아크패시브 = string.Empty;
-        public static string m_길드 = string.Empty;
-        public static string m_칭호 = string.Empty;
-        public static string m_직업 = string.Empty;
-        public static string m_각인 = string.Empty;
-        public static string m_보유캐릭 = string.Empty;
-        public static List<string> m_보유캐릭_배열 = new List<string>();
-        public static string m_보유캐릭수 = string.Empty;
-        public static string m_캐릭터명 = string.Empty;
-        public static string m_ImgLink = string.Empty;
-
         public const string StoveProfileImagePath = "https://raw.githubusercontent.com/s574shinchan/LupeonBot/main/image/StoveProfile.png";
 
         public static string GetSplitString(string source, char separator, int index)
@@ -136,86 +120,6 @@ namespace LupeonBot
             return true;
         }
 
-        // ---------------------------
-        // 네 기존 메서드 (여기서 구현/호출)
-        // ---------------------------
-        public static async Task GetSimpleProfile(string nickName)
-        {
-            // TODO: 네 기존 로직 그대로
-            //  ✅ 로아 API 호출해서 Program 전역변수 채우기
-            using var api = new LostArkApiClient(Program.LostArkJwt);
-
-            var prof = await api.GetArmoryProfilesAsync(nickName);
-            if (prof == null) throw new Exception("프로필 응답이 비어있음");
-
-            m_서버 = prof.ServerName ?? "";
-            m_직업 = prof.CharacterClassName ?? "";
-            m_아이템레벨 = prof.ItemMaxLevel ?? prof.ItemAvgLevel ?? "";
-            m_ImgLink = prof.CharacterImage ?? "";
-
-            var siblings = await api.GetSiblingsAsync(nickName) ?? new List<CharacterSibling>();
-
-            // 문자열용 (로그 출력용)
-            m_보유캐릭 = BuildSiblingsLineText(siblings, nickName);
-            m_보유캐릭_배열 = BuildSiblingsListText(siblings, nickName);
-        }
-
-        public static async Task<List<CharacterSibling>> GetCertProfile(string nickName)
-        {
-            using var api = new LostArkApiClient(Program.LostArkJwt);
-
-            var prof = await api.GetArmoryProfilesAsync(nickName);
-            if (prof == null) throw new Exception("프로필 응답이 비어있음");
-
-            m_서버 = prof.ServerName ?? "";
-            m_아이템레벨 = prof.ItemMaxLevel ?? prof.ItemAvgLevel ?? "";
-            m_전투력 = prof.CombatPower ?? "";
-            m_캐릭터명 = prof.CharacterName ?? "";
-
-            var siblings = await api.GetSiblingsAsync(nickName) ?? new List<CharacterSibling>();
-
-            // 문자열용 (로그 출력용)
-            m_보유캐릭 = BuildSiblingsLineText(siblings, nickName);
-            m_보유캐릭_배열 = BuildSiblingsListText(siblings, nickName);
-
-            return siblings;
-        }
-
-        private static string BuildSiblingsLineText(List<CharacterSibling> siblings, string excludeName = null)
-        {
-            if (siblings == null || siblings.Count == 0) return "";
-
-            var target = (excludeName ?? "").Trim();
-
-            var list = siblings
-                .Select(x => (x.CharacterName ?? "").Trim())
-                .Where(n => !string.IsNullOrWhiteSpace(n))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(n => n.Equals(target, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
-                .ThenBy(n => n, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            return string.Join("/", list);
-        }
-
-        private static List<string> BuildSiblingsListText(List<CharacterSibling> siblings, string excludeName = null)
-        {
-            if (siblings == null || siblings.Count == 0) 
-                return new List<string>();
-
-            var target = (excludeName ?? "").Trim();
-
-            var list = siblings
-                .Select(x => (x.CharacterName ?? "").Trim())
-                .Where(n => !string.IsNullOrWhiteSpace(n))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(n => n.Equals(target, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
-                .ThenBy(n => n, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            return list;
-        }
-
         public static async Task SendNoticeAsync(ISocketMessageChannel channel, string _mStdLv, ulong _CheckChannelId)
         {
             // 파일에서 기준레벨 다시 읽기(최신값)
@@ -288,5 +192,3 @@ namespace LupeonBot
         }
     }
 }
-
-

@@ -310,5 +310,3 @@ namespace LupeonBot.Client
 
     }
 }
-
-

@@ -44,10 +44,10 @@ namespace LupeonBot.Module
             // 3) 디스코드 표기명 (네 코드 그대로, 단 검사 대상은 target)
             string m_disCord = target.Username;
             string userNmTag = target.Mention;
-            
+
             // 4) 생성일(계정 생성일) & 날짜/시간 포맷
             DateTime createDate = new DateTime(target.CreatedAt.Year, target.CreatedAt.Month, target.CreatedAt.Day);
-            
+
             DateTime toDay = DateTime.UtcNow.AddHours(9);
             TimeSpan tmGap = toDay.Subtract(createDate);
 
@@ -105,8 +105,8 @@ namespace LupeonBot.Module
                 }
 
                 // 6) 프로필 + 보유캐릭 가져오기
-                var siblings = await Method.GetCertProfile(m_NickNm);
-                
+                var profile = await ProfileModule.GetCertProfile(m_NickNm);
+
                 // 7) DB 기존 데이터 조회 (UserId 기준)
                 var dbRow = await SupabaseClient.GetCertInfoByUserIdAsync(s_userid.ToString());
 
@@ -173,7 +173,7 @@ namespace LupeonBot.Module
                         userId: s_userid.ToString(),
                         stoveId: m_StoveId,
                         userNm: m_disCord,
-                        characters: Method.m_보유캐릭_배열,
+                        characters: profile.보유캐릭_목록,
                         joinDate: target.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd"),
                         joinTime: target.CreatedAt.ToLocalTime().ToString("HH:mm"),
                         certDate: toDay.ToString("yyyy-MM-dd"),
@@ -202,8 +202,8 @@ namespace LupeonBot.Module
                     //    .AddField("이름", $"`{Safe(m_disCord)}`", true)
                     //    .AddField("ID", $"`{s_userid}`", true)                        
                     //    .AddField("캐릭터", $"`{Safe(m_NickNm)}`", true)
-                    //    .AddField("아이템 레벨", $"`{Safe(Method.m_아이템레벨)}`", true)
-                    //    .AddField("전투력", $"`{Safe(Method.m_전투력)}`", true)
+                    //    .AddField("아이템 레벨", $"`{Safe(profile.아이템레벨)}`", true)
+                    //    .AddField("전투력", $"`{Safe(profile.전투력)}`", true)
                     //    .AddField("인증일", $"`{DateTime.Now.ToString("yyyy-MM-dd")}`", true)
                     //    .AddField("인증시간", $"`{DateTime.Now.ToString("HH:mm")}`", true)
                     //    .AddField("인증자", $"`{admin}`", true)
@@ -273,7 +273,7 @@ namespace LupeonBot.Module
             if (Context.Interaction is SocketMessageComponent smc)
                 await smc.Message.ModifyAsync(m => m.Components = component.Build());
         }
-        
+
         // values[0] 에 선택된 value가 들어옴
         [ComponentInteraction("SelectRow")]
         public async Task SelectRowAsync(string[] values)
@@ -342,7 +342,7 @@ namespace LupeonBot.Module
 
             await RespondAsync($"✅ 직접입력 사유 저장됨: `{reason}`", ephemeral: true);
         }
-        
+
         // 모달 데이터 바인딩용
         public class TimeoutReasonModal : IModal
         {

@@ -39,7 +39,7 @@ namespace LupeonBot.Module
                 .WithDescription(m_body)
                 .WithFooter("Develop by. 갱프")
                 .Build();
-            
+
             var textCh = user.Guild.GetTextChannel(932836388217450556);
             //await textCh.SendMessageAsync(embed: embed, components: component);
             await Context.Channel.SendMessageAsync(embed: embed, components: component);

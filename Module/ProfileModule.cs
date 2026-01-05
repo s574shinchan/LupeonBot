@@ -2,61 +2,96 @@
 using Discord.Interactions;
 using DiscordBot;
 using LupeonBot.Client;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LupeonBot.Module
 {
-    public class ProfileModule : InteractionModuleBase<SocketInteractionContext>
+    public class ProfileModule
     {
-        [SlashCommand("프로필", "로스트아크 캐릭터 프로필을 조회합니다.")]
-        public async Task ProfileAsync([Summary(description: "캐릭터 이름")] string 캐릭터명)
+        public static async Task<SimpleProfile> GetSimpleProfile(string 캐릭터명)
         {
-            // ✅ 슬래시는 3초 내 응답 필요 → 먼저 Defer(대기표시)
-            await DeferAsync();
+            // TODO: 네 기존 로직 그대로
+            //  ✅ 로아 API 호출해서 Program 전역변수 채우기
+            using var api = new LostArkApiClient(Program.LostArkJwt);
 
-            try
+            var prof = await api.GetArmoryProfilesAsync(캐릭터명);
+            if (prof == null) throw new Exception("프로필 응답이 비어있음");
+
+            var siblings = await api.GetSiblingsAsync(캐릭터명) ?? new List<CharacterSibling>();
+
+            var profile = new SimpleProfile
             {
-                Program.InitEdit();
+                서버 = prof.ServerName ?? "",
+                직업 = prof.CharacterClassName ?? "",
+                아이템레벨 = prof.ItemMaxLevel ?? prof.ItemAvgLevel ?? "",
+                캐릭터명 = 캐릭터명,
+                ImgLink = prof.CharacterImage ?? "",
+                보유캐릭 = BuildSiblingsLineText(siblings, 캐릭터명),
+                보유캐릭_목록 = BuildSiblingsListText(siblings, 캐릭터명),
+            };
 
-                //  ✅ 로아 API 호출해서 Program 전역변수 채우기
-                using var api = new LostArkApiClient(Program.LostArkJwt);
-                await LostArkProfileMapper.FillProgramAsync(api, 캐릭터명);
-
-                // ✅ Embed 구성
-                var eb = new EmbedBuilder()
-                    .WithTitle($"📌 {Program.m_캐릭터명} [{Program.m_서버}]")
-                    .WithColor(Color.DarkBlue)
-                    .AddField("원정대", $"{Program.m_원정대레벨}", true)
-                    .AddField("길드", string.IsNullOrWhiteSpace(Program.m_길드) ? "-" : Program.m_길드, true)
-                    .AddField("칭호", string.IsNullOrWhiteSpace(Program.m_칭호) ? "-" : Program.m_칭호, true)
-                    .AddField("직업", Program.m_직업, true)
-                    .AddField("아이템레벨", Program.m_아이템레벨, true)
-                    .AddField("전투력", string.IsNullOrWhiteSpace(Program.m_전투력) ? "-" : Program.m_전투력, true)
-                    .AddField("아크 패시브 : " + Program.m_각인, Program.m_아크패시브, false)
-                    .WithFooter("Develop by. 갱프")
-                    .WithThumbnailUrl(Program.m_ImgLink);
-
-                // 보유 캐릭 리스트가 너무 길면 잘라서 출력(디스코드 제한 대비)
-                if (!string.IsNullOrWhiteSpace(Program.m_보유캐릭))
-                {
-                    var text = Program.m_보유캐릭;
-                    if (text.Length > 900) text = text.Substring(0, 900) + "\n...";
-                    eb.AddField($"보유 캐릭 : {Program.m_보유캐릭수}", text, false);
-                }
-
-                await FollowupAsync(embed: eb.Build());
-            }
-            catch (Exception ex)
-            {
-                await FollowupAsync($"❌ 조회 실패: `{ex.Message}`");
-            }
+            return profile;
         }
+
+        public static async Task<SimpleProfile> GetCertProfile(string 캐릭터명)
+        {
+            using var api = new LostArkApiClient(Program.LostArkJwt);
+
+            var prof = await api.GetArmoryProfilesAsync(캐릭터명);
+            if (prof == null) throw new Exception("프로필 응답이 비어있음");
+
+            var siblings = await api.GetSiblingsAsync(캐릭터명) ?? new List<CharacterSibling>();
+
+            var profile = new SimpleProfile
+            {
+                캐릭터명 = 캐릭터명,
+                ImgLink = prof.CharacterImage ?? "",
+                보유캐릭 = BuildSiblingsLineText(siblings, 캐릭터명),
+                보유캐릭_목록 = BuildSiblingsListText(siblings, 캐릭터명),
+            };
+
+            return profile;
+        }
+
+        private static string BuildSiblingsLineText(List<CharacterSibling> siblings, string excludeName = null)
+        {
+            if (siblings == null || siblings.Count == 0) return "";
+
+            var target = (excludeName ?? "").Trim();
+
+            var list = siblings
+                .Select(x => (x.CharacterName ?? "").Trim())
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n.Equals(target, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            return string.Join("/", list);
+        }
+
+        private static List<string> BuildSiblingsListText(List<CharacterSibling> siblings, string excludeName = null)
+        {
+            if (siblings == null || siblings.Count == 0)
+                return new List<string>();
+
+            var target = (excludeName ?? "").Trim();
+
+            var list = siblings
+                .Select(x => (x.CharacterName ?? "").Trim())
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n.Equals(target, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            return list;
+        }
+
     }
 }

@@ -147,7 +147,7 @@ namespace LupeonBot.Module
             await DeferAsync(ephemeral: true);
 
             // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
-            await Method.GetSimpleProfile(m_NickNm);
+            var profile = await ProfileModule.GetSimpleProfile(m_NickNm);
             // ===============================================
 
             try
@@ -168,9 +168,9 @@ namespace LupeonBot.Module
             }
 
             // 아이템레벨 파싱: "Lv.1640.00" 형태 대응
-            if (!Method.TryParseItemLevel(Method.m_아이템레벨, out var itemLv))
+            if (!Method.TryParseItemLevel(profile.아이템레벨, out var itemLv))
             {
-                await FollowupAsync($"❌ 아이템레벨을 파싱하지 못했습니다: `{Method.m_아이템레벨}`", ephemeral: true);
+                await FollowupAsync($"❌ 아이템레벨을 파싱하지 못했습니다: `{profile.아이템레벨}`", ephemeral: true);
                 return;
             }
 
@@ -184,7 +184,7 @@ namespace LupeonBot.Module
             if (itemLv < stdLv)
             {
                 string failDesc = $"캐릭명 : {m_NickNm}\n" +
-                                  $"아이템 : {Method.m_아이템레벨}\n" +
+                                  $"아이템 : {profile.아이템레벨}\n" +
                                   $"해당 캐릭터는 인증 기준레벨 미달 입니다.\n" +
                                   $"거래소인증은 {mStdLv} 이상의 캐릭으로만 가능합니다.";
 
@@ -220,9 +220,9 @@ namespace LupeonBot.Module
 
             // 캐릭터 정보 embed
             string charDesc =
-                $"서ㅤ버 : {Method.m_서버}\n" +
-                $"직ㅤ업 : {Method.m_직업}\n" +
-                $"아이템 : {Method.m_아이템레벨}\n" +
+                $"서ㅤ버 : {profile.서버}\n" +
+                $"직ㅤ업 : {profile.직업}\n" +
+                $"아이템 : {profile.아이템레벨}\n" +
                 $"캐릭명 : {m_NickNm}\n";
 
             var m_charInfo = new EmbedBuilder()
@@ -231,7 +231,7 @@ namespace LupeonBot.Module
                 .WithColor((Color)System.Drawing.Color.SkyBlue)
                 .WithFooter($"Develop by. 갱프　　　　　　　　신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
                 .WithImageUrl(Method.StoveProfileImagePath)
-                .WithThumbnailUrl(Method.m_ImgLink);
+                .WithThumbnailUrl(profile.ImgLink);
 
             var comps = new ComponentBuilder()
                 .WithButton(label: "인증완료", customId: "Complete", style: ButtonStyle.Success)

@@ -96,7 +96,7 @@ namespace LupeonBot.Module
             await RespondAsync("서버가입에 필요한 데이터를 확인 중입니다.", ephemeral: true);
 
             // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
-            await Method.GetSimpleProfile(m_NickNm);
+            var profile = await ProfileModule.GetSimpleProfile(m_NickNm);
             // ===============================================
 
             if (Method.TryExtractStoveId(data.StoveUrl, out var stoveId, out var url))
@@ -121,22 +121,22 @@ namespace LupeonBot.Module
             DateTime dt = DateTime.UtcNow.AddHours(9);
             string m_joinDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
             string m_joinTime = dt.ToString("HH:mm");      // 01:23
-            
-            if(Method.m_보유캐릭_배열 == null)
+
+            if (profile.보유캐릭_목록 == null)
             {
                 await ModifyOriginalResponseAsync(m => m.Content = $"❌ 가입실패, 캐릭터명을 확인해주세요.");
                 return;
             }
-            
+
             var dbRow = await SupabaseClient.GetSingUpByUserIdAsync(Context.User.Id.ToString());
-                    
+
             if (dbRow == null)
             {
                 var (ok, body) = await SupabaseClient.UpsertSingUpAsync(
                     userId: user.Id.ToString(),
                     stoveId: m_StoveId,
                     userNm: user.Username,
-                    characters: Method.m_보유캐릭_배열,
+                    characters: profile.보유캐릭_목록,
                     joinDate: m_joinDate, // 2026-01-06
                     joinTime: m_joinTime // 오전 01:23
                     );
@@ -148,9 +148,9 @@ namespace LupeonBot.Module
                     return;
                 }
 
-                foreach (var role in user.Guild.Roles) 
+                foreach (var role in user.Guild.Roles)
                 {
-                    if (role.Name == Method.m_직업)
+                    if (role.Name == profile.직업)
                     {
                         await user.AddRoleAsync(role);
                         break;
@@ -203,12 +203,3 @@ namespace LupeonBot.Module
         }
     }
 }
-
-
-
-
-
-
-
-
-

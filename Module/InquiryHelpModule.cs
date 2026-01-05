@@ -28,7 +28,7 @@ namespace LupeonBot.Module
             var component = new ComponentBuilder()
                 .WithButton(label: "문의하기", customId: "Inquiry", style: ButtonStyle.Primary)
                 .WithButton(label: "신고하기", customId: "Help", style: ButtonStyle.Danger);
-                //.WithButton(label: "인증갱신", customId: "CertUpdate", style: ButtonStyle.Success);
+            //.WithButton(label: "인증갱신", customId: "CertUpdate", style: ButtonStyle.Success);
 
             string m_body = string.Empty;
             string Emote = "<:pdiamond:907957436483248159>";
@@ -128,7 +128,7 @@ namespace LupeonBot.Module
             var guild = gu.Guild;
             string m_disCord = Context.User.Username;
             ulong s_userid = Context.User.Id;
-            
+
             DateTime dt = DateTime.UtcNow.AddHours(9);
 
             // ✅ Embed 내용
@@ -213,7 +213,7 @@ namespace LupeonBot.Module
 
             // 기준레벨 없으면 안내
             if (string.IsNullOrWhiteSpace(mStdLv))
-            {                
+            {
                 await RespondAsync("관리자에게 문의해주세요.", ephemeral: true);
                 return;
             }
@@ -275,7 +275,7 @@ namespace LupeonBot.Module
             await RespondAsync("인증 데이터를 확인 중입니다.", ephemeral: true);
 
             // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
-            await Method.GetSimpleProfile(m_NickNm);
+            var profile = await ProfileModule.GetSimpleProfile(m_NickNm);
             // ===============================================
 
             if (Method.TryExtractStoveId(data.StoveUrl, out var stoveId, out var url))
@@ -306,9 +306,9 @@ namespace LupeonBot.Module
             }
 
             // 아이템레벨 파싱: "Lv.1640.00" 형태 대응
-            if (!Method.TryParseItemLevel(Method.m_아이템레벨, out var itemLv))
+            if (!Method.TryParseItemLevel(profile.아이템레벨, out var itemLv))
             {
-                await FollowupAsync($"❌ 아이템레벨을 파싱하지 못했습니다: `{Method.m_아이템레벨}`", ephemeral: true);
+                await FollowupAsync($"❌ 아이템레벨을 파싱하지 못했습니다: `{profile.아이템레벨}`", ephemeral: true);
                 return;
             }
 
@@ -322,7 +322,7 @@ namespace LupeonBot.Module
             if (itemLv < stdLv)
             {
                 string failDesc = $"캐릭명 : {m_NickNm}\n" +
-                                  $"아이템 : {Method.m_아이템레벨}\n" +
+                                  $"아이템 : {profile.아이템레벨}\n" +
                                   $"해당 캐릭터는 인증 기준레벨 미달 입니다.\n" +
                                   $"거래소인증은 {mStdLv} 이상의 캐릭으로만 가능합니다.";
 
@@ -337,7 +337,7 @@ namespace LupeonBot.Module
             DateTime dt = DateTime.UtcNow.AddHours(9);
             string m_CertDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
             string m_CertTime = dt.ToString("HH:mm");      // 01:23
-            
+
             var dbRow = await SupabaseClient.GetCertInfoByUserIdAsync(user.Id.ToString());
 
             if (dbRow != null)
@@ -345,7 +345,7 @@ namespace LupeonBot.Module
                 var (ok, body) = await SupabaseClient.UpdateCertOnlyAsync(
                     userId: user.Id.ToString(),
                     stoveId: dbRow.StoveId,
-                    characters: Method.m_보유캐릭_배열,
+                    characters: profile.보유캐릭_목록,
                     certDate: m_CertDate,
                     certTime: m_CertTime
                     );
@@ -372,9 +372,9 @@ namespace LupeonBot.Module
                     userId: user.Id.ToString(),
                     stoveId: m_StoveId,
                     userNm: user.Username,
-                    characters: Method.m_보유캐릭_배열,
+                    characters: profile.보유캐릭_목록,
                     joinDate: joindate,
-                    joinTime: jointime, 
+                    joinTime: jointime,
                     certDate: m_CertDate,
                     certTime: m_CertTime
                     );
@@ -428,7 +428,7 @@ namespace LupeonBot.Module
             }
 
             await DeferAsync(ephemeral: true); // 메시지 수정할 거라 defer
-            
+
             var parts = Context.Channel.Name.Split('_');
             if (parts.Length < 2 || !ulong.TryParse(parts[1], out var s_userid))
             {
@@ -444,9 +444,9 @@ namespace LupeonBot.Module
             }
 
             // ✅ 타임아웃 1일
-            await target.SetTimeOutAsync(span: TimeSpan.FromDays(1), 
-                                         options: new RequestOptions { AuditLogReason = "문의 및 신고 채널 생성 후 5분이상 무응답"});
-            
+            await target.SetTimeOutAsync(span: TimeSpan.FromDays(1),
+                                         options: new RequestOptions { AuditLogReason = "문의 및 신고 채널 생성 후 5분이상 무응답" });
+
             // ✅ 안내(에페메랄 + 채널에도 남기고 싶으면 아래 SendMessageAsync 추가)
             await FollowupAsync($"{target.Mention} 타임아웃 적용 완료", ephemeral: true);
 
@@ -457,10 +457,3 @@ namespace LupeonBot.Module
         }
     }
 }
-
-
-
-
-
-
-
