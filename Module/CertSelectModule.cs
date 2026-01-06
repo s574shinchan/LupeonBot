@@ -167,7 +167,7 @@ namespace LupeonBot.Module
             var clean = names.Select(x => (x ?? "").Replace("\r", " ").Replace("\n", " ").Trim())
                              .Where(x => !string.IsNullOrWhiteSpace(x))
                              .ToList();
-            var characterText = (clean.Count > 0) ? string.Join(", ", clean.Chunk(5).Select(c => string.Join(", ", c))) : "-";
+            var characterText = (clean.Count > 0) ? string.Join(", ", clean.Chunk(7).Select(c => string.Join(", ", c))) : "-";
 
             SocketGuildUser? User = null;
 
