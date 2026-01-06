@@ -21,7 +21,7 @@ namespace LupeonBot.Module
         public async Task ProfileAsync([Summary(description: "캐릭터 이름")] string 캐릭터명)
         {
             // ✅ 슬래시는 3초 내 응답 필요 → 먼저 Defer(대기표시)
-            await DeferAsync();
+            await DeferAsync(ephemeral: true);
 
             try
             {
@@ -77,8 +77,9 @@ namespace LupeonBot.Module
                     if (text.Length > 900) text = text.Substring(0, 900) + "\n...";
                     eb.AddField($"보유 캐릭 : {profile.보유캐릭수}", text, false);
                 }
-
-                await FollowupAsync(embed: eb.Build());
+                await Context.Channel.SendMessageAsync(embed: eb.Build());
+                await DeleteOriginalResponseAsync();
+                //await FollowupAsync(embed: eb.Build());
             }
             catch (Exception ex)
             {
@@ -255,3 +256,4 @@ namespace LupeonBot.Module
 
     }
 }
+
