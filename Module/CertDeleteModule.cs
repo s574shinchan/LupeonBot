@@ -1,7 +1,7 @@
-using Discord;
+﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-
+using LupeonBot.Cache;
 using LupeonBot.Client;
 
 using System;

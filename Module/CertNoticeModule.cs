@@ -147,7 +147,7 @@ namespace LupeonBot.Module
             await DeferAsync(ephemeral: true);
 
             // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
-            var profile = await ProfileModule.GetSimpleProfile(m_NickNm);
+            var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
             // ===============================================
 
             try

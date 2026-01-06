@@ -98,9 +98,8 @@ namespace LupeonBot.Module
         [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task GetCertUserInfoAsync([Summary(description: "디스코드 ID 또는 캐릭터명")] string? 조회대상 = null)
         {
-            if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
+            if (Context.User is not SocketGuildUser gu)
             {
-                await RespondAsync("관리자만 사용 가능합니다.", ephemeral: true);
                 return;
             }
 
@@ -150,15 +149,14 @@ namespace LupeonBot.Module
             var eb = new EmbedBuilder()
                 .WithColor(Color.Green)
                 .WithTitle("✅ 인증내역 조회 결과")
-                .AddField("캐릭터명", $"{조회대상}", inline: true)
-                .AddField("StoveId", stoveId, inline: true)
-                .AddField("\u200b", "\u200b", inline: true)
+                .AddField("입력항목 : ", $"`{조회대상}`", inline: true)
                 .AddField("Discord", $"{mention}", inline: true)
-                .AddField("사용자명", userNm, inline: true)
                 .AddField("UserId", $"`{userId}`", inline: true)
+                .AddField("사용자명", userNm, inline: true)
                 .AddField("가입일시", joinDt, inline: true)
                 .AddField("인증일시", certDt, inline: true)
-                .AddField("보유캐릭", chars, inline: false)
+                .AddField("StoveId", stoveId, inline: true)
+                .AddField("캐릭터명", chars, inline: false)
                 .WithFooter("Develop by. 갱프");
 
             await FollowupAsync(embed: eb.Build(), ephemeral: true);
@@ -323,7 +321,7 @@ namespace LupeonBot.Module
         // ✅ 역할명(권장: 역할ID로 박아두는게 더 안전)
         private const ulong TargetRoleId = 1457383863943954512;       //루페온
 
-        [SlashCommand("채널정리", "입력한 채널 직업역할제거, 루페온역할 부여")]
+        //[SlashCommand("채널정리", "입력한 채널 직업역할제거, 루페온역할 부여")]
         [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task SetChannelRoleAsync([Summary("카테고리id", "정리할 카테고리 ID")] string categoryId)
         {
@@ -349,42 +347,33 @@ namespace LupeonBot.Module
             }
 
             var guild = Context.Guild;
-            var targetRole = guild.GetRole(TargetRoleId);
-            var only3 = new OverwritePermissions(viewChannel: PermValue.Allow, 
-                                                 sendMessages: PermValue.Allow, 
-                                                 readMessageHistory: PermValue.Allow);
-            
+            var channels = category.Channels;
+
             int totalRemoved = 0;
             int okChannels = 0;
 
             // ⭐ 실패 채널 기록용
             List<string> failedChannels = new();
 
-            var channels = category.Channels;
             foreach (var ch in channels)
             {
                 try
                 {
-                    var roleOverwrites = ch.PermissionOverwrites
-                        .Where(x => x.TargetType == PermissionTarget.Role)
-                        .ToList();
-                        
-                    foreach (var ow in roleOverwrites)
+                    foreach (var ow in ch.PermissionOverwrites.Where(x => x.TargetType == PermissionTarget.Role))
                     {
                         if (!RolesToRemove.Contains(ow.TargetId))
                             continue;
-                            
+
                         if (ow.TargetId == TargetRoleId)
                             continue;
 
                         var role = guild.GetRole(ow.TargetId);
-                        if (role == null) continue;
+                        if (role == null)
+                            continue;
 
                         await ch.RemovePermissionOverwriteAsync(role);
                         totalRemoved++;
                     }
-
-                    await ch.AddPermissionOverwriteAsync(targetRole, only3);
 
                     okChannels++;
                 }
@@ -414,7 +403,3 @@ namespace LupeonBot.Module
         }
     }
 }
-
-
-
-

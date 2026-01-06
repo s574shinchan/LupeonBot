@@ -77,8 +77,8 @@ namespace LupeonBot.Module
                .WithFooter($"{m_disCord}({s_userid}) 일시 : {dt.ToString("yyyy-MM-dd HH:mm:ss")}", Context.User.GetAvatarUrl(ImageFormat.Auto));
 
             var m_Inquiry = new ComponentBuilder()
-                .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger);
-                //.WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
+                .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger)
+                .WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
 
             string channelName = $"문의채널_{s_userid}";
 
@@ -147,8 +147,8 @@ namespace LupeonBot.Module
 
             // ✅ 버튼
             var m_help = new ComponentBuilder()
-                .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger);
-                //.WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
+                .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger)
+                .WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
 
             // ✅ 기존 채널 있으면 안내만
             string chName = $"신고채널_{s_userid}";
@@ -275,7 +275,7 @@ namespace LupeonBot.Module
             await RespondAsync("인증 데이터를 확인 중입니다.", ephemeral: true);
 
             // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
-            var profile = await ProfileModule.GetSimpleProfile(m_NickNm);
+            var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
             // ===============================================
 
             if (Method.TryExtractStoveId(data.StoveUrl, out var stoveId, out var url))
@@ -352,7 +352,7 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 갱신실패, 관리자에게 문의해주세요.");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
                     return;
                 }
 
@@ -381,7 +381,7 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 갱신실패, 관리자에게 문의해주세요.");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
                     return;
                 }
             }
@@ -456,6 +456,4 @@ namespace LupeonBot.Module
             await Method.DeleteChannelAsync(Context.Guild, (ITextChannel)Context.Channel, Context.Channel.Name);
         }
     }
-
 }
-

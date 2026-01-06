@@ -36,7 +36,7 @@ namespace DiscordBot
         public static void Main() => new Program().MainAsync().GetAwaiter().GetResult();
 
         // ✅ 슬래시 커맨드 서비스
-        private InteractionService _interactions;
+        private InteractionService? _interactions;
 
         public static string BotToken = string.Empty;
         public static string LostArkJwt = string.Empty; // ✅ 로아 Open API JWT

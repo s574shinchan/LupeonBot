@@ -37,16 +37,17 @@ namespace LupeonBot.Client
             public string? UserId { get; set; }
             public string? StoveId { get; set; }
             public string? UserNm { get; set; }
-            public List<string> Character { get; set; }
+            public List<string>? Character { get; set; }
             public string? JoinDate { get; set; }
             public string? JoinTime { get; set; }
         }
+        
         public sealed class CertInfoRow
         {
             public string? UserId { get; set; }
             public string? StoveId { get; set; }
             public string? UserNm { get; set; }
-            public List<string> Character { get; set; }
+            public List<string>? Character { get; set; }
             public string? JoinDate { get; set; }
             public string? JoinTime { get; set; }
             public string? CertDate { get; set; }
@@ -64,7 +65,7 @@ namespace LupeonBot.Client
         /// <summary>
         /// 디스코드id로 가입정보 테이블 조회
         /// </summary>
-        /// <param name="userId : 디스코드id"></param>
+        /// <param name="userId"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static async Task<SignUpInfoRow?> GetSingUpByUserIdAsync(string userId)
@@ -86,8 +87,8 @@ namespace LupeonBot.Client
         /// 디스코드 id랑 캐릭명으로 벤테이블조회
         /// 아직 사용 x
         /// </summary>
-        /// <param name="userId : 디스코드 id"></param>
-        /// <param name="character : 캐릭명"></param>
+        /// <param name="userId"></param>
+        /// <param name="character"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static async Task<BanUserRow?> GetBanUserInfoAsync(string userId, string character)
@@ -109,14 +110,15 @@ namespace LupeonBot.Client
         /// <summary>
         /// 가입정보 테이블에 추가
         /// </summary>
-        /// <param name="userId : 디스코드ID"></param>
-        /// <param name="stoveId : stoveId"></param>
-        /// <param name="userNm : 사용자명"></param>
-        /// <param name="characters : 보유캐릭"></param>
-        /// <param name="joinDate : 가입일"></param>
-        /// <param name="joinTime : 가입시간"></param>
+        /// <param name="userId">디스코드 userid</param>
+        /// <param name="stoveId">스토브 프로필 링크 뒤 숫자</param>
+        /// <param name="userNm">디스코드 사용자명</param>
+        /// <param name="characters">캐릭명</param>
+        /// <param name="joinDate">가입일</param>
+        /// <param name="joinTime">가입시간</param>
         /// <returns></returns>
-        public static async Task<(bool ok, string body)> UpsertSingUpAsync(string userId, string stoveId, string userNm, List<string> characters, string joinDate, string joinTime)
+        public static async Task<(bool ok, string body)> UpsertSingUpAsync(string userId, string stoveId, string userNm, List<string> characters,
+                                                                           string joinDate, string joinTime)
         {
             // ✅ 컬럼명은 테이블 그대로 (UserId, UserUrl, ...)
             var payload = new[]
@@ -148,7 +150,7 @@ namespace LupeonBot.Client
         /// <summary>
         /// 디스코드id로 인증정보 테이블 조회
         /// </summary>
-        /// <param name="userId : 디스코드id"></param>
+        /// <param name="userId"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static async Task<CertInfoRow?> GetCertInfoByUserIdAsync(string userId)
@@ -219,7 +221,8 @@ namespace LupeonBot.Client
         /// <param name="certDate"></param>
         /// <param name="certTime"></param>
         /// <returns></returns>
-        public static async Task<(bool ok, string body)> UpdateCertOnlyAsync(string userId, string stoveId, List<string> characters, string certDate, string certTime)
+        public static async Task<(bool ok, string body)> UpdateCertOnlyAsync(string userId, string stoveId, List<string> characters, 
+                                                                             string certDate, string certTime)
         {
             var payload = new
             {
@@ -300,6 +303,71 @@ namespace LupeonBot.Client
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             return list?.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// 디스코드ID로 단건검색
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static async Task<CertInfoRow?> GetByUserIdAsync(string userId)
+        {
+            string url ="rest/v1/certinfo?select=userid,character" +
+                        $"&userid=eq.{Uri.EscapeDataString(userId)}&limit=1";
+
+            var res = await Client.GetAsync(url);
+            var body = await res.Content.ReadAsStringAsync();
+            if (!res.IsSuccessStatusCode) throw new Exception($"Supabase SELECT 실패\n{body}");
+
+            var list = JsonSerializer.Deserialize<List<CertInfoRow>>(body,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return (list != null && list.Count > 0) ? list[0] : null;
+        }
+
+        /// <summary>
+        /// 캐릭터명 부분일치 조회
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static async Task<List<CertInfoRow>> SearchByCharacterAsync(string keyword)
+        {
+            keyword = (keyword ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(keyword))
+                return new List<CertInfoRow>();
+
+            var payload = JsonSerializer.Serialize(new { p_query = keyword });
+
+            var req = new HttpRequestMessage(HttpMethod.Post, "rest/v1/rpc/search_certinfo_by_character");
+            req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
+
+            var res = await Client.SendAsync(req);
+            var body = await res.Content.ReadAsStringAsync();
+
+            if (!res.IsSuccessStatusCode)
+                throw new Exception($"Supabase SELECT 실패 (HTTP {(int)res.StatusCode})\n{body}");
+
+            var list = JsonSerializer.Deserialize<List<CertInfoRow>>(body,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return list ?? new List<CertInfoRow>();
+        }
+
+        /// <summary>
+        /// 디스코드ID로 단건삭제
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static async Task<bool> DeleteByUserIdAsync(string userId)
+        {
+            string url = "rest/v1/certinfo" + $"?userid=eq.{Uri.EscapeDataString(userId)}";
+            var res = await Client.DeleteAsync(url);
+            var body = await res.Content.ReadAsStringAsync();
+            if (!res.IsSuccessStatusCode) throw new Exception($"Supabase DELETE 실패\n{body}");
+            return true;
         }
     }
 }

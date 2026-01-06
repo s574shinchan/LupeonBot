@@ -96,7 +96,7 @@ namespace LupeonBot.Module
             await RespondAsync("서버가입에 필요한 데이터를 확인 중입니다.", ephemeral: true);
 
             // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
-            var profile = await ProfileModule.GetSimpleProfile(m_NickNm);
+            var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
             // ===============================================
 
             if (Method.TryExtractStoveId(data.StoveUrl, out var stoveId, out var url))
