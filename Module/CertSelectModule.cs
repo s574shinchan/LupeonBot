@@ -163,18 +163,23 @@ namespace LupeonBot.Module
         private Embed BuildCertEmbed(CertInfoRow row, int index, int total, SocketGuild guild)
         {
             // character가 text[] 라고 했으니 string[] 혹은 List<string> 형태 가정
-            var characterText =
-                row.Character == null ? "-" :
-                (row.Character.Count == 0 ? "-" :
-                 string.Join("\n", row.Character.Select(x => $"• {x}")));
+            var names = row.Character ?? new List<string>();
+            var clean = names.Select(x => (x ?? "").Replace("\r", " ").Replace("\n", " ").Trim())
+                             .Where(x => !string.IsNullOrWhiteSpace(x))
+                             .ToList();
+            var characterText = (clean.Count > 0) ? string.Join(", ", clean.Chunk(5).Select(c => string.Join(", ", c))) : "-";
 
             SocketGuildUser? User = null;
 
             if (ulong.TryParse(row.UserId, out var uid))
                 User = Context.Guild?.GetUser(uid);
 
-            return new EmbedBuilder()
-                .WithTitle("✅ 전체 인증 정보")
+            string mfield = $"페이지 : **{index + 1} / {total}**\n\n" +
+                            $"Character\n" +
+                            $"`{characterText}`";
+
+            var eb = new EmbedBuilder()
+                .WithTitle($"전체 인증 정보 [{index + 1} / {total}]")
                 .WithColor(Color.Green)
                 .AddField("Discord", User?.Mention, true)
                 .AddField("사용자명", row.UserNm, true)
@@ -182,10 +187,10 @@ namespace LupeonBot.Module
                 .AddField("StoveId", row.StoveId, true)
                 .AddField("가입일시", row.JoinDate + " " + row.JoinTime, true)
                 .AddField("인증일시", row.CertTime + " " + row.CertTime, true)
-                .AddField($"페이지 : **{index + 1} / {total}**", " ", false)
                 .AddField("Character", $"`{characterText}`", false)
-                .WithFooter($"Develop by. 갱프")
-                .Build();
+                .WithFooter($"Develop by. 갱프");
+
+            return eb.Build();
         }
 
         private static MessageComponent BuildPagerComponents(string token, int index, int total)
@@ -194,9 +199,9 @@ namespace LupeonBot.Module
             bool isLast = index >= total - 1;
 
             return new ComponentBuilder()
-                .WithButton("◀", customId: $"cert:prev:{token}", style: ButtonStyle.Secondary, disabled: isFirst)
+                .WithButton("◀", customId: $"cert:prev:{token}", style: ButtonStyle.Primary, disabled: isFirst)
                 .WithButton("닫기", customId: $"cert:close:{token}", style: ButtonStyle.Danger)
-                .WithButton("▶", customId: $"cert:next:{token}", style: ButtonStyle.Secondary, disabled: isLast)
+                .WithButton("▶", customId: $"cert:next:{token}", style: ButtonStyle.Primary, disabled: isLast)
                 .Build();
         }
     }
