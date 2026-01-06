@@ -152,7 +152,7 @@ namespace LupeonBot.Module
                 .WithTitle("✅ 인증내역 조회 결과")
                 .AddField("캐릭터명", $"{조회대상}", inline: true)
                 .AddField("StoveId", stoveId, inline: true)
-                .AddField("\u200b", "\u200b", inline: false)
+                .AddField("\u200b", "\u200b", inline: true)
                 .AddField("Discord", $"{mention}", inline: true)
                 .AddField("사용자명", userNm, inline: true)
                 .AddField("UserId", $"`{userId}`", inline: true)
@@ -414,6 +414,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
