@@ -77,8 +77,8 @@ namespace LupeonBot.Module
                .WithFooter($"{m_disCord}({s_userid}) 일시 : {dt.ToString("yyyy-MM-dd HH:mm:ss")}", Context.User.GetAvatarUrl(ImageFormat.Auto));
 
             var m_Inquiry = new ComponentBuilder()
-                .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger)
-                .WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
+                .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger);
+                //.WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
 
             string channelName = $"문의채널_{s_userid}";
 
@@ -147,8 +147,8 @@ namespace LupeonBot.Module
 
             // ✅ 버튼
             var m_help = new ComponentBuilder()
-                .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger)
-                .WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
+                .WithButton(label: "종료", customId: "ChDispose", style: ButtonStyle.Danger);
+                //.WithButton(label: "타임아웃", customId: "TimeOut", style: ButtonStyle.Primary);
 
             // ✅ 기존 채널 있으면 안내만
             string chName = $"신고채널_{s_userid}";
@@ -352,7 +352,7 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 갱신실패, 관리자에게 문의해주세요.");
                     return;
                 }
 
@@ -381,7 +381,7 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 갱신실패, 관리자에게 문의해주세요.");
                     return;
                 }
             }
@@ -458,3 +458,4 @@ namespace LupeonBot.Module
     }
 
 }
+
