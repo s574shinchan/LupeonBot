@@ -150,14 +150,15 @@ namespace LupeonBot.Module
             var eb = new EmbedBuilder()
                 .WithColor(Color.Green)
                 .WithTitle("✅ 인증내역 조회 결과")
-                .AddField("입력항목 : ", $"`{조회대상}`", inline: true)
+                .AddField("캐릭터명", $"{조회대상}", inline: true)
+                .AddField("StoveId", stoveId, inline: true)
+                .AddField("\u200b", "\u200b", inline: false)
                 .AddField("Discord", $"{mention}", inline: true)
-                .AddField("UserId", $"`{userId}`", inline: true)
                 .AddField("사용자명", userNm, inline: true)
+                .AddField("UserId", $"`{userId}`", inline: true)
                 .AddField("가입일시", joinDt, inline: true)
                 .AddField("인증일시", certDt, inline: true)
-                .AddField("StoveId", stoveId, inline: true)
-                .AddField("캐릭터명", chars, inline: false)
+                .AddField("보유캐릭", chars, inline: false)
                 .WithFooter("Develop by. 갱프");
 
             await FollowupAsync(embed: eb.Build(), ephemeral: true);
@@ -413,5 +414,6 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
