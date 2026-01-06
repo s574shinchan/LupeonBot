@@ -369,5 +369,25 @@ namespace LupeonBot.Client
             if (!res.IsSuccessStatusCode) throw new Exception($"Supabase DELETE 실패\n{body}");
             return true;
         }
+
+        /// <summary>
+        /// 인증 전체 조회
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static async Task<List<CertInfoRow>?> GetAllCertInfoAsync()
+        {
+            // select 컬럼은 너 테이블에 맞게
+            // character가 text[]면 PostgREST에서 배열로 내려옴
+            string url = "rest/v1/certinfo?select=userid,usernm,stoveid,character,joindate,jointime,certdate,certtime&order=certdate.desc";
+        
+            var res = await Client.GetAsync(url);
+            var body = await res.Content.ReadAsStringAsync();
+            if (!res.IsSuccessStatusCode) throw new Exception($"Supabase SELECT 실패\n{body}");
+        
+            var list = JsonSerializer.Deserialize<List<CertInfoRow>>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        
+            return list;
+        }
     }
 }
