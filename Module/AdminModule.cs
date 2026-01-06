@@ -13,7 +13,6 @@ using static LupeonBot.Client.SupabaseClient;
 
 namespace LupeonBot.Module
 {
-    [GuildOnly(513799663086862336)]
     public class AdminModule : InteractionModuleBase<SocketInteractionContext>
     {
         private const ulong BanLogChannelId = 598534025380102169;

@@ -15,7 +15,6 @@ using static DiscordBot.Program;
 
 namespace LupeonBot.Module
 {
-    [GuildOnly(513799663086862336)]
     public class InquiryHelpModule : InteractionModuleBase<SocketInteractionContext>
     {
         private const ulong AdminRoleId = 557635038607573002;          // 관리자 역할

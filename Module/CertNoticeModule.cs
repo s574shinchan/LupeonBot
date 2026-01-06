@@ -13,7 +13,6 @@ using static DiscordBot.Program;
 
 namespace LupeonBot.Module
 {
-    [GuildOnly(513799663086862336)]
     public partial class CertNoticeModule : InteractionModuleBase<SocketInteractionContext>
     {
         #region 상수

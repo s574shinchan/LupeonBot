@@ -12,7 +12,6 @@ using static DiscordBot.Program;
 
 namespace LupeonBot.Module
 {
-    [GuildOnly(513799663086862336)]
     public class SingUpModule : InteractionModuleBase<SocketInteractionContext>
     {
         [SlashCommand("가입공지", "서버가입버튼 표시")]
