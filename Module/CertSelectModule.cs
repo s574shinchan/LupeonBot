@@ -17,11 +17,14 @@ namespace LupeonBot.Module
 {
     public sealed class CertSelectModule : InteractionModuleBase<SocketInteractionContext>
     {
-        [SlashCommand("인증전체조회", "인증내역 일괄 조회")]
+        [SlashCommand("인증전체조회","인증된 모든 정보 표시")]
         [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task GetCertInfoTable() 
         {
-            if (Context.User is not SocketGuildUser) return;
+            if (Context.User is not SocketGuildUser) 
+            {
+                return;
+            }
 
             // ✅ 로딩은 비공개(에페메랄)로만 처리
             await DeferAsync(ephemeral: true);
