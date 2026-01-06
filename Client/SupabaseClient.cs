@@ -64,7 +64,7 @@ namespace LupeonBot.Client
         /// <summary>
         /// 디스코드id로 가입정보 테이블 조회
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="userId : 디스코드id"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static async Task<SignUpInfoRow?> GetSingUpByUserIdAsync(string userId)
@@ -86,8 +86,8 @@ namespace LupeonBot.Client
         /// 디스코드 id랑 캐릭명으로 벤테이블조회
         /// 아직 사용 x
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="character"></param>
+        /// <param name="userId : 디스코드 id"></param>
+        /// <param name="character : 캐릭명"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static async Task<BanUserRow?> GetBanUserInfoAsync(string userId, string character)
@@ -108,19 +108,13 @@ namespace LupeonBot.Client
 
         /// <summary>
         /// 가입정보 테이블에 추가
-        /// userid : 디스코드 userid
-        /// stoveid : 스토브 프로필 링크 뒤 숫자
-        /// usernm : 디스코드 사용자명
-        /// characters : 캐릭명
-        /// joindate : 가입일
-        /// jointime : 가입시간
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="stoveId"></param>
-        /// <param name="userNm"></param>
-        /// <param name="characters"></param>
-        /// <param name="joinDate"></param>
-        /// <param name="joinTime"></param>
+        /// <param name="userId : 디스코드ID"></param>
+        /// <param name="stoveId : stoveId"></param>
+        /// <param name="userNm : 사용자명"></param>
+        /// <param name="characters : 보유캐릭"></param>
+        /// <param name="joinDate : 가입일"></param>
+        /// <param name="joinTime : 가입시간"></param>
         /// <returns></returns>
         public static async Task<(bool ok, string body)> UpsertSingUpAsync(string userId, string stoveId, string userNm, List<string> characters, string joinDate, string joinTime)
         {
@@ -154,7 +148,7 @@ namespace LupeonBot.Client
         /// <summary>
         /// 디스코드id로 인증정보 테이블 조회
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="userId : 디스코드id"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static async Task<CertInfoRow?> GetCertInfoByUserIdAsync(string userId)
@@ -307,6 +301,5 @@ namespace LupeonBot.Client
 
             return list?.FirstOrDefault();
         }
-
     }
 }
