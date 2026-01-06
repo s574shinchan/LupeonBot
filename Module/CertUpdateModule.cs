@@ -11,9 +11,11 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static DiscordBot.Program;
 
 namespace LupeonBot
 {
+    [GuildOnly(513799663086862336)]
     public sealed class CertUpdateModule : InteractionModuleBase<SocketInteractionContext>
     {
         private string mStdLv = ""; // 파일에서 읽어온 값

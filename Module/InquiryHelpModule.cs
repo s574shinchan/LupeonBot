@@ -11,9 +11,11 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static DiscordBot.Program;
 
 namespace LupeonBot.Module
 {
+    [GuildOnly(513799663086862336)]
     public class InquiryHelpModule : InteractionModuleBase<SocketInteractionContext>
     {
         private const ulong AdminRoleId = 557635038607573002;          // 관리자 역할
@@ -414,45 +416,6 @@ namespace LupeonBot.Module
             }
 
             await DeferAsync(ephemeral: true);
-            await Method.DeleteChannelAsync(Context.Guild, (ITextChannel)Context.Channel, Context.Channel.Name);
-        }
-
-        // ✅ 타임아웃 버튼
-        [ComponentInteraction("TimeOut")]
-        public async Task TimeOutHIAsync()
-        {
-            if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
-            {
-                await RespondAsync("관리자만 가능", ephemeral: true);
-                return;
-            }
-
-            await DeferAsync(ephemeral: true); // 메시지 수정할 거라 defer
-
-            var parts = Context.Channel.Name.Split('_');
-            if (parts.Length < 2 || !ulong.TryParse(parts[1], out var s_userid))
-            {
-                await FollowupAsync("채널명에서 유저 ID를 추출할 수 없음 (형식: 문의채널_유저ID)", ephemeral: true);
-                return;
-            }
-
-            var target = gu.Guild.GetUser(s_userid);
-            if (target == null)
-            {
-                await FollowupAsync("해당 유저를 찾을 수 없음", ephemeral: true);
-                return;
-            }
-
-            // ✅ 타임아웃 1일
-            await target.SetTimeOutAsync(span: TimeSpan.FromDays(1),
-                                         options: new RequestOptions { AuditLogReason = "문의 및 신고 채널 생성 후 5분이상 무응답" });
-
-            // ✅ 안내(에페메랄 + 채널에도 남기고 싶으면 아래 SendMessageAsync 추가)
-            await FollowupAsync($"{target.Mention} 타임아웃 적용 완료", ephemeral: true);
-
-            await Task.Delay(1000);
-
-            // ✅ 채널 삭제
             await Method.DeleteChannelAsync(Context.Guild, (ITextChannel)Context.Channel, Context.Channel.Name);
         }
     }

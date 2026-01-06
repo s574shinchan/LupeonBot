@@ -7,9 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static DiscordBot.Program;
 
 namespace LupeonBot.Module
 {
+    [GuildOnly(513799663086862336)]
     public class SignUpErrorModule : InteractionModuleBase<SocketInteractionContext>
     {
         [SlashCommand("가입문의", "가입안되요 채널에 문의버튼생성")]
@@ -132,7 +134,6 @@ namespace LupeonBot.Module
             await DeferAsync(ephemeral: true);
             await Method.DeleteChannelAsync(Context.Guild, (ITextChannel)Context.Channel, Context.Channel.Name);
         }
-
     }
 }
 

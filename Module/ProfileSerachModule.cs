@@ -11,6 +11,7 @@ using System.Reactive;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static DiscordBot.Program;
 using static LupeonBot.Module.ProfileMethod;
 
 namespace LupeonBot.Module
@@ -252,6 +253,5 @@ namespace LupeonBot.Module
 
             return list;
         }
-
     }
 }

@@ -9,11 +9,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using static DiscordBot.Program;
 
 namespace LupeonBot.Module
 {
+    [GuildOnly(513799663086862336)]
     public partial class CertNoticeModule : InteractionModuleBase<SocketInteractionContext>
     {
+        #region 상수
         // ===== 네 서버 환경에 맞게 ID만 맞춰줘 =====
         private const ulong EveryoneRoleId = 513799663086862336;       // @everyone
         private const ulong TradeRoleId = 1264901726251647086;      // 거래소 역할(deny)
@@ -21,7 +24,9 @@ namespace LupeonBot.Module
         private const ulong GuideChannelId = 653484646260277248;       // 가이드 채널(링크)
         private const ulong CheckChannelId = 1000806935634919454;
         // =========================================
+        #endregion 상수
 
+        #region 변수
         // ===== 기존 전역/멤버 변수(네 코드에 있던 것들) =====
         private string mStdLv = ""; // 파일에서 읽어온 값(이미 갖고 있는 방식대로 세팅)
         private string m_NickNm = "";
@@ -33,11 +38,9 @@ namespace LupeonBot.Module
         private string m_직업 = "";
         private string m_아이템레벨 = "";  // 예: "Lv.1640.00"
         private string m_ImgLink = "";
-        // ===================================================
+        // =================================================== 
+        #endregion 변수
 
-        // ---------------------------
-        // 0) 신청공지
-        // ---------------------------
         [SlashCommand("신청공지", "거래소신청 공지를 표시합니다. (관리자전용)")]
         [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task CertNotice()
@@ -92,9 +95,7 @@ namespace LupeonBot.Module
             await RespondAsync("정상적으로 공지표시완료", ephemeral: true);
         }
 
-        // ---------------------------
         // 1) "역할신청" 버튼 핸들러
-        // ---------------------------
         [ComponentInteraction("Cert")]
         public async Task Btn_Cert()
         {
@@ -122,9 +123,7 @@ namespace LupeonBot.Module
             await Context.Interaction.RespondWithModalAsync<CertModalData>("CertModal");
         }
 
-        // ---------------------------
         // 2) CertModal 제출 핸들러
-        // ---------------------------
         [ModalInteraction("CertModal")]
         public async Task Modal_CertModal(CertModalData data)
         {
@@ -404,5 +403,4 @@ namespace LupeonBot.Module
             }
         }
     }
-
 }

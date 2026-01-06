@@ -105,11 +105,34 @@ namespace DiscordBot
             if (_registered) return; // ✅ Ready 중복 방지
             _registered = true;
 
-            await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), services: null);
-            var modules = _interactions.Modules.Select(m => m.Name);
+            //await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), services: null);
+            //var modules = _interactions.Modules.Select(m => m.Name);
 
-            ulong guildId = 513799663086862336;
-            await _interactions.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
+            //ulong guildId = 513799663086862336;
+            //await _interactions.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
+
+            foreach (var guild in client.Guilds)
+            {
+                // 🔥 길드마다 InteractionService를 새로 만든다
+                var interactions = new InteractionService(client.Rest);
+
+                var modules = Assembly.GetExecutingAssembly().GetTypes()
+                    .Where(t => {
+                        if (!typeof(InteractionModuleBase<SocketInteractionContext>).IsAssignableFrom(t))
+                            return false;
+
+                        var attr = t.GetCustomAttribute<GuildOnlyAttribute>();
+                        return attr == null || attr.GuildId == guild.Id;
+                    });
+
+                foreach (var module in modules)
+                {
+                    await interactions.AddModuleAsync(module, null);
+                }
+
+                // 🔥 이 길드에 "허용된 명령어만" 등록
+                await interactions.RegisterCommandsToGuildAsync(guild.Id, deleteMissing: true);
+            }
 
             foreach (var guild in client.Guilds)
             {
@@ -170,6 +193,12 @@ namespace DiscordBot
             public static Dictionary<string, SocketRole> SocketRoles { get; } = new();
         }
 
+        [AttributeUsage(AttributeTargets.Class)]
+        public sealed class GuildOnlyAttribute : Attribute
+        {
+            public ulong GuildId { get; }
+            public GuildOnlyAttribute(ulong guildId) => GuildId = guildId;
+        }
         public Task Log(LogMessage msg)
         {
             Console.WriteLine(msg.ToString());

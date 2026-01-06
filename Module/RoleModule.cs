@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static DiscordBot.Program;
 
+[GuildOnly(513799663086862336)]
 public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("역할신청", "직업역할 선택 슬롯 표시")]
@@ -180,6 +181,7 @@ public sealed class RoleSlashModule : InteractionModuleBase<SocketInteractionCon
     //}
 }
 
+[GuildOnly(513799663086862336)]
 public sealed class RoleComponentModule : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("role:*")]
@@ -313,6 +315,7 @@ public sealed class RoleComponentModule : InteractionModuleBase<SocketInteractio
     }
 }
 
+[GuildOnly(513799663086862336)]
 public sealed class RoleCheckModule : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("역할확인", "본인이 가지고 있는 역할들을 확인 할 수 있는 버튼표시")]

@@ -11,11 +11,13 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static DiscordBot.Program;
 using static LupeonBot.Client.SupabaseClient;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LupeonBot.Module
 {
+    [GuildOnly(513799663086862336)]
     // ====== 1) SlashCommand: /인증삭제 ======
     public sealed class CertDeleteSlashModule : InteractionModuleBase<SocketInteractionContext>
     {
