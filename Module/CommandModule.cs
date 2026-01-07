@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -51,7 +51,6 @@ namespace LupeonBot.Module
         #endregion 변수
 
         [SlashCommand("신청공지", "거래소신청 공지를 표시합니다. (관리자전용)")]
-        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task CertNotice()
         {
             var gu = Context.User as SocketGuildUser;
@@ -105,7 +104,7 @@ namespace LupeonBot.Module
         }
 
         // 1) "역할신청" 버튼 핸들러
-        [ComponentInteraction("Cert")]
+        [ComponentInteraction("Cert", ignoreGroupNames: true)]
         public async Task Btn_Cert()
         {
             var guildUser = Context.User as SocketGuildUser;
@@ -133,7 +132,7 @@ namespace LupeonBot.Module
         }
 
         // 2) CertModal 제출 핸들러
-        [ModalInteraction("CertModal")]
+        [ModalInteraction("CertModal", ignoreGroupNames: true)]
         public async Task Modal_CertModal(CertModalData data)
         {
             var guildUser = Context.User as SocketGuildUser;
@@ -301,7 +300,7 @@ namespace LupeonBot.Module
             public string NickName { get; set; } = "";
         }
 
-        [ComponentInteraction("SetStdLv")]
+        [ComponentInteraction("SetStdLv", ignoreGroupNames: true)]
         public async Task Btn_SetStdLv()
         {
             var gu = Context.User as SocketGuildUser;
@@ -324,7 +323,7 @@ namespace LupeonBot.Module
             public string StdLv { get; set; } = "";
         }
 
-        [ModalInteraction("SetStdLvModal")]
+        [ModalInteraction("SetStdLvModal", ignoreGroupNames: true)]
         public async Task Modal_SetStdLv(SetStdLvModalData data)
         {
             var gu = Context.User as SocketGuildUser;
@@ -353,7 +352,7 @@ namespace LupeonBot.Module
             await RespondAsync($"✅ 기준레벨이 `{mStdLv}` 로 저장되었습니다.\n이제 **재실행** 버튼을 눌러 공지를 다시 띄워주세요.", ephemeral: true);
         }
 
-        [ComponentInteraction("ReNotice")]
+        [ComponentInteraction("ReNotice", ignoreGroupNames: true)]
         public async Task Btn_ReNotice()
         {
             var gu = Context.User as SocketGuildUser;
@@ -378,7 +377,6 @@ namespace LupeonBot.Module
         }
 
         [SlashCommand("레벨초기화", "거래소 인증 기준레벨을 초기화합니다. (관리자 전용)")]
-        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task ResetStdLv()
         {
             var gu = Context.User as SocketGuildUser;
@@ -415,7 +413,7 @@ namespace LupeonBot.Module
         #endregion 거래소인증 버튼 공지 및 레벨 초기화
 
         #region 인증절차
-        [ComponentInteraction("Complete")]
+        [ComponentInteraction("Complete", ignoreGroupNames: true)]
         public async Task CompleteAsync()
         {
             // 0) 관리자 체크
@@ -622,7 +620,7 @@ namespace LupeonBot.Module
             }
         }
 
-        [ComponentInteraction("ExitCert")]
+        [ComponentInteraction("ExitCert", ignoreGroupNames: true)]
         public async Task CloseChannel()
         {
             // 0) 관리자 체크
@@ -636,7 +634,7 @@ namespace LupeonBot.Module
             await Method.DeleteChannelAsync(Context.Guild, (ITextChannel)Context.Channel, Context.Channel.Name);
         }
 
-        [ComponentInteraction("CertTimeOut")]
+        [ComponentInteraction("CertTimeOut", ignoreGroupNames: true)]
         public async Task TimeOutAsync()
         {
             if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
@@ -672,7 +670,7 @@ namespace LupeonBot.Module
         }
 
         // values[0] 에 선택된 value가 들어옴
-        [ComponentInteraction("SelectRow")]
+        [ComponentInteraction("SelectRow", ignoreGroupNames: true)]
         public async Task SelectRowAsync(string[] values)
         {
             if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
@@ -708,7 +706,7 @@ namespace LupeonBot.Module
             await RespondAsync($"✅ 타임아웃 사유 선택됨: `{reason}`", ephemeral: true);
         }
 
-        [ModalInteraction("TimeoutReasonModal")]
+        [ModalInteraction("TimeoutReasonModal", ignoreGroupNames: true)]
         public async Task TimeoutReasonModalAsync(TimeoutReasonModal modal)
         {
             if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
@@ -739,7 +737,7 @@ namespace LupeonBot.Module
             public string Reason { get; set; }
         }
 
-        [ComponentInteraction("TimeOutConfirm")]
+        [ComponentInteraction("TimeOutConfirm", ignoreGroupNames: true)]
         public async Task TimeOutConfirmAsync()
         {
             if (Context.User is not SocketGuildUser gu || !gu.GuildPermissions.Administrator)
@@ -771,7 +769,6 @@ namespace LupeonBot.Module
 
         #region 인증 전체 조회
         [SlashCommand("인증전체조회", "인증된 모든 정보 표시")]
-        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task GetCertInfoTable()
         {
             if (Context.User is not SocketGuildUser)
@@ -830,7 +827,7 @@ namespace LupeonBot.Module
         }
 
         // ✅ Prev
-        [ComponentInteraction("cert:prev:*")]
+        [ComponentInteraction("cert:prev:*", ignoreGroupNames: true)]
         public async Task PagerPrevAsync(string token)
         {
             if (!CertPagerStore.States.TryGetValue(token, out var state))
@@ -861,7 +858,7 @@ namespace LupeonBot.Module
         }
 
         // ✅ Next
-        [ComponentInteraction("cert:next:*")]
+        [ComponentInteraction("cert:next:*", ignoreGroupNames: true)]
         public async Task PagerNextAsync(string token)
         {
             if (!CertPagerStore.States.TryGetValue(token, out var state))
@@ -891,7 +888,7 @@ namespace LupeonBot.Module
         }
 
         // ✅ Close (메시지 삭제 + 세션 제거)
-        [ComponentInteraction("cert:close:*")]
+        [ComponentInteraction("cert:close:*", ignoreGroupNames: true)]
         public async Task PagerCloseAsync(string token)
         {
             if (!CertPagerStore.States.TryGetValue(token, out var state))
@@ -964,7 +961,6 @@ namespace LupeonBot.Module
 
         #region 인증개별조회
         [SlashCommand("인증내역조회", "인증된 정보를 조회합니다. (관리자전용)")]
-        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task GetCertUserInfoAsync([Summary(description: "디스코드 ID 또는 캐릭터명")] string? 조회대상 = null)
         {
             if (Context.User is not SocketGuildUser gu)
@@ -1034,8 +1030,7 @@ namespace LupeonBot.Module
         #endregion 인증개별조회
 
         #region 인증갱신공지
-        [SlashCommand("인증갱신공지", "기간내 거래소 인증데이터 갱신을 위한 버튼 표시")]
-        [DefaultMemberPermissions(GuildPermission.Administrator)]
+        [SlashCommand("갱신공지", "기간내 거래소 인증데이터 갱신을 위한 버튼 표시")]
         public async Task CertInfoUpdate()
         {
             string Emote = "<:pdiamond:907957436483248159>";
@@ -1075,7 +1070,7 @@ namespace LupeonBot.Module
             public string StoveUrl { get; set; } = "";
         }
 
-        [ComponentInteraction("CertInfoUpdate")]
+        [ComponentInteraction("CertInfoUpdate", ignoreGroupNames: true)]
         public async Task CertInfoUpdateAsync()
         {
             try
@@ -1120,10 +1115,10 @@ namespace LupeonBot.Module
             }
 
             // 모달 띄우기
-            await Context.Interaction.RespondWithModalAsync<CertModalData>("CertInfoUpdateModal");
+            await Context.Interaction.RespondWithModalAsync<CertUpModalData>("CertInfoUpdateModal");
         }
 
-        [ModalInteraction("CertInfoUpdateModal")]
+        [ModalInteraction("CertInfoUpdateModal", ignoreGroupNames: true)]
         public async Task Modal_CertUpModal(CertUpModalData data)
         {
             string m_NickNm = "";
@@ -1276,7 +1271,6 @@ namespace LupeonBot.Module
 
         #region 인증삭제
         [SlashCommand("인증삭제", "디스코드ID 또는 캐릭터명 (미리보기 후 삭제/취소)")]
-        [DefaultMemberPermissions(GuildPermission.Administrator)]
         public async Task CertDeleteAsync([Summary("입력", "userid 또는 캐릭터명")] string input)
         {
             input = (input ?? "").Trim();
@@ -1350,7 +1344,7 @@ namespace LupeonBot.Module
             await RespondAsync(embed: embed, components: comps, ephemeral: true);
         }
 
-        [ComponentInteraction("certdel:*:*")]
+        [ComponentInteraction("certdel:*:*", ignoreGroupNames: true)]
         public async Task OnButton(string token, string action)
         {
             // “로딩중” 표시 없이 처리하고 싶으면 Defer 없이 바로 Modify/Followup 해도 되지만,
@@ -1571,7 +1565,7 @@ namespace LupeonBot.Module
             await RespondAsync("표시완료", ephemeral: true);
         }
 
-        [ComponentInteraction("SignUp")]
+        [ComponentInteraction("SignUp", ignoreGroupNames: true)]
         public async Task SignUpAsync()
         {
             await Context.Interaction.RespondWithModalAsync<SingUpModalData>("SignUpModal");
@@ -1590,7 +1584,7 @@ namespace LupeonBot.Module
             public string StoveUrl { get; set; } = "";
         }
 
-        [ModalInteraction("SignUpModal")]
+        [ModalInteraction("SignUpModal", ignoreGroupNames: true)]
         public async Task Modal_CertModal(SingUpModalData data)
         {
             string m_NickNm = "";
@@ -1752,7 +1746,7 @@ namespace LupeonBot.Module
             await RespondAsync("정상적으로 공지표시완료", ephemeral: true);
         }
 
-        [ComponentInteraction("SignUpError")]
+        [ComponentInteraction("SignUpError", ignoreGroupNames: true)]
         public async Task SignUpErrorAsync()
         {
             // 버튼/컴포넌트 눌렀을 때는 Interaction이므로 이렇게
@@ -1825,7 +1819,7 @@ namespace LupeonBot.Module
             await FollowupAsync($"가입문의 채널을 생성했어요: {created.Mention}", ephemeral: true);
         }
 
-        [ComponentInteraction("ExitSign")]
+        [ComponentInteraction("ExitSign", ignoreGroupNames: true)]
         public async Task CloseChannel()
         {
             // 0) 관리자 체크
@@ -1878,7 +1872,7 @@ namespace LupeonBot.Module
             await RespondAsync("정상적으로 공지표시완료", ephemeral: true);
         }
 
-        [ComponentInteraction("Inquiry")]
+        [ComponentInteraction("Inquiry", ignoreGroupNames: true)]
         public async Task InquiryAsync()
         {
             await DeferAsync(ephemeral: true);
@@ -1943,7 +1937,7 @@ namespace LupeonBot.Module
             await FollowupAsync($"문의 채널을 만들었어요: {channel.Mention}", ephemeral: true);
         }
 
-        [ComponentInteraction("Help")]
+        [ComponentInteraction("Help", ignoreGroupNames: true)]
         public async Task HelpAsync()
         {
             if (Context.User is not SocketGuildUser gu)
@@ -2017,7 +2011,7 @@ namespace LupeonBot.Module
             await FollowupAsync($"신고 채널을 만들었어요: {channel.Mention}", ephemeral: true);
         }
 
-        [ComponentInteraction("CertUpdate")]
+        [ComponentInteraction("CertUpdate", ignoreGroupNames: true)]
         public async Task CertUpdateAsync()
         {
             try
@@ -2078,7 +2072,7 @@ namespace LupeonBot.Module
             public string StoveUrl { get; set; } = "";
         }
 
-        [ModalInteraction("CertUpdateModal")]
+        [ModalInteraction("CertUpdateModal", ignoreGroupNames: true)]
         public async Task Modal_CertModal(CertModalData data)
         {
             string m_NickNm = "";
@@ -2229,7 +2223,7 @@ namespace LupeonBot.Module
         }
 
         // ✅ 종료 버튼
-        [ComponentInteraction("ChDispose")]
+        [ComponentInteraction("ChDispose", ignoreGroupNames: true)]
         public async Task ChannelDisposeAsync()
         {
             // 0) 관리자 체크
@@ -3420,4 +3414,3 @@ namespace LupeonBot.Module
         }
     }
 }
-
