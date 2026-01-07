@@ -2312,12 +2312,64 @@ namespace LupeonBot.Module
                 .AddField("ㅤ", s_disCord)
                 .AddField("ㅤ", $"**``사유 : ``**{reason}")
                 .AddField("ㅤ", "**``해당 조치에 대한 소명 및 이의제기는 문의 및 신고 채널을 이용해주시기 바랍니다. ``**", true)
-                .WithFooter($"Develop by. 갱프　　　　　조치일시 : {DateTime.Now:yyyy-MM-dd HH:mm}");
+                .WithFooter($"Develop by. 갱프　　　　　조치일시 : {DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss")}");
 
             var logCh = Context.Guild.GetTextChannel(BanLogChannelId);
             if (logCh != null)
                 await logCh.SendMessageAsync(embed: banEmbed.Build());
 
+        }
+
+        [SlashCommand("추방해제", "대상ID 입력, 사유입력")]
+        public async Task UnBanUserAsync(
+            [Summary(description: "해제대상ID")] string? 해제대상 = null,
+            [Summary(description: "해제사유")] string? 해제사유 = null)
+        {
+            if (Context.User is not SocketGuildUser gu)
+            {
+                return;
+            }
+
+            ulong targetId;
+            string displayName;
+            string mentionText;
+            string? iconUrl = null;
+
+            if (!ulong.TryParse(해제대상!.Trim(), out targetId))
+            {
+                await RespondAsync("유저ID는 숫자만 입력해주세요.", ephemeral: true);
+                return;
+            }
+
+            var fetched = await Context.Client.GetUserAsync(targetId);
+            if (fetched != null)
+            {
+                displayName = fetched.Username;
+                mentionText = fetched.Mention;
+                iconUrl = fetched.GetAvatarUrl(ImageFormat.Auto) ?? fetched.GetDefaultAvatarUrl();
+            }
+            else
+            {
+                displayName = targetId.ToString();
+                mentionText = targetId.ToString();
+            }
+
+            // ✅ 핵심: ID로 밴 (서버에 없어도 100% 가능)
+            await Context.Guild.RemoveBanAsync(targetId, options: new RequestOptions { AuditLogReason = 해제사유 });
+
+            // ✅ 커맨드 응답
+            await RespondAsync($"{displayName} 차단해제완료\n해제사유 : {해제사유}");
+
+            string description = string.Empty;
+            description += $"해제대상: {mentionText} `{targetId}`\n";
+            description += $"해제사유: {해제사유}\n";
+            description += $"해제일시: {DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss")}";
+
+            var banEmbed = new EmbedBuilder()
+                .WithColor((Discord.Color)System.Drawing.Color.Green)
+                .WithTitle("**추방해제**")
+                .WithDescription(description)
+                .WithFooter($"Develop by. 갱프");
         }
 
         //[SlashCommand("역할일괄부여", "메인역할인 '루페온' 역할을 모든 유저에게 일괄로 부여합니다. (미인증제외, 관리자전용)")]
@@ -3414,3 +3466,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
