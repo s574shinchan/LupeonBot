@@ -20,7 +20,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LupeonBot.Module
 {
-    [Group("거래소인증", "거래소 인증/갱신/조회/삭제")]
+    [Group("거래소", "거래소 인증/갱신/조회/삭제")]
     public sealed class CertCommandModule : InteractionModuleBase<SocketInteractionContext>
     {
         #region 거래소인증 버튼 공지 및 레벨 초기화
@@ -3420,3 +3420,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
