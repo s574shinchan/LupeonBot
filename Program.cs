@@ -1,10 +1,12 @@
-﻿using Discord;
+using Discord;
 using Discord.API;
 using Discord.Commands;
 using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
 using LupeonBot.Client;
+using LupeonBot.Module;
+using Microsoft.Extensions.DependencyInjection;
 using Supabase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -36,7 +38,9 @@ namespace DiscordBot
         public static void Main() => new Program().MainAsync().GetAwaiter().GetResult();
 
         // ✅ 슬래시 커맨드 서비스
-        private InteractionService? _interactions;
+        InteractionService? publicSvc;
+        InteractionService? lupeonSvc;
+        private static IServiceProvider _services;
 
         public static string BotToken = string.Empty;
         public static string LostArkJwt = string.Empty; // ✅ 로아 Open API JWT
@@ -60,7 +64,8 @@ namespace DiscordBot
             );
 
             // ✅ InteractionService 생성
-            _interactions = new InteractionService(client.Rest);
+            publicSvc = new InteractionService(client.Rest);
+            lupeonSvc = new InteractionService(client.Rest);
 
             // ✅ Interaction 처리 이벤트 연결
             client.InteractionCreated += HandleInteraction;
@@ -68,6 +73,7 @@ namespace DiscordBot
             client.UserJoined += UserJoined;
             client.UserLeft += UserLeft;
 
+            _services = ConfigureServices();
 
             await client.LoginAsync(TokenType.Bot, BotToken);
             await client.StartAsync();
@@ -105,11 +111,21 @@ namespace DiscordBot
             if (_registered) return; // ✅ Ready 중복 방지
             _registered = true;
 
-            await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), services: null);
-            var modules = _interactions.Modules.Select(m => m.Name);
+            await publicSvc.AddModuleAsync<ProfileSerachModule>(_services);
+            await publicSvc.RegisterCommandsGloballyAsync();
 
             ulong guildId = 513799663086862336;
-            await _interactions.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
+            await lupeonSvc.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+            await lupeonSvc.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
+
+            //ulong[] fullGuilds = { 513799663086862336, 222222222222222222 }; // 전부 보일 서버들            
+            //foreach (var gid in fullGuilds)
+            //    await fullSvc.RegisterCommandsToGuildAsync(gid);
+            //await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), services: null);
+            //var modules = _interactions.Modules.Select(m => m.Name);
+
+            //ulong guildId = 513799663086862336;
+            //await _interactions.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
 
             foreach (var guild in client.Guilds)
             {
@@ -145,7 +161,9 @@ namespace DiscordBot
             try
             {
                 var ctx = new SocketInteractionContext(client, interaction);
-                await _interactions.ExecuteCommandAsync(ctx, services: null);
+                var r1 = await lupeonSvc.ExecuteCommandAsync(ctx, _services);
+                if (!r1.IsSuccess && r1.Error == InteractionCommandError.UnknownCommand)
+                    await publicSvc.ExecuteCommandAsync(ctx, _services);
             }
             catch (Exception ex)
             {
@@ -168,6 +186,16 @@ namespace DiscordBot
         public static class RoleCache
         {
             public static Dictionary<string, SocketRole> SocketRoles { get; } = new();
+        }
+
+        private static IServiceProvider ConfigureServices()
+        {
+            return new ServiceCollection()
+                .AddSingleton(client)
+                .AddSingleton<InteractionService>()
+                .AddSingleton<HttpClient>()
+                // 기타 싱글톤
+                .BuildServiceProvider();
         }
 
         public Task Log(LogMessage msg)
