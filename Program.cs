@@ -114,7 +114,18 @@ namespace DiscordBot
             await publicSvc.AddModuleAsync<ProfileSerachModule>(_services);
             await publicSvc.RegisterCommandsGloballyAsync();
 
+
             ulong guildId = 513799663086862336;
+
+            // 길드에 등록된 커맨드 목록 가져오기
+            var guildCommands = await _client.Rest.GetGuildApplicationCommands(_client.CurrentUser.Id, guildId);
+            
+            // 이름이 "프로필"인 길드 커맨드만 삭제
+            foreach (var cmd in guildCommands.Where(c => c.Name == "프로필"))
+            {
+                await cmd.DeleteAsync();
+            }
+
             await lupeonSvc.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
             await lupeonSvc.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
 
@@ -205,3 +216,4 @@ namespace DiscordBot
         }
     }
 }
+
