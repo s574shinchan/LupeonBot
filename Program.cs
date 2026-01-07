@@ -114,19 +114,17 @@ namespace DiscordBot
             await publicSvc.AddModuleAsync<ProfileSerachModule>(_services);
             await publicSvc.RegisterCommandsGloballyAsync();
 
-
             ulong guildId = 513799663086862336;
-
-            // 길드에 등록된 커맨드 목록 가져오기
-            var guildCommands = await _client.Rest.GetGuildApplicationCommands(_client.CurrentUser.Id, guildId);
+            var asm = Assembly.GetEntryAssembly()!;
+            var moduleTypes = asm.GetTypes()
+                .Where(t => !t.IsAbstract)
+                .Where(t => typeof(InteractionModuleBase<SocketInteractionContext>).IsAssignableFrom(t))
+                .Where(t => t != typeof(ProfileSerachModule));
             
-            // 이름이 "프로필"인 길드 커맨드만 삭제
-            foreach (var cmd in guildCommands.Where(c => c.Name == "프로필"))
+            foreach (var t in moduleTypes)
             {
-                await cmd.DeleteAsync();
+                await lupeonSvc.AddModuleAsync(t, _services);
             }
-
-            await lupeonSvc.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
             await lupeonSvc.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
 
             //ulong[] fullGuilds = { 513799663086862336, 222222222222222222 }; // 전부 보일 서버들            
@@ -216,4 +214,5 @@ namespace DiscordBot
         }
     }
 }
+
 
