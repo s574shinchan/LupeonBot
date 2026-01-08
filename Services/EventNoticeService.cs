@@ -94,7 +94,7 @@ namespace LupeonBot.Services
                     string mValue = "";
                     if (!string.IsNullOrWhiteSpace(e.StartDate) || !string.IsNullOrWhiteSpace(e.EndDate))
                         mValue = $"[{e.Title}]({e.Link})\n" +
-                                 $"`이벤트 기간: {(e.StartDate ?? "?").ToString().Replace("T", " ")}\`n" +
+                                 $"`이벤트 기간: {(e.StartDate ?? "?").ToString().Replace("T", " ")}`\n" +
                                  $"             `~ {(e.EndDate ?? "?").ToString().Replace("T", " ")}`";
                     else
                         mValue = $"[{e.Title}]({e.Link})";
@@ -121,4 +121,5 @@ namespace LupeonBot.Services
         }
     }
 }
+
 
