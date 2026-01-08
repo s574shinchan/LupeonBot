@@ -95,16 +95,16 @@ namespace LupeonBot.Services
                     if (!string.IsNullOrWhiteSpace(e.StartDate) || !string.IsNullOrWhiteSpace(e.EndDate))
                         mValue = $"[{e.Title}]({e.Link})\n" +
                                  $"`이벤트 기간`\n" +
-                                 $"`{(e.StartDate ?? "?").ToString().Replace("T", " ")} +
-                                 $"~ {(e.EndDate ?? "?").ToString().Replace("T", " ")}`";
+                                 $"`{(e.StartDate ?? "?").ToString().Replace("T", " ")}`\n" +
+                                 $"`~ {(e.EndDate ?? "?").ToString().Replace("T", " ")}`";
                     else
                         mValue = $"[{e.Title}]({e.Link})";
 
                     if ((e.RewardDate ?? "?") != "?")
                     {
                         mValue += $"\n\n`보상 수령 기간`\n" +
-                                  $"`{(e.StartDate ?? "?").ToString().Replace("T", " ")} +
-                                  $"~ {(e.RewardDate ?? "?").ToString().Replace("T", " ")}`";
+                                  $"`{(e.StartDate ?? "?").ToString().Replace("T", " ")}`\n" +
+                                  $"`~ {(e.RewardDate ?? "?").ToString().Replace("T", " ")}`";
                     }
 
                     eb.WithDescription(mValue);
@@ -123,6 +123,7 @@ namespace LupeonBot.Services
         }
     }
 }
+
 
 
 
