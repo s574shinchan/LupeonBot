@@ -3230,7 +3230,7 @@ namespace LupeonBot.Module
     public sealed class ProfileSerachModule : InteractionModuleBase<SocketInteractionContext>
     {
         [SlashCommand("프로필", "로스트아크 캐릭터 프로필을 조회합니다.")]
-        public async Task ProfileAsync([Summary(description: "캐릭터 이름")] string 캐릭터명)
+        public async Task ProfileAsync([Summary(description: "캐릭터이름")] string 캐릭터명)
         {
             // ✅ 슬래시는 3초 내 응답 필요 → 먼저 Defer(대기표시)
             await DeferAsync(ephemeral: true);
@@ -3468,5 +3468,6 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
