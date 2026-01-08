@@ -947,7 +947,7 @@ namespace LupeonBot.Module
                 .AddField("UserId", row.UserId, true)
                 .AddField("StoveId", row.StoveId, true)
                 .AddField("가입일시", row.JoinDate + " " + row.JoinTime, true)
-                .AddField("인증일시", row.CertTime + " " + row.CertTime, true)
+                .AddField("인증일시", row.CertDate + " " + row.CertTime, true)
                 .AddField("Character", $"`{characterText}`", false)
                 .WithFooter($"Develop by. 갱프");
 
