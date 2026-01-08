@@ -592,7 +592,7 @@ namespace LupeonBot.Module
                     }
 
                     // ✅ 4) DB 저장 성공했으면 역할 부여
-                    SocketRole mRole = admin.Guild.GetRole(Convert.ToUInt64(1264901726251647086));
+                    SocketRole mRole = admin.Guild.GetRole(Convert.ToUInt64(1458795051030286499));
                     await target.AddRoleAsync(mRole);
 
                     // ✅ 5) 인증성공 메세지 로그(너 기존)
@@ -1267,6 +1267,15 @@ namespace LupeonBot.Module
                         return;
                     }
                 }
+
+                // ✅ 4) DB 저장 성공했으면 역할 부여
+                //거래소 삭제
+                SocketRole mRole = user.Guild.GetRole(Convert.ToUInt64(1264901726251647086));
+                await user.RemoveRoleAsync(mRole);
+
+                //신거래소 추가
+                SocketRole mNewRole = user.Guild.GetRole(Convert.ToUInt64(1458795051030286499));
+                await user.AddRoleAsync(mNewRole);
 
                 string m_Context = "";
                 m_Context += "갱신대상 : " + user.Mention + "``(" + user.Id.ToString() + ")``" + Environment.NewLine + Environment.NewLine;
