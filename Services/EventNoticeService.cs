@@ -84,7 +84,7 @@ namespace LupeonBot.Services
                 foreach (var e in newEvents.Take(5))
                 {
                     var eb = new EmbedBuilder()
-                        .WithTitle($"이벤트 - 로스트아크")
+                        .WithTitle($"로스트아크 - 이벤트")
                         .WithColor(Color.Gold)
                         .WithFooter("Develop by. 갱프");
 
@@ -125,6 +125,7 @@ namespace LupeonBot.Services
         }
     }
 }
+
 
 
 
