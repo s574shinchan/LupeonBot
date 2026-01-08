@@ -102,6 +102,8 @@ namespace LupeonBot.Services
 
                     if ((e.RewardDate ?? "?") != "?")
                     {
+                        e.RewardDate = Method.GetSplitString((e.RewardDate ?? "?").ToString(), '.', 0);
+                        
                         mValue += $"\n\n`보상 수령 기간`\n" +
                                   $"`{(e.StartDate ?? "?").ToString().Replace("T", " ")}`\n" +
                                   $"`~ {(e.RewardDate ?? "?").ToString().Replace("T", " ")}`";
@@ -123,6 +125,7 @@ namespace LupeonBot.Services
         }
     }
 }
+
 
 
 
