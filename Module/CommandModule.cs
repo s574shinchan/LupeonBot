@@ -1190,7 +1190,7 @@ namespace LupeonBot.Module
                 // 아이템레벨 파싱: "Lv.1640.00" 형태 대응
                 if (!Method.TryParseItemLevel(profile.아이템레벨, out var itemLv))
                 {
-                    await FollowupAsync($"❌ 아이템레벨을 파싱하지 못했습니다: `{profile.아이템레벨}`", ephemeral: true);
+                    await FollowupAsync($"❌ 관리자에게 문의해주세요.", ephemeral: true);
                     return;
                 }
 
@@ -1388,11 +1388,11 @@ namespace LupeonBot.Module
             }
 
             // 생성자만 조작 가능
-            if (state.DiscordId != Context.User.Id)
-            {
-                await FollowupAsync("❌ 이 요청은 생성자만 조작할 수 있습니다.", ephemeral: true);
-                return;
-            }
+            //if (state.DiscordId != Context.User.Id)
+            //{
+            //    await FollowupAsync("❌ 이 요청은 생성자만 조작할 수 있습니다.", ephemeral: true);
+            //    return;
+            //}
 
             // 만료 체크
             if (DateTime.UtcNow - state.CreatedUtc > TimeSpan.FromMinutes(10))
@@ -3047,6 +3047,7 @@ namespace LupeonBot.Module
             688802446943715404,  // 작대기1
             688803133153214536,  // 작대기2
             1264901726251647086, // 거래소
+            1458795051030286499, // 신거래소
             58000335490252801,   // 거래인증
             595607967030837285,  // 판매인증
             602169127926366239,  // 작대기3
@@ -3647,4 +3648,5 @@ namespace LupeonBot.Module
             return list;
         }
     }
+
 }
