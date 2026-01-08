@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Interactions;
 using DiscordBot;
 using LupeonBot.Cache;
@@ -14,14 +14,14 @@ namespace LupeonBot.Module
 {
     public class ProfileMethod
     {
-        public static async Task<SimpleProfile> GetSimpleProfile(string 캐릭터명)
+        public static async Task<SimpleProfile?> GetSimpleProfile(string 캐릭터명)
         {
             // TODO: 네 기존 로직 그대로
             //  ✅ 로아 API 호출해서 Program 전역변수 채우기
             using var api = new LostArkApiClient(Program.LostArkJwt);
 
             var prof = await api.GetArmoryProfilesAsync(캐릭터명);
-            if (prof == null) throw new Exception("프로필 응답이 비어있음");
+            if (prof == null) return null;
 
             var siblings = await api.GetSiblingsAsync(캐릭터명) ?? new List<CharacterSibling>();
 
@@ -39,12 +39,12 @@ namespace LupeonBot.Module
             return profile;
         }
 
-        public static async Task<SimpleProfile> GetCertProfile(string 캐릭터명)
+        public static async Task<SimpleProfile?> GetCertProfile(string 캐릭터명)
         {
             using var api = new LostArkApiClient(Program.LostArkJwt);
 
             var prof = await api.GetArmoryProfilesAsync(캐릭터명);
-            if (prof == null) throw new Exception("프로필 응답이 비어있음");
+            if (prof == null) return null;
 
             var siblings = await api.GetSiblingsAsync(캐릭터명) ?? new List<CharacterSibling>();
 
