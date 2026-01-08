@@ -127,7 +127,7 @@ namespace DiscordBot
             }
             await lupeonSvc.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
 
-            //ulong[] fullGuilds = { 513799663086862336, 222222222222222222 }; // 전부 보일 서버들            
+            //ulong[] fullGuilds = { 513799663086862336, 222222222222222222 }; // 전부 보일 서버들
             //foreach (var gid in fullGuilds)
             //    await fullSvc.RegisterCommandsToGuildAsync(gid);
             //await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), services: null);
