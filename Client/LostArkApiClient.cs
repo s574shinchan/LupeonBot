@@ -121,6 +121,35 @@ namespace LupeonBot.Client
             try { return await res.Content.ReadAsStringAsync(); }
             catch { return ""; }
         }
+
+        public async Task<List<LostArkNotice>> GetNoticesAsync()
+        {
+            var req = new HttpRequestMessage(HttpMethod.Get, "news/notices");
+
+            var res = await _http.SendAsync(req);
+            var body = await res.Content.ReadAsStringAsync();
+
+            if (!res.IsSuccessStatusCode)
+                throw new Exception($"공지 조회 실패\n{body}");
+
+            var list = JsonSerializer.Deserialize<List<LostArkNotice>>(body, _json);
+
+            return list ?? new List<LostArkNotice>();
+        }
+
+        public async Task<List<LoaEventItem>> GetEventsAsync()
+        {
+            using var req = new HttpRequestMessage(HttpMethod.Get, "/news/events");
+
+            using var res = await _http.SendAsync(req);
+            var body = await res.Content.ReadAsStringAsync();
+
+            if (!res.IsSuccessStatusCode)
+                throw new Exception($"LOA /news/events 실패 ({(int)res.StatusCode})\n{body}");
+
+            var opt = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return JsonSerializer.Deserialize<List<LoaEventItem>>(body, opt) ?? new();
+        }
     }
 
     // DTO들 (필요한 것만 최소)
@@ -171,5 +200,23 @@ namespace LupeonBot.Client
         public int Value { get; set; }
         public string Tooltip { get; set; }
         public string Description { get; set; } // "6랭크 22레벨"
+    }
+
+    public sealed class LostArkNotice
+    {
+        public string Title { get; set; } = "";
+        public string Type { get; set; } = "";
+        public DateTime Date { get; set; }
+        public string Link { get; set; } = "";
+    }
+
+    public sealed class LoaEventItem
+    {
+        public string? Title { get; set; }
+        public string? Link { get; set; }
+        public string? Thumbnail { get; set; }
+        public string? StartDate { get; set; }
+        public string? EndDate { get; set; }
+        public string? RewardDate { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DiscordBot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -389,5 +390,77 @@ namespace LupeonBot.Client
         
             return list;
         }
+
+        /// <summary>
+        /// 공지사항 점검
+        /// </summary>
+        /// <param name="links"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static async Task<HashSet<string>> GetSeenLinksAsync(List<string> links)
+        {
+            if (links == null || links.Count == 0)
+                return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // Supabase in.(...) 는 괄호/콤마 구분
+            // 링크는 특수문자 많아서 반드시 Escape 필요
+            var joined = string.Join(",", links.Select(Uri.EscapeDataString));
+
+            string url = $"rest/v1/lostark_notice_seen?select=link&link=in.({joined})";
+
+            var res = await Client.GetAsync(url);
+            var body = await res.Content.ReadAsStringAsync();
+            if (!res.IsSuccessStatusCode)
+                throw new Exception($"seen 링크 조회 실패\n{body}");
+
+            var rows = JsonSerializer.Deserialize<List<SeenLinkRow>>(body,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                ?? new List<SeenLinkRow>();
+
+            return rows
+                .Select(r => (r.Link ?? "").Trim())
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
+
+        private sealed class SeenLinkRow
+        {
+            public string? Link { get; set; }
+        }
+
+        /// <summary>
+        /// 신규공지 링크 저장
+        /// </summary>
+        /// <param name="notices"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static async Task InsertManyAsync(List<LostArkNotice> notices)
+        {
+            if (notices == null || notices.Count == 0) return;
+
+            var payload = notices.Select(n => new
+            {
+                link = n.Link,
+                title = n.Title,
+                type = n.Type,
+                date = n.Date
+            }).ToList();
+
+            var json = JsonSerializer.Serialize(payload);
+
+            var req = new HttpRequestMessage(HttpMethod.Post, "rest/v1/lostark_notice_seen");
+            req.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            // 중복 PK(link) 때문에 충돌 날 수 있음(레이스컨디션)
+            // 가능하면 Prefer: resolution=ignore-duplicates 를 붙이는 게 안정적임
+            req.Headers.TryAddWithoutValidation("Prefer", "resolution=ignore-duplicates");
+
+            var res = await Client.SendAsync(req);
+            var body = await res.Content.ReadAsStringAsync();
+
+            if (!res.IsSuccessStatusCode)
+                throw new Exception($"seen 저장 실패\n{body}");
+        }
+
     }
 }
