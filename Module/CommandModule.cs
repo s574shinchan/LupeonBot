@@ -135,160 +135,168 @@ namespace LupeonBot.Module
         [ModalInteraction("CertModal", ignoreGroupNames: true)]
         public async Task Modal_CertModal(CertModalData data)
         {
-            var guildUser = Context.User as SocketGuildUser;
-            if (guildUser == null)
-            {
-                await RespondAsync("❌ 길드에서만 사용할 수 있습니다.", ephemeral: true);
-                return;
-            }
-
-            m_NickNm = (data.NickName ?? "").Trim();
-
-            if (string.IsNullOrWhiteSpace(m_NickNm))
-            {
-                await RespondAsync("❌ 캐릭터명을 입력해주세요.", ephemeral: true);
-                return;
-            }
-
-            // 시간이 걸릴 수 있으니 defer
-            await DeferAsync(ephemeral: true);
-
-            // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
-            var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
-            // ===============================================
-
             try
             {
-                var path = Path.Combine(Environment.CurrentDirectory, "ExchangeInfo.txt");
-                var exchangeInfo = File.Exists(path) ? File.ReadAllText(path) : "";
+                var guildUser = Context.User as SocketGuildUser;
 
-                var mInfo = exchangeInfo.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-                if (mInfo.Length > 0)
-                    mStdLv = Method.GetSplitString(mInfo[0], ':', 1).Trim();
-                else
-                    mStdLv = "";
-            }
-            catch
-            {
-                // 파일 IO 에러가 나도 아래에서 빈값 처리로 빠지게 둠
-                mStdLv = "";
-            }
+                m_NickNm = (data.NickName ?? "").Trim();
 
-            // 아이템레벨 파싱: "Lv.1640.00" 형태 대응
-            if (!Method.TryParseItemLevel(profile.아이템레벨, out var itemLv))
-            {
-                await FollowupAsync($"❌ 아이템레벨을 파싱하지 못했습니다: `{profile.아이템레벨}`", ephemeral: true);
-                return;
-            }
-
-            if (!Method.TryParseStdLevel(mStdLv, out var stdLv))
-            {
-                await FollowupAsync($"❌ 기준레벨 설정값이 올바르지 않습니다: `{mStdLv}`", ephemeral: true);
-                return;
-            }
-
-            // 기준 미달
-            if (itemLv < stdLv)
-            {
-                string failDesc = $"캐릭명 : {m_NickNm}\n" +
-                                  $"아이템 : {profile.아이템레벨}\n" +
-                                  $"해당 캐릭터는 인증 기준레벨 미달 입니다.\n" +
-                                  $"거래소인증은 {mStdLv} 이상의 캐릭으로만 가능합니다.";
-
-                var s_embed = new EmbedBuilder()
-                    .WithAuthor("🚨 요청실패")
-                    .WithDescription(failDesc);
-
-                await FollowupAsync(embed: s_embed.Build(), ephemeral: true);
-                return;
-            }
-
-            // 디스코드 표시명
-            m_disCord = Context.User.Username;
-            s_userid = Context.User.Id;
-
-            string m_dateTime = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
-
-            string m_Emote = "<:pdiamond:907957436483248159>";
-            string m_Emote3 = "<:reddiamond:1010548405765931080>";
-
-            var guideChannelMention = $"<#{GuideChannelId}>";
-
-            // 안내 embed
-            string guideDesc = "**[거래소 인증방법]**\n" +
-                              $"{m_Emote}{guideChannelMention}채널 확인\n" +
-                              "**[유의사항]**\n" +
-                              $"{m_Emote3} **``관리자가 확인 후 역할을 부여하기 때문에 일정시간이 소요됩니다.``**";
-
-            var 인증채널 = new EmbedBuilder()
-                .WithColor(Color.Green)
-                .WithDescription(guideDesc)
-                .WithFooter($"{m_disCord}({s_userid}) 신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto));
-
-            // 캐릭터 정보 embed
-            string charDesc =
-                $"서ㅤ버 : {profile.서버}\n" +
-                $"직ㅤ업 : {profile.직업}\n" +
-                $"아이템 : {profile.아이템레벨}\n" +
-                $"캐릭명 : {m_NickNm}\n";
-
-            var m_charInfo = new EmbedBuilder()
-                .WithAuthor("🔍 캐릭터정보 조회")
-                .WithDescription(charDesc)
-                .WithColor((Color)System.Drawing.Color.SkyBlue)
-                .WithFooter($"Develop by. 갱프　　　　　　　　신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
-                .WithImageUrl(Method.StoveProfileImagePath)
-                .WithThumbnailUrl(profile.ImgLink);
-
-            var comps = new ComponentBuilder()
-                .WithButton(label: "인증완료", customId: "Complete", style: ButtonStyle.Success)
-                .WithButton(label: "채널종료", customId: "ExitCert", style: ButtonStyle.Danger)
-                .WithButton(label: "타임아웃", customId: "CertTimeOut", style: ButtonStyle.Primary);
-
-            // 이미 채널 있으면 거기로 안내 후 메시지
-            var existing = guildUser.Guild.TextChannels.FirstOrDefault(c => c.Name == $"인증채널_{s_userid}");
-            if (existing != null)
-            {
-                await existing.SendMessageAsync($"{guildUser.Mention} 해당 채널에 양식대로 글 작성바랍니다.");
-                await FollowupAsync($"이미 인증채널이 있습니다: {existing.Mention}", ephemeral: true);
-                return;
-            }
-
-            // 권한 세팅(기존 로직 유지)
-            var everyone = guildUser.Guild.GetRole(EveryoneRoleId);
-            var trade = guildUser.Guild.GetRole(TradeRoleId);
-
-            var permissions = new List<Overwrite>
-        {
-            // 원본 그대로: allow/deny 비트값(68608) 쓰는 방식 유지
-            new Overwrite(everyone.Id, PermissionTarget.Role, new OverwritePermissions(0, 68608)),
-            new Overwrite(trade.Id,    PermissionTarget.Role, new OverwritePermissions(0, 68608)),
-            new Overwrite(guildUser.Id, PermissionTarget.User, new OverwritePermissions(68608, 0))
-        };
-
-            // 채널 생성은 RestTextChannel 반환
-            Discord.Rest.RestTextChannel created;
-            try
-            {
-                created = await guildUser.Guild.CreateTextChannelAsync($"인증채널_{s_userid}", x =>
+                if (string.IsNullOrWhiteSpace(m_NickNm))
                 {
-                    x.CategoryId = CertCategoryId;
-                    x.PermissionOverwrites = permissions;
-                    x.Topic = $"거래소 인증채널 - {guildUser.Username}";
-                });
+                    await RespondAsync("❌ 캐릭터명을 입력해주세요.", ephemeral: true);
+                    return;
+                }
+
+                // 시간이 걸릴 수 있으니 defer
+                await DeferAsync(ephemeral: true);
+
+                // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
+                var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
+                // ===============================================
+
+                if (profile == null)
+                {
+                    await RespondAsync("❌ 캐릭터명을 확인해주세요.", ephemeral: true);
+                    return;
+                }
+
+                try
+                {
+                    var path = Path.Combine(Environment.CurrentDirectory, "ExchangeInfo.txt");
+                    var exchangeInfo = File.Exists(path) ? File.ReadAllText(path) : "";
+
+                    var mInfo = exchangeInfo.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+                    if (mInfo.Length > 0)
+                        mStdLv = Method.GetSplitString(mInfo[0], ':', 1).Trim();
+                    else
+                        mStdLv = "";
+                }
+                catch
+                {
+                    // 파일 IO 에러가 나도 아래에서 빈값 처리로 빠지게 둠
+                    mStdLv = "";
+                }
+
+                // 아이템레벨 파싱: "Lv.1640.00" 형태 대응
+                if (!Method.TryParseItemLevel(profile.아이템레벨, out var itemLv))
+                {
+                    await FollowupAsync($"❌ 아이템레벨을 파싱하지 못했습니다: `{profile.아이템레벨}`", ephemeral: true);
+                    return;
+                }
+
+                if (!Method.TryParseStdLevel(mStdLv, out var stdLv))
+                {
+                    await FollowupAsync($"❌ 관리자에게 문의해주세요.", ephemeral: true);
+                    return;
+                }
+
+                // 기준 미달
+                if (itemLv < stdLv)
+                {
+                    string failDesc = $"캐릭명 : {m_NickNm}\n" +
+                                      $"아이템 : {profile.아이템레벨}\n" +
+                                      $"해당 캐릭터는 인증 기준레벨 미달 입니다.\n" +
+                                      $"거래소인증은 {mStdLv} 이상의 캐릭으로만 가능합니다.";
+
+                    var s_embed = new EmbedBuilder()
+                        .WithAuthor("🚨 요청실패")
+                        .WithDescription(failDesc);
+
+                    await FollowupAsync(embed: s_embed.Build(), ephemeral: true);
+                    return;
+                }
+
+                // 디스코드 표시명
+                m_disCord = Context.User.Username;
+                s_userid = Context.User.Id;
+
+                string m_dateTime = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+
+                string m_Emote = "<:pdiamond:907957436483248159>";
+                string m_Emote3 = "<:reddiamond:1010548405765931080>";
+
+                var guideChannelMention = $"<#{GuideChannelId}>";
+
+                // 안내 embed
+                string guideDesc = "**[거래소 인증방법]**\n" +
+                                  $"{m_Emote}{guideChannelMention}채널 확인\n" +
+                                  "**[유의사항]**\n" +
+                                  $"{m_Emote3} **``관리자가 확인 후 역할을 부여하기 때문에 일정시간이 소요됩니다.``**";
+
+                var 인증채널 = new EmbedBuilder()
+                    .WithColor(Color.Green)
+                    .WithDescription(guideDesc)
+                    .WithFooter($"{m_disCord}({s_userid}) 신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto));
+
+                // 캐릭터 정보 embed
+                string charDesc =
+                    $"서ㅤ버 : {profile.서버}\n" +
+                    $"직ㅤ업 : {profile.직업}\n" +
+                    $"아이템 : {profile.아이템레벨}\n" +
+                    $"캐릭명 : {m_NickNm}\n";
+
+                var m_charInfo = new EmbedBuilder()
+                    .WithAuthor("🔍 캐릭터정보 조회")
+                    .WithDescription(charDesc)
+                    .WithColor((Color)System.Drawing.Color.SkyBlue)
+                    .WithFooter($"Develop by. 갱프　　　　　　　　신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
+                    .WithImageUrl(Method.StoveProfileImagePath)
+                    .WithThumbnailUrl(profile.ImgLink);
+
+                var comps = new ComponentBuilder()
+                    .WithButton(label: "인증완료", customId: "Complete", style: ButtonStyle.Success)
+                    .WithButton(label: "채널종료", customId: "ExitCert", style: ButtonStyle.Danger)
+                    .WithButton(label: "타임아웃", customId: "CertTimeOut", style: ButtonStyle.Primary);
+
+                // 이미 채널 있으면 거기로 안내 후 메시지
+                var existing = guildUser.Guild.TextChannels.FirstOrDefault(c => c.Name == $"인증채널_{s_userid}");
+                if (existing != null)
+                {
+                    await existing.SendMessageAsync($"{guildUser.Mention} 해당 채널에 양식대로 글 작성바랍니다.");
+                    await FollowupAsync($"이미 인증채널이 있습니다: {existing.Mention}", ephemeral: true);
+                    return;
+                }
+
+                // 권한 세팅(기존 로직 유지)
+                var everyone = guildUser.Guild.GetRole(EveryoneRoleId);
+                var trade = guildUser.Guild.GetRole(TradeRoleId);
+
+                var permissions = new List<Overwrite>
+                {
+                    // 원본 그대로: allow/deny 비트값(68608) 쓰는 방식 유지
+                    new Overwrite(everyone.Id, PermissionTarget.Role, new OverwritePermissions(0, 68608)),
+                    new Overwrite(trade.Id,    PermissionTarget.Role, new OverwritePermissions(0, 68608)),
+                    new Overwrite(guildUser.Id, PermissionTarget.User, new OverwritePermissions(68608, 0))
+                };
+
+                // 채널 생성은 RestTextChannel 반환
+                Discord.Rest.RestTextChannel created;
+                try
+                {
+                    created = await guildUser.Guild.CreateTextChannelAsync($"인증채널_{s_userid}", x =>
+                    {
+                        x.CategoryId = CertCategoryId;
+                        x.PermissionOverwrites = permissions;
+                        x.Topic = $"거래소 인증채널 - {guildUser.Username}";
+                    });
+                }
+                catch (Exception ex)
+                {
+                    await FollowupAsync($"❌ 채널 생성 실패: {ex.Message}", ephemeral: true);
+                    return;
+                }
+
+                string headerText = $"신청자 : {guildUser.Mention}\n신청캐릭 : {m_NickNm}";
+                await created.SendMessageAsync(text: headerText,
+                                               embeds: new[] { 인증채널.Build(), m_charInfo.Build() },
+                                               components: comps.Build());
+
+                await FollowupAsync($"✅ 인증채널이 생성되었습니다: <#{created.Id}>", ephemeral: true);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                await FollowupAsync($"❌ 채널 생성 실패: {ex.Message}", ephemeral: true);
-                return;
+
             }
-
-            string headerText = $"신청자 : {guildUser.Mention}\n신청캐릭 : {m_NickNm}";
-            await created.SendMessageAsync(text: headerText,
-                                           embeds: new[] { 인증채널.Build(), m_charInfo.Build() },
-                                           components: comps.Build());
-
-            await FollowupAsync($"✅ 인증채널이 생성되었습니다: <#{created.Id}>", ephemeral: true);
         }
 
         public class CertModalData : IModal
@@ -1124,148 +1132,161 @@ namespace LupeonBot.Module
             string m_NickNm = "";
             string m_StoveId = "";
 
-            m_NickNm = (data.NickName ?? "").Trim();
-
-            if (Context.User is not SocketGuildUser user)
-            {
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(m_NickNm))
-            {
-                await RespondAsync("❌ 캐릭터명을 입력해주세요.", ephemeral: true);
-                return;
-            }
-
-            // 시간이 걸릴 수 있으니 defer
-            await RespondAsync("인증 데이터를 확인 중입니다.", ephemeral: true);
-
-            // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
-            var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
-            // ===============================================
-
-            if (Method.TryExtractStoveId(data.StoveUrl, out var stoveId, out var url))
-            {
-                m_StoveId = stoveId;
-            }
-            else
-            {
-                await ModifyOriginalResponseAsync(m => m.Content = "❌ 스토브 프로필 링크가 올바르지 않습니다.");
-                return;
-            }
-
             try
             {
-                var path = Path.Combine(Environment.CurrentDirectory, "ExchangeInfo.txt");
-                var exchangeInfo = File.Exists(path) ? File.ReadAllText(path) : "";
+                m_NickNm = (data.NickName ?? "").Trim();
 
-                var mInfo = exchangeInfo.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-                if (mInfo.Length > 0)
-                    mStdLv = Method.GetSplitString(mInfo[0], ':', 1).Trim();
+                if (Context.User is not SocketGuildUser user)
+                {
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(m_NickNm))
+                {
+                    await RespondAsync("❌ 캐릭터명을 입력해주세요.", ephemeral: true);
+                    return;
+                }
+
+                // 시간이 걸릴 수 있으니 defer
+                await RespondAsync("인증 데이터를 확인 중입니다.", ephemeral: true);
+
+                // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
+                var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
+                // ===============================================
+
+                if (profile == null)
+                {
+                    await RespondAsync("❌ 캐릭터명을 확인해주세요.", ephemeral: true);
+                    return;
+                }
+
+                if (Method.TryExtractStoveId(data.StoveUrl, out var stoveId, out var url))
+                {
+                    m_StoveId = stoveId;
+                }
                 else
+                {
+                    await ModifyOriginalResponseAsync(m => m.Content = "❌ 스토브 프로필 링크가 올바르지 않습니다.");
+                    return;
+                }
+
+                try
+                {
+                    var path = Path.Combine(Environment.CurrentDirectory, "ExchangeInfo.txt");
+                    var exchangeInfo = File.Exists(path) ? File.ReadAllText(path) : "";
+
+                    var mInfo = exchangeInfo.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+                    if (mInfo.Length > 0)
+                        mStdLv = Method.GetSplitString(mInfo[0], ':', 1).Trim();
+                    else
+                        mStdLv = "";
+                }
+                catch
+                {
+                    // 파일 IO 에러가 나도 아래에서 빈값 처리로 빠지게 둠
                     mStdLv = "";
-            }
-            catch
-            {
-                // 파일 IO 에러가 나도 아래에서 빈값 처리로 빠지게 둠
-                mStdLv = "";
-            }
+                }
 
-            // 아이템레벨 파싱: "Lv.1640.00" 형태 대응
-            if (!Method.TryParseItemLevel(profile.아이템레벨, out var itemLv))
-            {
-                await FollowupAsync($"❌ 아이템레벨을 파싱하지 못했습니다: `{profile.아이템레벨}`", ephemeral: true);
-                return;
-            }
-
-            if (!Method.TryParseStdLevel(mStdLv, out var stdLv))
-            {
-                await FollowupAsync($"❌ 기준레벨 설정값이 올바르지 않습니다: `{mStdLv}`", ephemeral: true);
-                return;
-            }
-
-            // 기준 미달
-            if (itemLv < stdLv)
-            {
-                string failDesc = $"캐릭명 : {m_NickNm}\n" +
-                                  $"아이템 : {profile.아이템레벨}\n" +
-                                  $"해당 캐릭터는 인증 기준레벨 미달 입니다.\n" +
-                                  $"거래소인증은 {mStdLv} 이상의 캐릭으로만 가능합니다.";
-
-                var s_embed = new EmbedBuilder()
-                    .WithAuthor("🚨 요청실패")
-                    .WithDescription(failDesc);
-
-                await FollowupAsync(embed: s_embed.Build(), ephemeral: true);
-                return;
-            }
-
-            DateTime dt = DateTime.UtcNow.AddHours(9);
-            string m_CertDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
-            string m_CertTime = dt.ToString("HH:mm");      // 01:23
-
-            var dbRow = await SupabaseClient.GetCertInfoByUserIdAsync(user.Id.ToString());
-
-            if (dbRow != null)
-            {
-                var (ok, body) = await SupabaseClient.UpdateCertOnlyAsync(
-                    userId: user.Id.ToString(),
-                    stoveId: dbRow.StoveId,
-                    characters: profile.보유캐릭_목록,
-                    certDate: m_CertDate,
-                    certTime: m_CertTime
-                    );
-
-                if (!ok)
+                // 아이템레벨 파싱: "Lv.1640.00" 형태 대응
+                if (!Method.TryParseItemLevel(profile.아이템레벨, out var itemLv))
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
+                    await FollowupAsync($"❌ 아이템레벨을 파싱하지 못했습니다: `{profile.아이템레벨}`", ephemeral: true);
                     return;
                 }
 
-                // StoveId 비교
-                if (!string.Equals(dbRow.StoveId, m_StoveId, StringComparison.Ordinal))
+                if (!Method.TryParseStdLevel(mStdLv, out var stdLv))
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = "❌ 저장된 정보와 신청자의 스토브 계정이 다릅니다.");
+                    await FollowupAsync($"❌ 관리자에게 문의해주세요.", ephemeral: true);
                     return;
                 }
+
+                // 기준 미달
+                if (itemLv < stdLv)
+                {
+                    string failDesc = $"캐릭명 : {m_NickNm}\n" +
+                                      $"아이템 : {profile.아이템레벨}\n" +
+                                      $"해당 캐릭터는 인증 기준레벨 미달 입니다.\n" +
+                                      $"거래소인증은 {mStdLv} 이상의 캐릭으로만 가능합니다.";
+
+                    var s_embed = new EmbedBuilder()
+                        .WithAuthor("🚨 요청실패")
+                        .WithDescription(failDesc);
+
+                    await FollowupAsync(embed: s_embed.Build(), ephemeral: true);
+                    return;
+                }
+
+                DateTime dt = DateTime.UtcNow.AddHours(9);
+                string m_CertDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
+                string m_CertTime = dt.ToString("HH:mm");      // 01:23
+
+                var dbRow = await SupabaseClient.GetCertInfoByUserIdAsync(user.Id.ToString());
+
+                if (dbRow != null)
+                {
+                    var (ok, body) = await SupabaseClient.UpdateCertOnlyAsync(
+                        userId: user.Id.ToString(),
+                        stoveId: dbRow.StoveId,
+                        characters: profile.보유캐릭_목록,
+                        certDate: m_CertDate,
+                        certTime: m_CertTime
+                        );
+
+                    if (!ok)
+                    {
+                        await ModifyOriginalResponseAsync(m => m.Content = $"❌ 관리자에게 문의해주세요.");
+                        return;
+                    }
+
+                    // StoveId 비교
+                    if (!string.Equals(dbRow.StoveId, m_StoveId, StringComparison.Ordinal))
+                    {
+                        await ModifyOriginalResponseAsync(m => m.Content = "❌ 저장된 정보와 신청자의 스토브 계정이 다릅니다.");
+                        return;
+                    }
+                }
+                else
+                {
+                    string joindate = user.JoinedAt?.ToOffset(TimeSpan.FromHours(9)).ToString("yyyy-MM-dd") ?? "";
+                    string jointime = user.JoinedAt?.ToOffset(TimeSpan.FromHours(9)).ToString("HH:mm") ?? "";
+
+                    var (ok, body) = await SupabaseClient.UpsertCertInfoAsync(
+                        userId: user.Id.ToString(),
+                        stoveId: m_StoveId,
+                        userNm: user.Username,
+                        characters: profile.보유캐릭_목록,
+                        joinDate: joindate,
+                        joinTime: jointime,
+                        certDate: m_CertDate,
+                        certTime: m_CertTime
+                        );
+
+                    if (!ok)
+                    {
+                        await ModifyOriginalResponseAsync(m => m.Content = $"❌ 관리자에게 문의해주세요.");
+                        return;
+                    }
+                }
+
+                string m_Context = "";
+                m_Context += "갱신대상 : " + user.Mention + "``(" + user.Id.ToString() + ")``" + Environment.NewLine + Environment.NewLine;
+                m_Context += "갱신캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine;
+                m_Context += "위 정보로 거래소 인증내역이 갱신되었습니다.";
+
+                var ComPeleteEmbed = new EmbedBuilder()
+                    .WithAuthor("✅ 갱신완료")
+                    .WithDescription(m_Context)
+                    .WithColor(Color.Green)
+                    .WithThumbnailUrl(user.GetAvatarUrl(ImageFormat.Auto))
+                    .WithFooter("Develop by. 갱프　　　　　　　　　갱신일시 : " + m_CertDate + " " + m_CertTime);
+
+                await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 처리되었습니다.");
+                await ModifyOriginalResponseAsync(m => m.Embed = ComPeleteEmbed.Build());
             }
-            else
+            catch (Exception)
             {
-                string joindate = user.JoinedAt?.ToOffset(TimeSpan.FromHours(9)).ToString("yyyy-MM-dd") ?? "";
-                string jointime = user.JoinedAt?.ToOffset(TimeSpan.FromHours(9)).ToString("HH:mm") ?? "";
 
-                var (ok, body) = await SupabaseClient.UpsertCertInfoAsync(
-                    userId: user.Id.ToString(),
-                    stoveId: m_StoveId,
-                    userNm: user.Username,
-                    characters: profile.보유캐릭_목록,
-                    joinDate: joindate,
-                    joinTime: jointime,
-                    certDate: m_CertDate,
-                    certTime: m_CertTime
-                    );
-
-                if (!ok)
-                {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
-                    return;
-                }
             }
-
-            string m_Context = "";
-            m_Context += "갱신대상 : " + user.Mention + "``(" + user.Id.ToString() + ")``" + Environment.NewLine + Environment.NewLine;
-            m_Context += "갱신캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine;
-            m_Context += "위 정보로 거래소 인증내역이 갱신되었습니다.";
-
-            var ComPeleteEmbed = new EmbedBuilder()
-                .WithAuthor("✅ 갱신완료")
-                .WithDescription(m_Context)
-                .WithColor(Color.Green)
-                .WithThumbnailUrl(user.GetAvatarUrl(ImageFormat.Auto))
-                .WithFooter("Develop by. 갱프　　　　　　　　　갱신일시 : " + m_CertDate + " " + m_CertTime);
-
-            await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 처리되었습니다.");
-            await ModifyOriginalResponseAsync(m => m.Embed = ComPeleteEmbed.Build());
         }
         #endregion 인증갱신공지
 
@@ -1590,126 +1611,137 @@ namespace LupeonBot.Module
             string m_NickNm = "";
             string m_StoveId = "";
 
-            m_NickNm = (data.NickName ?? "").Trim();
-
-            if (Context.User is not SocketGuildUser user)
+            try
             {
-                return;
-            }
+                m_NickNm = (data.NickName ?? "").Trim();
 
-            if (string.IsNullOrWhiteSpace(m_NickNm))
-            {
-                await RespondAsync("❌ 캐릭터명을 입력해주세요.", ephemeral: true);
-                return;
-            }
-
-            // 시간이 걸릴 수 있으니 defer
-            await RespondAsync("서버가입에 필요한 데이터를 확인 중입니다.", ephemeral: true);
-
-            // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
-            var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
-            // ===============================================
-
-            if (Method.TryExtractStoveId(data.StoveUrl, out var stoveId, out var url))
-            {
-                m_StoveId = stoveId;
-            }
-            else
-            {
-                await ModifyOriginalResponseAsync(m => m.Content = "❌ 스토브 프로필 링크가 올바르지 않습니다.");
-                return;
-            }
-
-            //var dbBanRow = await SupabaseClient.GetBanUserInfoAsync(user.Id.ToString(), m_NickNm);
-
-            //if (dbBanRow != null)
-            //{
-            //    await ModifyOriginalResponseAsync(m => m.Content = "가입이 불가능한 계정입니다.");
-            //    await user.KickAsync();
-            //    return;
-            //}
-
-            DateTime dt = DateTime.UtcNow.AddHours(9);
-            string m_joinDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
-            string m_joinTime = dt.ToString("HH:mm");      // 01:23
-
-            if (profile.보유캐릭_목록 == null)
-            {
-                await ModifyOriginalResponseAsync(m => m.Content = $"❌ 가입실패, 캐릭터명을 확인해주세요.");
-                return;
-            }
-
-            var dbRow = await SupabaseClient.GetSingUpByUserIdAsync(Context.User.Id.ToString());
-
-            if (dbRow == null)
-            {
-                var (ok, body) = await SupabaseClient.UpsertSingUpAsync(
-                    userId: user.Id.ToString(),
-                    stoveId: m_StoveId,
-                    userNm: user.Username,
-                    characters: profile.보유캐릭_목록,
-                    joinDate: m_joinDate, // 2026-01-06
-                    joinTime: m_joinTime // 오전 01:23
-                    );
-
-                if (!ok)
+                if (Context.User is not SocketGuildUser user)
                 {
-                    var nosign = user.Guild.GetTextChannel(932836388217450556);
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 가입실패, {nosign.Mention} 채널로 이동하여 문의해주세요.");
                     return;
                 }
 
-                foreach (var role in user.Guild.Roles)
+                if (string.IsNullOrWhiteSpace(m_NickNm))
                 {
-                    if (role.Name == profile.직업)
-                    {
-                        await user.AddRoleAsync(role);
-                        break;
-                    }
+                    await RespondAsync("❌ 캐릭터명을 입력해주세요.", ephemeral: true);
+                    return;
                 }
-                await user.AddRoleAsync(1457383863943954512);   // 루페온
-                await user.RemoveRoleAsync(902213602889568316); // 미인증
-                await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 가입처리 되었습니다.");
 
-                //#region 유저정보
-                ////계정생성일
-                //string creatDate = user.CreatedAt.ToString("yyyy-MM-dd");
-                ////서버가입일
-                //string JoinDate = user.JoinedAt.ToString();
-                //DateTime dt = DateTime.Parse(JoinDate);
-                //JoinDate = dt.ToShortDateString();
+                // 시간이 걸릴 수 있으니 defer
+                await RespondAsync("서버가입에 필요한 데이터를 확인 중입니다.", ephemeral: true);
 
-                ////디스코드정보
-                //string s_disCord = string.Empty;
-                //s_disCord = "``유저정보 :``" + user.Mention + " (" + user.Username + ")" + Environment.NewLine;
-                //s_disCord += "``아 이 디 :``" + user.Id + Environment.NewLine;
-                //s_disCord += "``계정생성일 :``" + creatDate + Environment.NewLine;
-                //s_disCord += "``서버가입일 :``" + JoinDate;
+                // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
+                var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
+                // ===============================================
+                if (profile == null)
+                {
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 가입실패, 캐릭터명을 확인해주세요.");
+                    return;
+                }
 
-                ////로아정보
-                //string m_lostArk = string.Empty;
-                //m_lostArk = "``레벨 :``" + Method.m_아이템레벨 + Environment.NewLine;
-                //m_lostArk += "``캐릭터 :``" + m_NickNm + Environment.NewLine;
-                //m_lostArk += "``클래스 :``" + Method.m_직업 + Environment.NewLine;
-                //m_lostArk += "``서버 :``" + Method.m_서버;
+                if (Method.TryExtractStoveId(data.StoveUrl, out var stoveId, out var url))
+                {
+                    m_StoveId = stoveId;
+                }
+                else
+                {
+                    await ModifyOriginalResponseAsync(m => m.Content = "❌ 스토브 프로필 링크가 올바르지 않습니다.");
+                    return;
+                }
 
-                //string m_CharList = string.Empty;
-                //m_CharList = "``보유캐릭 :``" + Method.m_보유캐릭;
+                //var dbBanRow = await SupabaseClient.GetBanUserInfoAsync(user.Id.ToString(), m_NickNm);
 
-                ////갱신정보
-                //string m_renewal = string.Empty;
-                //m_renewal = "가입일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
-                //#endregion 유저정보
+                //if (dbBanRow != null)
+                //{
+                //    await ModifyOriginalResponseAsync(m => m.Content = "가입이 불가능한 계정입니다.");
+                //    await user.KickAsync();
+                //    return;
+                //}
 
-                //var Embed = new EmbedBuilder();
-                //Embed.WithTitle("서버가입정보");
-                //Embed.WithColor(Discord.Color.DarkTeal);
-                //Embed.AddField("**Discord**", s_disCord, true);
-                //Embed.AddField("**LostArk**", m_lostArk, true);
-                //Embed.AddField("**CharList**", m_CharList, false);
-                //Embed.WithFooter(m_renewal);
+                DateTime dt = DateTime.UtcNow.AddHours(9);
+                string m_joinDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
+                string m_joinTime = dt.ToString("HH:mm");      // 01:23
 
-                //await user.Guild.GetTextChannel(903242262677454958).SendMessageAsync(embed: Embed.Build());
+                if (profile.보유캐릭_목록 == null)
+                {
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 가입실패, 캐릭터명을 확인해주세요.");
+                    return;
+                }
+
+                var dbRow = await SupabaseClient.GetSingUpByUserIdAsync(Context.User.Id.ToString());
+
+                if (dbRow == null)
+                {
+                    var (ok, body) = await SupabaseClient.UpsertSingUpAsync(
+                        userId: user.Id.ToString(),
+                        stoveId: m_StoveId,
+                        userNm: user.Username,
+                        characters: profile.보유캐릭_목록,
+                        joinDate: m_joinDate, // 2026-01-06
+                        joinTime: m_joinTime // 오전 01:23
+                        );
+
+                    if (!ok)
+                    {
+                        var nosign = user.Guild.GetTextChannel(932836388217450556);
+                        await ModifyOriginalResponseAsync(m => m.Content = $"❌ 가입실패, {nosign.Mention} 채널로 이동하여 문의해주세요.");
+                        return;
+                    }
+
+                    foreach (var role in user.Guild.Roles)
+                    {
+                        if (role.Name == profile.직업)
+                        {
+                            await user.AddRoleAsync(role);
+                            break;
+                        }
+                    }
+                    await user.AddRoleAsync(1457383863943954512);   // 루페온
+                    await user.RemoveRoleAsync(902213602889568316); // 미인증
+                    await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 가입처리 되었습니다.");
+
+                    //#region 유저정보
+                    ////계정생성일
+                    //string creatDate = user.CreatedAt.ToString("yyyy-MM-dd");
+                    ////서버가입일
+                    //string JoinDate = user.JoinedAt.ToString();
+                    //DateTime dt = DateTime.Parse(JoinDate);
+                    //JoinDate = dt.ToShortDateString();
+
+                    ////디스코드정보
+                    //string s_disCord = string.Empty;
+                    //s_disCord = "``유저정보 :``" + user.Mention + " (" + user.Username + ")" + Environment.NewLine;
+                    //s_disCord += "``아 이 디 :``" + user.Id + Environment.NewLine;
+                    //s_disCord += "``계정생성일 :``" + creatDate + Environment.NewLine;
+                    //s_disCord += "``서버가입일 :``" + JoinDate;
+
+                    ////로아정보
+                    //string m_lostArk = string.Empty;
+                    //m_lostArk = "``레벨 :``" + Method.m_아이템레벨 + Environment.NewLine;
+                    //m_lostArk += "``캐릭터 :``" + m_NickNm + Environment.NewLine;
+                    //m_lostArk += "``클래스 :``" + Method.m_직업 + Environment.NewLine;
+                    //m_lostArk += "``서버 :``" + Method.m_서버;
+
+                    //string m_CharList = string.Empty;
+                    //m_CharList = "``보유캐릭 :``" + Method.m_보유캐릭;
+
+                    ////갱신정보
+                    //string m_renewal = string.Empty;
+                    //m_renewal = "가입일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+                    //#endregion 유저정보
+
+                    //var Embed = new EmbedBuilder();
+                    //Embed.WithTitle("서버가입정보");
+                    //Embed.WithColor(Discord.Color.DarkTeal);
+                    //Embed.AddField("**Discord**", s_disCord, true);
+                    //Embed.AddField("**LostArk**", m_lostArk, true);
+                    //Embed.AddField("**CharList**", m_CharList, false);
+                    //Embed.WithFooter(m_renewal);
+
+                    //await user.Guild.GetTextChannel(903242262677454958).SendMessageAsync(embed: Embed.Build());
+                }
+            }
+            catch (Exception)
+            {
             }
         }
 
@@ -2096,6 +2128,11 @@ namespace LupeonBot.Module
 
             // 기준 충족 -> 프로필 조회 (네 기존 함수 그대로)
             var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
+            if (profile == null)
+            {
+                await ModifyOriginalResponseAsync(m => m.Content = $"❌ 캐릭터명을 확인해주세요.");
+                return;
+            }
             // ===============================================
 
             if (Method.TryExtractStoveId(data.StoveUrl, out var stoveId, out var url))
@@ -2134,7 +2171,7 @@ namespace LupeonBot.Module
 
             if (!Method.TryParseStdLevel(mStdLv, out var stdLv))
             {
-                await FollowupAsync($"❌ 기준레벨 설정값이 올바르지 않습니다: `{mStdLv}`", ephemeral: true);
+                await FollowupAsync($"❌ 관리자에게 문의해주세요.", ephemeral: true);
                 return;
             }
 
@@ -2172,7 +2209,7 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 관리자에게 문의해주세요.");
                     return;
                 }
 
@@ -2201,7 +2238,7 @@ namespace LupeonBot.Module
 
                 if (!ok)
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 업데이트 실패\n```{body}```");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"❌ 관리자에게 문의해주세요.");
                     return;
                 }
             }
@@ -3230,10 +3267,10 @@ namespace LupeonBot.Module
     public sealed class ProfileSerachModule : InteractionModuleBase<SocketInteractionContext>
     {
         [SlashCommand("프로필", "로스트아크 캐릭터 프로필을 조회합니다.")]
-        public async Task ProfileAsync([Summary(description: "캐릭터이름")] string 캐릭터명)
+        public async Task ProfileAsync([Summary(description: "캐릭터 이름")] string 캐릭터명)
         {
             // ✅ 슬래시는 3초 내 응답 필요 → 먼저 Defer(대기표시)
-            await DeferAsync(ephemeral: true);
+            await DeferAsync();
 
             try
             {
@@ -3290,9 +3327,7 @@ namespace LupeonBot.Module
                     eb.AddField($"보유 캐릭 : {profile.보유캐릭수}", text, false);
                 }
 
-                //await FollowupAsync(embed: eb.Build());
-                await Context.Channel.SendMessageAsync(embed: eb.Build());
-                await DeleteOriginalResponseAsync();
+                await FollowupAsync(embed: eb.Build());
             }
             catch (Exception ex)
             {
@@ -3468,6 +3503,4 @@ namespace LupeonBot.Module
         }
     }
 }
-
-
 
