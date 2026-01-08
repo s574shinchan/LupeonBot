@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
 using LupeonBot.Module;
 using System;
@@ -94,13 +94,15 @@ namespace LupeonBot.Services
                     string mValue = "";
                     if (!string.IsNullOrWhiteSpace(e.StartDate) || !string.IsNullOrWhiteSpace(e.EndDate))
                         mValue = $"[{e.Title}]({e.Link})\n" +
-                                 $"`이벤트 기간: {(e.StartDate ?? "?").ToString().Replace("T", " ")} ~ {(e.EndDate ?? "?").ToString().Replace("T", " ")}`";
+                                 $"`이벤트 기간: {(e.StartDate ?? "?").ToString().Replace("T", " ")}\n" +
+                                 $"             ~ {(e.EndDate ?? "?").ToString().Replace("T", " ")}`";
                     else
                         mValue = $"[{e.Title}]({e.Link})";
 
-                    if ((e.RewardDate ?? "?") != null)
+                    if ((e.RewardDate ?? "?") != "?")
                     {
-                        mValue += $"\n`보상 수령 기간: {(e.StartDate ?? "?").ToString().Replace("T", " ")} ~ {(e.RewardDate ?? "?").ToString().Replace("T", " ")}`";
+                        mValue += $"\n`보상 수령 기간: {(e.StartDate ?? "?").ToString().Replace("T", " ")}\n" +
+                                  $"                  ~ {(e.RewardDate ?? "?").ToString().Replace("T", " ")}`";
                     }
 
                     eb.WithDescription(mValue);
