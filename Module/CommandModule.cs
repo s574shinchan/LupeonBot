@@ -3273,6 +3273,142 @@ namespace LupeonBot.Module
         }
     }
 
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
+    public sealed class MaintenanceCheckModule : InteractionModuleBase<SocketInteractionContext>
+    {
+        //[SlashCommand("점검체크", "신규 점검 공지(로아)를 확인해서 출력합니다.")]
+        public async Task MaintenanceCheckAsync()
+        {
+            await DeferAsync(ephemeral: true); // ✅ 테스트는 일단 에페메랄 추천
+
+            try
+            {
+                var newNotices = await NoticeModule.FetchNewMaintenanceNoticesAsync();
+
+                if (newNotices == null || newNotices.Count == 0)
+                {
+                    await FollowupAsync("✅ 신규 점검 공지가 없습니다.", ephemeral: true);
+                    return;
+                }
+
+                // 신규가 여러 개면 너무 길어질 수 있으니 최대 5개만 출력(원하면 변경)
+                var show = newNotices.Take(5).ToList();
+
+                var eb = new EmbedBuilder()
+                    .WithTitle("로스트아크 - 공지사항")
+                    .WithColor(Color.Orange)
+                    .WithFooter($"Develop by. 갱프 ㆍ {DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss")}")
+                    .WithDescription(string.Join("\n", show.Select(n => $"[{n.Type}] [{EscapeMd(n.Title)}]({n.Link})")));
+
+                await FollowupAsync(embed: eb.Build(), ephemeral: true);
+            }
+            catch (Exception ex)
+            {
+                await FollowupAsync($"❌ 점검체크 실패\n```{ex.Message}```", ephemeral: true);
+            }
+        }
+
+        private static string EscapeMd(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            return s.Replace("*", "\\*").Replace("_", "\\_").Replace("`", "\\`");
+        }
+    }
+
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
+    public sealed class EventPushModule : InteractionModuleBase<SocketInteractionContext>
+    {
+        //[SlashCommand("이벤트공지", "로스트아크 진행중 이벤트를 불러옵니다(테스트)")]
+        public async Task EventNoticeAsync()
+        {
+            await DeferAsync(ephemeral: true);
+
+            var newEvents = await FetchNewEventsAsync();
+            if (newEvents == null || newEvents.Count == 0)
+            {
+                await FollowupAsync("이벤트가 없습니다.", ephemeral: true);
+                return;
+            }
+
+            // 최신 3개만 테스트로 뿌림 (너무 많이 올리면 스팸됨)
+            foreach (var e in newEvents.Take(10))
+            {
+                var embed = BuildEventEmbed(e);
+                await Context.Channel.SendMessageAsync(embed: embed);
+            }
+
+            await FollowupAsync($"이벤트 {newEvents.Count}개 전송 완료", ephemeral: true);
+        }
+
+        private static Embed BuildEventEmbed(LoaEventItem e)
+        {
+            var eb = new EmbedBuilder()
+                        .WithTitle($"이벤트 - 로스트아크")
+                        .WithColor(Color.Gold)
+                        .WithFooter("Develop by. 갱프");
+
+            if (!string.IsNullOrWhiteSpace(e.Thumbnail))
+                eb.WithThumbnailUrl(e.Thumbnail);
+
+            string mValue = "";
+            if (!string.IsNullOrWhiteSpace(e.StartDate) || !string.IsNullOrWhiteSpace(e.EndDate))
+                mValue = $"[{e.Title}]({e.Link})\n" +
+                         $"`이벤트 기간: {(e.StartDate ?? "?").ToString().Replace("T", " ")} ~ {(e.EndDate ?? "?").ToString().Replace("T", " ")}`";
+            else
+                mValue = $"[{e.Title}]({e.Link})";
+
+            if ((e.RewardDate ?? "?") != "?")
+            {
+                mValue += $"\n`보상 수령 기간: {(e.StartDate ?? "?").ToString().Replace("T", " ")} ~ {(e.RewardDate ?? "?").ToString().Replace("T", " ")}`";
+            }
+
+            eb.WithDescription(mValue);
+
+            return eb.Build();
+        }
+
+        public static async Task<List<LoaEventItem>> FetchNewEventsAsync()
+        {
+            using var api = new LostArkApiClient(LostArkJwt);
+
+            var list = await api.GetEventsAsync();
+            if (list == null || list.Count == 0) return new List<LoaEventItem>();
+
+            // ✅ 이미 보낸 링크 저장 파일(또는 기존 공지 저장 로직 재사용)
+            var sent = LoadSentKeys("data/loa_events_sent.txt");
+
+            // ✅ 새 이벤트만
+            var newOnes = list
+                .Where(e => !string.IsNullOrWhiteSpace(e.Link))
+                .Where(e => !sent.Contains(e.Link.Trim()))
+                .ToList();
+
+            // ✅ 새로 보낸 것 저장
+            foreach (var e in newOnes)
+                sent.Add(e.Link!.Trim());
+
+            SaveSentKeys("data/loa_events_sent.txt", sent);
+
+            return newOnes;
+        }
+
+        private static HashSet<string> LoadSentKeys(string path)
+        {
+            if (!File.Exists(path)) return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            return File.ReadAllLines(path)
+                .Select(x => x.Trim())
+                .Where(x => x.Length > 0)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static void SaveSentKeys(string path, HashSet<string> keys)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            File.WriteAllLines(path, keys.OrderBy(x => x));
+        }
+
+    }
+
     public sealed class ProfileSerachModule : InteractionModuleBase<SocketInteractionContext>
     {
         [SlashCommand("프로필", "로스트아크 캐릭터 프로필을 조회합니다.")]
@@ -3283,7 +3419,7 @@ namespace LupeonBot.Module
 
             try
             {
-                using var api = new LostArkApiClient(Program.LostArkJwt);
+                using var api = new LostArkApiClient(LostArkJwt);
 
                 var prof = await api.GetArmoryProfilesAsync(캐릭터명);
                 if (prof == null) throw new Exception("프로필 응답이 비어있음");
@@ -3512,4 +3648,3 @@ namespace LupeonBot.Module
         }
     }
 }
-
