@@ -6,6 +6,7 @@ using Discord.Rest;
 using Discord.WebSocket;
 using LupeonBot.Client;
 using LupeonBot.Module;
+using LupeonBot.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Supabase.Interfaces;
 using System;
@@ -40,7 +41,7 @@ namespace DiscordBot
         // ✅ 슬래시 커맨드 서비스
         InteractionService? publicSvc;
         InteractionService? lupeonSvc;
-        private static IServiceProvider _services;
+        private static IServiceProvider? _services;
 
         public static string BotToken = string.Empty;
         public static string LostArkJwt = string.Empty; // ✅ 로아 Open API JWT
@@ -127,7 +128,12 @@ namespace DiscordBot
             }
             await lupeonSvc.RegisterCommandsToGuildAsync(guildId, deleteMissing: true);
 
-            //ulong[] fullGuilds = { 513799663086862336, 222222222222222222 }; // 전부 보일 서버들
+            var maintSvc = new MaintenanceNoticeService(client);
+            maintSvc.Start();
+
+            var eventSvc = new EventNoticeService(client);
+            eventSvc.Start();
+            //ulong[] fullGuilds = { 513799663086862336, 222222222222222222 }; // 전부 보일 서버들            
             //foreach (var gid in fullGuilds)
             //    await fullSvc.RegisterCommandsToGuildAsync(gid);
             //await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), services: null);
