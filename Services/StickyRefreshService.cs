@@ -1,6 +1,7 @@
 using Discord;
 using Discord.WebSocket;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace LupeonBot.Services
 {
@@ -11,8 +12,7 @@ namespace LupeonBot.Services
 
         private sealed record ChannelConfig(
             Func<Embed> EmbedFactory,
-            Func<MessageComponent?> ComponentsFactory,
-            TimeSpan Cooldown // 너무 연타될 때 봇이 과호출 안 하도록 최소 쿨다운(0 가능)
+            Func<MessageComponent?> ComponentsFactory
         );
 
         private readonly ConcurrentDictionary<ulong, ChannelConfig> _channels = new();
@@ -23,8 +23,10 @@ namespace LupeonBot.Services
         // 채널별 동시성 락
         private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _locks = new();
 
-        // 채널별 마지막 실행 시간(쿨다운용)
-        private readonly ConcurrentDictionary<ulong, DateTimeOffset> _lastRunAt = new();
+        // 채널별 "추가 갱신 필요" 플래그 (연속 메시지로 작업이 쌓이는 걸 방지)
+        private readonly ConcurrentDictionary<ulong, bool> _pending = new();
+
+        private bool _started;
 
         public StickyRefreshService(DiscordSocketClient client, ulong guildId)
         {
@@ -32,27 +34,30 @@ namespace LupeonBot.Services
             _guildId = guildId;
         }
 
-        public void Start() => _client.MessageReceived += OnMessageReceivedAsync;
-        public void Stop() => _client.MessageReceived -= OnMessageReceivedAsync;
+        public void Start()
+        {
+            if (_started) return;
+            _started = true;
+            _client.MessageReceived += OnMessageReceivedAsync;
+        }
+
+        public void Stop()
+        {
+            if (!_started) return;
+            _started = false;
+            _client.MessageReceived -= OnMessageReceivedAsync;
+        }
 
         // Embed만
-        public void UpsertChannel(ulong channelId, Func<Embed> embedFactory, int cooldownMs = 0)
+        public void UpsertChannel(ulong channelId, Func<Embed> embedFactory)
         {
-            _channels[channelId] = new ChannelConfig(
-                embedFactory,
-                () => null,
-                TimeSpan.FromMilliseconds(Math.Max(0, cooldownMs))
-            );
+            _channels[channelId] = new ChannelConfig(embedFactory, () => null);
         }
 
         // Embed + 버튼(components)
-        public void UpsertChannel(ulong channelId, Func<Embed> embedFactory, Func<MessageComponent?> componentsFactory, int cooldownMs = 0)
+        public void UpsertChannel(ulong channelId, Func<Embed> embedFactory, Func<MessageComponent?> componentsFactory)
         {
-            _channels[channelId] = new ChannelConfig(
-                embedFactory,
-                componentsFactory,
-                TimeSpan.FromMilliseconds(Math.Max(0, cooldownMs))
-            );
+            _channels[channelId] = new ChannelConfig(embedFactory, componentsFactory);
         }
 
         // 초기 1회 강제 전송(Ready에서 쓰면 좋음)
@@ -64,78 +69,91 @@ namespace LupeonBot.Services
             await RefreshNowAsync(channelId, cfg);
         }
 
-        private Task OnMessageReceivedAsync(SocketMessage msg)
+        private async Task OnMessageReceivedAsync(SocketMessage msg)
         {
             // 봇/웹훅 무시
             if (msg.Author.IsBot || msg.Author.IsWebhook)
-                return Task.CompletedTask;
+                return;
 
             // 길드 채널만 + 특정 길드만
             if (msg.Channel is not SocketGuildChannel gch)
-                return Task.CompletedTask;
+                return;
 
             if (gch.Guild.Id != _guildId)
-                return Task.CompletedTask;
+                return;
 
             if (!_channels.TryGetValue(msg.Channel.Id, out var cfg))
-                return Task.CompletedTask;
+                return;
 
-            // ✅ 유저가 치는 즉시 "삭제+재전송" (백그라운드로 수행)
-            _ = RefreshNowAsync(msg.Channel.Id, cfg);
-            return Task.CompletedTask;
+            // ✅ "즉각" 체감 위해 백그라운드로 던지지 않고 await
+            await RefreshNowAsync(msg.Channel.Id, cfg);
         }
 
         private async Task RefreshNowAsync(ulong channelId, ChannelConfig cfg)
         {
             var sem = _locks.GetOrAdd(channelId, _ => new SemaphoreSlim(1, 1));
-            await sem.WaitAsync();
+
+            // 락이 이미 잡혀 있으면 "추가 갱신 필요"만 표시하고 끝
+            if (!await sem.WaitAsync(0))
+            {
+                _pending[channelId] = true;
+                return;
+            }
 
             try
             {
-                // ✅ 쿨다운(원하면 0으로 끄면 됨)
-                if (cfg.Cooldown > TimeSpan.Zero)
+                // 한번 갱신하고, 그 사이에 메시지가 더 왔으면 딱 1번만 더 갱신(작업 누적 방지)
+                while (true)
                 {
-                    var now = DateTimeOffset.UtcNow;
-                    var last = _lastRunAt.GetOrAdd(channelId, _ => DateTimeOffset.MinValue);
-                    if (now - last < cfg.Cooldown)
+                    _pending[channelId] = false;
+
+                    if (_client.GetChannel(channelId) is not IMessageChannel ch)
                         return;
 
-                    _lastRunAt[channelId] = now;
-                }
+                    // 1) 기존 공지 즉시 삭제 (ID로 바로 삭제)
+                    if (_lastBotMsgIdByChannel.TryGetValue(channelId, out var prevId) && prevId != 0)
+                    {
+                        try
+                        {
+                            await ch.DeleteMessageAsync(prevId);
+                        }
+                        catch
+                        {
+                            // 실패하면 fallback로 넘어감
+                        }
+                        finally
+                        {
+                            _lastBotMsgIdByChannel[channelId] = 0;
+                        }
+                    }
 
-                if (_client.GetChannel(channelId) is not IMessageChannel ch)
-                    return;
-
-                // 1) 기존 공지 삭제 (우리가 기억하는 ID 우선)
-                if (_lastBotMsgIdByChannel.TryGetValue(channelId, out var prevId) && prevId != 0)
-                {
+                    // 2) fallback: 최근 메시지에서 우리 봇이 보낸 메시지 찾아서 삭제
+                    //    (봇 재시작/ID 유실/삭제 실패 대비)
                     try
                     {
-                        var old = await ch.GetMessageAsync(prevId);
-                        if (old != null) await old.DeleteAsync();
+                        var recent = await ch.GetMessagesAsync(30).FlattenAsync();
+                        var lastBot = recent.FirstOrDefault(m => m.Author.Id == _client.CurrentUser.Id);
+                        if (lastBot != null)
+                        {
+                            await lastBot.DeleteAsync();
+                        }
                     }
                     catch
                     {
-                        // 이미 삭제됨/권한없음/찾기 실패 등 무시
+                        // 무시
                     }
-                }
-                else
-                {
-                    // (선택) 혹시 ID가 없으면, 마지막 메시지가 우리 봇이면 그것도 삭제 시도
-                    try
-                    {
-                        var lastMsg = (await ch.GetMessagesAsync(1).FlattenAsync()).FirstOrDefault();
-                        if (lastMsg != null && lastMsg.Author.Id == _client.CurrentUser.Id)
-                            await lastMsg.DeleteAsync();
-                    }
-                    catch { }
-                }
 
-                // 2) 즉시 재전송
-                var comps = cfg.ComponentsFactory?.Invoke();
-                var sent = await ch.SendMessageAsync(embed: cfg.EmbedFactory(), components: comps);
+                    // 3) 즉시 재전송
+                    var comps = cfg.ComponentsFactory?.Invoke();
+                    var sent = await ch.SendMessageAsync(embed: cfg.EmbedFactory(), components: comps);
+                    _lastBotMsgIdByChannel[channelId] = sent.Id;
 
-                _lastBotMsgIdByChannel[channelId] = sent.Id;
+                    // ✅ 도중에 메시지가 추가로 왔으면(=pending true) 한 번만 더 반복
+                    if (_pending.TryGetValue(channelId, out var need) && need)
+                        continue;
+
+                    break;
+                }
             }
             finally
             {
