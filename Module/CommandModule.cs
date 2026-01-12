@@ -16,7 +16,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using static DiscordBot.Program;
 using static LupeonBot.Client.SupabaseClient;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LupeonBot.Module
 {
@@ -552,27 +551,57 @@ namespace LupeonBot.Module
                     await ModifyOriginalResponseAsync(m => m.Content = "❗ 이미 가입된 정보입니다.");
                     return;
                 }
-
-                string m_Context = string.Empty;
-                m_Context += "인증대상 : ``'" + m_disCord + "(" + s_userid.ToString() + ")'``" + Environment.NewLine + Environment.NewLine;
-                m_Context += "인증캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine;
-                m_Context += "위 정보로 거래소 인증이 완료되었습니다.";
-
-                var s_embed = new EmbedBuilder();
-                s_embed.WithAuthor("✅ 인증완료");
-                s_embed.WithDescription(m_Context);
-                s_embed.WithColor(Color.Green);
-                s_embed.WithThumbnailUrl(target.GetAvatarUrl(ImageFormat.Auto));
-                s_embed.WithFooter("ㆍ인증일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-
-                // ✅ 2) 먼저 원본 응답 수정
-                await ModifyOriginalResponseAsync(m => m.Content = "인증완료");
-                await ModifyOriginalResponseAsync(m => m.Embed = s_embed.Build());
-
-                if (dbRow == null)
+                else
                 {
+                    // 1) 보유캐릭 Set
+                    var ownedSet = profile.보유캐릭_목록
+                        .Select(x => (x ?? "").Trim())
+                        .Where(x => x.Length > 0)
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                    // 2) 보유캐릭 중 하나라도 DB에 존재하는지 검사
+                    // (누락 방지: 보유캐릭 각각으로 후보를 모음)
+                    var candidates = new List<CertInfoRow>();
+
+                    foreach (var ch in ownedSet)
+                    {
+                        var rows = await SearchByCharacterAsync(ch); // RPC 부분일치
+                        if (rows != null && rows.Count > 0)
+                            candidates.AddRange(rows);
+                    }
+
+                    // 3) 후보 row 중에서 character[]가 ownedSet과 겹치는지 확인
+                    var duplicated = candidates.FirstOrDefault(row =>
+                        row.Character != null &&
+                        row.Character.Any(dbChar => ownedSet.Contains((dbChar ?? "").Trim())) &&
+                        !string.Equals(row.UserId, s_userid.ToString(), StringComparison.Ordinal) // 같은 유저면 제외(신규라 거의 불필요하지만 안전)
+                    );
+
+                    if (duplicated != null)
+                    {
+                        // ✅ 여기서 저장하지 않고 종료
+                        await ModifyOriginalResponseAsync(m => m.Content = "❌ 이미 다른 사용자로 인증된 스토브 계정(보유캐릭)이 존재합니다. (중복 인증 불가)");
+                        return;
+                    }
+
+                    string m_Context = string.Empty;
+                    m_Context += "인증대상 : ``'" + m_disCord + "(" + s_userid.ToString() + ")'``" + Environment.NewLine + Environment.NewLine;
+                    m_Context += "인증캐릭 : ``'" + m_NickNm + "'``" + Environment.NewLine + Environment.NewLine;
+                    m_Context += "위 정보로 거래소 인증이 완료되었습니다.";
+
+                    var s_embed = new EmbedBuilder();
+                    s_embed.WithAuthor("✅ 인증완료");
+                    s_embed.WithDescription(m_Context);
+                    s_embed.WithColor(Color.Green);
+                    s_embed.WithThumbnailUrl(target.GetAvatarUrl(ImageFormat.Auto));
+                    s_embed.WithFooter("ㆍ인증일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
+
+                    // ✅ 2) 먼저 원본 응답 수정
+                    await ModifyOriginalResponseAsync(m => m.Content = "인증완료");
+                    await ModifyOriginalResponseAsync(m => m.Embed = s_embed.Build());
+
                     // ✅ 여기 도달하면 DB에 없음 → 추가(Upsert로 넣으면 됨)
-                    var (ok, body) = await SupabaseClient.UpsertCertInfoAsync(
+                    var (ok, body) = await UpsertCertInfoAsync(
                         userId: s_userid.ToString(),
                         stoveId: m_StoveId,
                         userNm: m_disCord,
@@ -586,7 +615,6 @@ namespace LupeonBot.Module
                     if (!ok)
                     {
                         await admin.Guild.GetTextChannel(693460815067611196).SendMessageAsync($"❌ DB 저장 실패\n```{body}```");
-
                         await ModifyOriginalResponseAsync(m => m.Content = $"❌ DB 저장 실패\n```{body}```");
                         return;
                     }
@@ -1220,11 +1248,18 @@ namespace LupeonBot.Module
                 string m_CertDate = dt.ToString("yyyy-MM-dd"); // 2026-01-06
                 string m_CertTime = dt.ToString("HH:mm");      // 01:23
 
-                var dbRow = await SupabaseClient.GetCertInfoByUserIdAsync(user.Id.ToString());
+                var dbRow = await GetCertInfoByUserIdAsync(user.Id.ToString());
 
                 if (dbRow != null)
                 {
-                    var (ok, body) = await SupabaseClient.UpdateCertOnlyAsync(
+                    // StoveId 비교
+                    if (!string.Equals(dbRow.StoveId, m_StoveId, StringComparison.Ordinal))
+                    {
+                        await ModifyOriginalResponseAsync(m => m.Content = "❌ 저장된 정보와 신청자의 스토브 계정이 다릅니다.");
+                        return;
+                    }
+
+                    var (ok, body) = await UpdateCertOnlyAsync(
                         userId: user.Id.ToString(),
                         stoveId: dbRow.StoveId,
                         characters: profile.보유캐릭_목록,
@@ -1237,20 +1272,46 @@ namespace LupeonBot.Module
                         await ModifyOriginalResponseAsync(m => m.Content = $"❌ 관리자에게 문의해주세요.");
                         return;
                     }
-
-                    // StoveId 비교
-                    if (!string.Equals(dbRow.StoveId, m_StoveId, StringComparison.Ordinal))
-                    {
-                        await ModifyOriginalResponseAsync(m => m.Content = "❌ 저장된 정보와 신청자의 스토브 계정이 다릅니다.");
-                        return;
-                    }
                 }
                 else
                 {
+                    // 1) 보유캐릭 Set
+                    var ownedSet = profile.보유캐릭_목록
+                        .Select(x => (x ?? "").Trim())
+                        .Where(x => x.Length > 0)
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                    // 2) 보유캐릭 중 하나라도 DB에 존재하는지 검사
+                    // (누락 방지: 보유캐릭 각각으로 후보를 모음)
+                    var candidates = new List<CertInfoRow>();
+
+                    foreach (var ch in ownedSet)
+                    {
+                        var rows = await SearchByCharacterAsync(ch); // RPC 부분일치
+                        if (rows != null && rows.Count > 0)
+                            candidates.AddRange(rows);
+                    }
+
+                    // 3) 후보 row 중에서 character[]가 ownedSet과 겹치는지 확인
+                    var duplicated = candidates.FirstOrDefault(row =>
+                        row.Character != null &&
+                        row.Character.Any(dbChar => ownedSet.Contains((dbChar ?? "").Trim())) &&
+                        !string.Equals(row.UserId, user.Id.ToString(), StringComparison.Ordinal) // 같은 유저면 제외(신규라 거의 불필요하지만 안전)
+                    );
+
+                    if (duplicated != null)
+                    {
+                        // ✅ 여기서 저장하지 않고 종료
+                        await ModifyOriginalResponseAsync(m => m.Content =
+                            "❌ 이미 다른 사용자로 인증된 스토브 계정(보유캐릭)이 존재합니다. (중복 인증 불가)"
+                        );
+                        return;
+                    }
+
                     string joindate = user.JoinedAt?.ToOffset(TimeSpan.FromHours(9)).ToString("yyyy-MM-dd") ?? "";
                     string jointime = user.JoinedAt?.ToOffset(TimeSpan.FromHours(9)).ToString("HH:mm") ?? "";
 
-                    var (ok, body) = await SupabaseClient.UpsertCertInfoAsync(
+                    var (ok, body) = await UpsertCertInfoAsync(
                         userId: user.Id.ToString(),
                         stoveId: m_StoveId,
                         userNm: user.Username,
