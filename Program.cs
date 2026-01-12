@@ -251,7 +251,7 @@ namespace DiscordBot
                     .WithColor(Color.Blue)
                     .WithFooter($"Develop by. 갱프")
                     .Build(),
-                debounceSeconds: 5
+                cooldownMs: 700
             );
 
             //골드팝니다.
@@ -263,7 +263,7 @@ namespace DiscordBot
                     .WithColor(Color.Blue)
                     .WithFooter($"Develop by. 갱프")
                     .Build(),
-                debounceSeconds: 5
+                cooldownMs: 700
             );
             #endregion
 
@@ -286,7 +286,7 @@ namespace DiscordBot
                     .WithColor(Color.Orange)
                     .WithFooter($"Develop by. 갱프")
                     .Build(),
-                debounceSeconds: 5
+                cooldownMs: 700
             );
             #endregion
 
@@ -300,4 +300,5 @@ namespace DiscordBot
         }
     }
 }
+
 
