@@ -42,6 +42,8 @@ namespace DiscordBot
         InteractionService? publicSvc;
         InteractionService? lupeonSvc;
         private static IServiceProvider? _services;
+        private StickyRefreshService? _sticky;
+        private bool _stickyInitialized;
 
         public static string BotToken = string.Empty;
         public static string LostArkJwt = string.Empty; // ✅ 로아 Open API JWT
@@ -133,6 +135,7 @@ namespace DiscordBot
 
             var eventSvc = new EventNoticeService(client);
             eventSvc.Start();
+
             //ulong[] fullGuilds = { 513799663086862336, 222222222222222222 }; // 전부 보일 서버들            
             //foreach (var gid in fullGuilds)
             //    await fullSvc.RegisterCommandsToGuildAsync(gid);
@@ -213,6 +216,72 @@ namespace DiscordBot
                 .BuildServiceProvider();
         }
 
+        private void InitStickyIfNeeded()
+        {
+            if (_stickyInitialized) return;
+            _stickyInitialized = true;
+
+            ulong TARGET_GUILD_ID = 513799663086862336;
+            _sticky ??= new StickyRefreshService(client, TARGET_GUILD_ID);
+
+            #region 아이템팝니다, 골드팝니다.
+            string mAutoMsg = $"<#1058371903762468934>을 확인 후 반드시 지켜주세요.\n" +
+                $"ㆍ거래시 판매자가 골드 및 아이템을 보유 중인지 확인 후 거래하시기 바랍니다.\n"+
+                $"ㆍ거래도중 의심이 든다면 <#884395336959918100>로 신고해주시기 바랍니다."+
+                $"ㆍ판매글은 3줄 이하로 작성해주세요.";
+
+            //아이템팝니다.
+            _sticky.UpsertChannel(
+                channelId: 661860451323215873,
+                embedFactory: () => new EmbedBuilder()
+                    .WithTitle("📌 자동공지")
+                    .WithDescription(mAutoMsg)
+                    .WithColor(Color.Blue)
+                    .WithFooter($"Develop by. 갱프")
+                    .Build(),
+                debounceSeconds: 5
+            );
+
+            //골드팝니다.
+            _sticky.UpsertChannel(
+                channelId: 693357562044874802,
+                embedFactory: () => new EmbedBuilder()
+                    .WithTitle("📌 자동공지")
+                    .WithDescription(mAutoMsg)
+                    .WithColor(Color.Blue)
+                    .WithFooter($"Develop by. 갱프")
+                    .Build(),
+                debounceSeconds: 5
+            );
+            #endregion
+
+            #region 보석교환
+            //보석교환
+            string mJemMsg = $"ㆍ보석 변환 글 작성 시 아래의 5가지를 반드시 포함해야합니다.\n" +
+                $"ㆍ빈줄 포함 10줄 이하로 글을 작성해주세요.\n" +
+                $"ㆍ본캐 레벨 / 원정대 레벨\n" +
+                $"ㆍ담보 유무\n" +
+                $"ㆍ보석 변환 가능한 티어 / 레벨\n" +
+                $"ㆍ본캐 레벨 / 원정대 레벨\n" +
+                $"ㆍ보석 변환 비용\n\n" +
+                $"ㆍ보석 변환 글을 다시 올릴 때\n" +
+                $"ㆍ자신이 작성한 글이 한 페이지 내에 있다면 이전 글을 반드시 삭제하고 올려주세요.";
+
+            _sticky.UpsertChannel(
+                channelId: 837673368945557535,
+                embedFactory: () => new EmbedBuilder()
+                    .WithTitle("📌 자동공지")
+                    .WithDescription(mJemMsg)
+                    .WithColor(Color.Orange)
+                    .WithFooter($"Develop by. 갱프")
+                    .Build(),
+                debounceSeconds: 5
+            ); 
+            #endregion
+
+            _sticky.Start();
+        }
+
         public Task Log(LogMessage msg)
         {
             Console.WriteLine(msg.ToString());
@@ -220,5 +289,3 @@ namespace DiscordBot
         }
     }
 }
-
-
