@@ -137,7 +137,6 @@ namespace DiscordBot
             var eventSvc = new EventNoticeService(client);
             eventSvc.Start();
 
-
             // ✅ 그 길드에 봇이 들어가 있을 때만
             if (client.GetGuild(guildId) == null)
                 return;
@@ -145,8 +144,9 @@ namespace DiscordBot
             InitStickyIfNeeded();
 
             // ✅ Ready(재연결) 때 다시 한 번 보내고 싶으면 ForceRefresh만 호출
-            await _sticky!.ForceRefreshAsync(1292061651092246580);
-            //await _sticky!.ForceRefreshAsync(1292061651092246580);
+            await _sticky!.ForceRefreshAsync(661860451323215873);       //아이템팝니다.
+            await _sticky!.ForceRefreshAsync(693357562044874802);       //골드팝니다.
+            await _sticky!.ForceRefreshAsync(837673368945557535);       //보석변환
 
             //ulong[] fullGuilds = { 513799663086862336, 222222222222222222 }; // 전부 보일 서버들            
             //foreach (var gid in fullGuilds)
@@ -300,3 +300,4 @@ namespace DiscordBot
         }
     }
 }
+
