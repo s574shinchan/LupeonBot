@@ -217,7 +217,7 @@ namespace LupeonBot.Module
                 string guideDesc = "**[인증 절차]**\n" +
                 $"- 인증을 받을 캐릭으로 트리시온 입장\n" +
                 $"- 캐릭터정보창 (P) 켜기\n" +
-                $"- 인게임채팅으로 전송 : `{DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd")} {m_disCord}`\n" +
+                $"- 인게임채팅으로 전송 : `{m_disCord}`\n" +
                 $"- 현재시각/캐릭터모습/닉네임/아이템레벨\n" +
                 $"- 위 4가지 항목이 모두 보이도록 스크린샷 촬영\n" +
                 $"- 본 채널에 촬영한 스크린샷을 전송\n\n" +
@@ -3716,6 +3716,7 @@ namespace LupeonBot.Module
     }
 
 }
+
 
 
 
