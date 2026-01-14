@@ -215,19 +215,20 @@ namespace LupeonBot.Module
 
                 // 안내 embed
                 string guideDesc = "**[인증 절차]**\n" +
-                $"ㆍ거래소 인증을 받으려는 캐릭터로 트리시온에 입장\n" +
-                $"ㆍ인게임 채팅으로 전송할 내용 : `{m_disCord}`\n" +
+                $"ㆍ인증을 받을 캐릭으로 트리시온 입장\n" +
                 $"ㆍ캐릭터정보창 (P) 켜기\n" +
+                $"ㆍ인게임채팅으로 전송 : `{m_disCord}`\n" +
                 $"ㆍ채팅창과 캐릭터정보창이 같이 보이도록 스크린샷 촬영\n" +
                 $"ㆍ본 채널에 촬영한 스크린샷을 전송\n\n" +
                 $"**[유의사항]**\n" +
                 $"※ 상세내용 참고 : {guideChannelMention}채널 확인\n"+
-                $"**`ㆍ관리자가 확인 후 승인합니다. 이 과정에서 일정시간 소요 될 수 있습니다.`**";
+                $"※ 스크린샷을 자르거나, 휴대폰으로 촬영한 경우 예고없이 인증절차가 종료될 수 있습니다."+
+                $"ㆍ관리자가 확인 후 승인합니다. 이 과정에서 일정시간 소요 될 수 있습니다.";
 
                 var 인증채널 = new EmbedBuilder()
                     .WithColor(Color.Green)
                     .WithDescription(guideDesc)
-                    .WithFooter($"{m_disCord}({s_userid}) 신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto));
+                    .WithFooter($"Develop by. 갱프ㆍ신청일시 : {m_dateTime}");
 
                 // 캐릭터 정보 embed
                 string charDesc =
@@ -240,9 +241,9 @@ namespace LupeonBot.Module
                     .WithAuthor("🔍 캐릭터정보 조회")
                     .WithDescription(charDesc)
                     .WithColor((Color)System.Drawing.Color.SkyBlue)
-                    .WithFooter($"Develop by. 갱프ㆍ신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
                     .WithImageUrl(Method.StoveProfileImagePath)
-                    .WithThumbnailUrl(profile.ImgLink);
+                    .WithThumbnailUrl(profile.ImgLink)
+                    .WithFooter($"Develop by. 갱프ㆍ신청일시 : {m_dateTime}");
 
                 var comps = new ComponentBuilder()
                     .WithButton(label: "인증완료", customId: "Complete", style: ButtonStyle.Success)
@@ -3715,6 +3716,7 @@ namespace LupeonBot.Module
     }
 
 }
+
 
 
 
