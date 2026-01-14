@@ -59,7 +59,9 @@ namespace LupeonBot.Module
             var title = (n.Title ?? "").Trim();
 
             return type.Contains("점검", StringComparison.OrdinalIgnoreCase)
+                || type.Contains("공지", StringComparison.OrdinalIgnoreCase)
                 || title.Contains("점검", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
+
