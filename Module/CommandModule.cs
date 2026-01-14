@@ -209,7 +209,7 @@ namespace LupeonBot.Module
                 m_disCord = Context.User.Username;
                 s_userid = Context.User.Id;
 
-                string m_dateTime = DateTime.UtcNow.AddHours(9);
+                string m_dateTime = DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss");
 
                 string m_Emote = "<:pdiamond:907957436483248159>";
                 string m_Emote3 = "<:reddiamond:1010548405765931080>";
@@ -3718,5 +3718,6 @@ namespace LupeonBot.Module
     }
 
 }
+
 
 
