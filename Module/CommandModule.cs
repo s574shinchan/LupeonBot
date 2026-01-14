@@ -209,7 +209,7 @@ namespace LupeonBot.Module
                 m_disCord = Context.User.Username;
                 s_userid = Context.User.Id;
 
-                string m_dateTime = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+                string m_dateTime = DateTime.UtcNow.AddHours(9);
 
                 string m_Emote = "<:pdiamond:907957436483248159>";
                 string m_Emote3 = "<:reddiamond:1010548405765931080>";
@@ -219,13 +219,11 @@ namespace LupeonBot.Module
                 // 안내 embed
                 string guideDesc = "**[인증 절차]**\n" +
                 $"ㆍ거래소 인증을 받으려는 캐릭터로 트리시온에 입장\n" +
-                $"ㆍ인게임 채팅으로 [디스코드 사용자명]을 전송\n" +
+                $"ㆍ인게임 채팅으로 전송할 내용 : `{m_disCord}`\n" +
                 $"ㆍ캐릭터정보창 (P) 켜기\n" +
                 $"ㆍ채팅창과 캐릭터정보창이 같이 보이도록 스크린샷 촬영\n" +
                 $"ㆍ본 채널에 촬영한 스크린샷을 전송\n" +
                 $"**[유의사항]**\n" +
-                $"`※ [디스코드 사용자명] 해당 텍스트를 그대로 입력하는 것이 아닙니다.`\n" +
-                $"`※ [디스코드 사용자명]은 인게임 닉네임이나 디스코드 닉네임이 아닙니다.`\n" +
                 $"`※ 상세내용 참고 : {guideChannelMention}채널 확인\n"+
                 $"{m_Emote3} **`관리자가 확인 후 승인합니다. 이 과정에서 일정시간 소요 될 수 있습니다.`**";
 
@@ -3720,4 +3718,5 @@ namespace LupeonBot.Module
     }
 
 }
+
 
