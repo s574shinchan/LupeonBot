@@ -219,7 +219,7 @@ namespace LupeonBot.Module
                 $"- 캐릭터정보창 (P) 켜기\n" +
                 $"- 인게임채팅으로 전송 : `{DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd")} {m_disCord}`\n" +
                 $"- 현재시각/캐릭터모습/닉네임/아이템레벨\n" +
-                $"- 위 4가지 항목이 모두 보이도록 스크린샷 촬영
+                $"- 위 4가지 항목이 모두 보이도록 스크린샷 촬영\n" +
                 $"- 본 채널에 촬영한 스크린샷을 전송\n\n" +
                 $"**[유의사항]**\n" +
                 $"※ 상세내용 참고 : {guideChannelMention}채널 확인\n"+
@@ -3716,6 +3716,7 @@ namespace LupeonBot.Module
     }
 
 }
+
 
 
 
