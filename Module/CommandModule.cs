@@ -211,9 +211,6 @@ namespace LupeonBot.Module
 
                 string m_dateTime = DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss");
 
-                string m_Emote = "<:pdiamond:907957436483248159>";
-                string m_Emote3 = "<:reddiamond:1010548405765931080>";
-
                 var guideChannelMention = $"<#{GuideChannelId}>";
 
                 // 안내 embed
@@ -222,10 +219,10 @@ namespace LupeonBot.Module
                 $"ㆍ인게임 채팅으로 전송할 내용 : `{m_disCord}`\n" +
                 $"ㆍ캐릭터정보창 (P) 켜기\n" +
                 $"ㆍ채팅창과 캐릭터정보창이 같이 보이도록 스크린샷 촬영\n" +
-                $"ㆍ본 채널에 촬영한 스크린샷을 전송\n" +
+                $"ㆍ본 채널에 촬영한 스크린샷을 전송\n\n" +
                 $"**[유의사항]**\n" +
-                $"`※ 상세내용 참고 : {guideChannelMention}채널 확인\n"+
-                $"{m_Emote3} **`관리자가 확인 후 승인합니다. 이 과정에서 일정시간 소요 될 수 있습니다.`**";
+                $"※ 상세내용 참고 : {guideChannelMention}채널 확인\n"+
+                $"**`ㆍ관리자가 확인 후 승인합니다. 이 과정에서 일정시간 소요 될 수 있습니다.`**";
 
                 var 인증채널 = new EmbedBuilder()
                     .WithColor(Color.Green)
@@ -3718,6 +3715,7 @@ namespace LupeonBot.Module
     }
 
 }
+
 
 
 
