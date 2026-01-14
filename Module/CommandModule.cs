@@ -217,10 +217,17 @@ namespace LupeonBot.Module
                 var guideChannelMention = $"<#{GuideChannelId}>";
 
                 // 안내 embed
-                string guideDesc = "**[거래소 인증방법]**\n" +
-                                  $"{m_Emote}{guideChannelMention}채널 확인\n" +
-                                  "**[유의사항]**\n" +
-                                  $"{m_Emote3} **``관리자가 확인 후 역할을 부여하기 때문에 일정시간이 소요됩니다.``**";
+                string guideDesc = "**[인증 절차]**\n" +
+                $"ㆍ거래소 인증을 받으려는 캐릭터로 트리시온에 입장\n" +
+                $"ㆍ인게임 채팅으로 [디스코드 사용자명]을 전송\n" +
+                $"ㆍ캐릭터정보창 (P) 켜기\n" +
+                $"ㆍ채팅창과 캐릭터정보창이 같이 보이도록 스크린샷 촬영\n" +
+                $"ㆍ본 채널에 촬영한 스크린샷을 전송\n" +
+                $"**[유의사항]**\n" +
+                $"`※ [디스코드 사용자명] 해당 텍스트를 그대로 입력하는 것이 아닙니다.`\n" +
+                $"`※ [디스코드 사용자명]은 인게임 닉네임이나 디스코드 닉네임이 아닙니다.`\n" +
+                $"`※ 상세내용 참고 : {guideChannelMention}채널 확인\n"+
+                $"{m_Emote3} **`관리자가 확인 후 승인합니다. 이 과정에서 일정시간 소요 될 수 있습니다.`**";
 
                 var 인증채널 = new EmbedBuilder()
                     .WithColor(Color.Green)
@@ -238,7 +245,7 @@ namespace LupeonBot.Module
                     .WithAuthor("🔍 캐릭터정보 조회")
                     .WithDescription(charDesc)
                     .WithColor((Color)System.Drawing.Color.SkyBlue)
-                    .WithFooter($"Develop by. 갱프　　　　　　　　신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
+                    .WithFooter($"Develop by. 갱프ㆍ신청일시 : {m_dateTime}", Context.User.GetAvatarUrl(ImageFormat.Auto))
                     .WithImageUrl(Method.StoveProfileImagePath)
                     .WithThumbnailUrl(profile.ImgLink);
 
@@ -1238,7 +1245,8 @@ namespace LupeonBot.Module
 
                     var s_embed = new EmbedBuilder()
                         .WithAuthor("🚨 요청실패")
-                        .WithDescription(failDesc);
+                        .WithDescription(failDesc)
+                        .WithFooter("Develop by. 갱프");
 
                     await FollowupAsync(embed: s_embed.Build(), ephemeral: true);
                     return;
@@ -1348,7 +1356,7 @@ namespace LupeonBot.Module
                     .WithDescription(m_Context)
                     .WithColor(Color.Green)
                     .WithThumbnailUrl(user.GetAvatarUrl(ImageFormat.Auto))
-                    .WithFooter("Develop by. 갱프　　　　　　　　　갱신일시 : " + m_CertDate + " " + m_CertTime);
+                    .WithFooter("Develop by. 갱프ㆍ갱신일시 : " + m_CertDate + " " + m_CertTime);
 
                 await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 처리되었습니다.");
                 await ModifyOriginalResponseAsync(m => m.Embed = ComPeleteEmbed.Build());
@@ -2255,7 +2263,8 @@ namespace LupeonBot.Module
 
                 var s_embed = new EmbedBuilder()
                     .WithAuthor("🚨 요청실패")
-                    .WithDescription(failDesc);
+                    .WithDescription(failDesc)
+                    .WithFooter("Develop by. 갱프");
 
                 await FollowupAsync(embed: s_embed.Build(), ephemeral: true);
                 return;
@@ -2323,7 +2332,7 @@ namespace LupeonBot.Module
                 .WithDescription(m_Context)
                 .WithColor(Color.Green)
                 .WithThumbnailUrl(user.GetAvatarUrl(ImageFormat.Auto))
-                .WithFooter("Develop by. 갱프　　　　　　　　　갱신일시 : " + m_CertDate + " " + m_CertTime);
+                .WithFooter("Develop by. 갱프ㆍ갱신일시 : " + m_CertDate + " " + m_CertTime);
 
             await ModifyOriginalResponseAsync(m => m.Content = "정상적으로 처리되었습니다.");
             await ModifyOriginalResponseAsync(m => m.Embed = ComPeleteEmbed.Build());
@@ -2419,7 +2428,7 @@ namespace LupeonBot.Module
                 .AddField("ㅤ", s_disCord)
                 .AddField("ㅤ", $"**``사유 : ``**{reason}")
                 .AddField("ㅤ", "**``해당 조치에 대한 소명 및 이의제기는 문의 및 신고 채널을 이용해주시기 바랍니다. ``**", true)
-                .WithFooter($"Develop by. 갱프　　　　　조치일시 : {DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss")}");
+                .WithFooter($"Develop by. 갱프ㆍ조치일시 : {DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss")}");
 
             var logCh = Context.Guild.GetTextChannel(BanLogChannelId);
             if (logCh != null)
@@ -3002,7 +3011,7 @@ namespace LupeonBot.Module
                 .WithAuthor("보유 중인 역할")
                 .WithDescription(mValue)
                 .WithColor(Color.Purple)
-                .WithFooter($"Develop by. 갱프　　　　　확인일시: {DateTime.Now:yyyy-MM-dd HH:mm}")
+                .WithFooter($"Develop by. 갱프ㆍ확인일시: {DateTime.Now:yyyy-MM-dd HH:mm}")
                 .Build();
 
             await RespondAsync(embed: embed, ephemeral: true);
@@ -3359,7 +3368,7 @@ namespace LupeonBot.Module
                 var eb = new EmbedBuilder()
                     .WithTitle("로스트아크 - 공지사항")
                     .WithColor(Color.Orange)
-                    .WithFooter($"Develop by. 갱프 ㆍ {DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss")}")
+                    .WithFooter($"Develop by. 갱프ㆍ{DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss")}")
                     .WithDescription(string.Join("\n", show.Select(n => $"[{n.Type}] [{EscapeMd(n.Title)}]({n.Link})")));
 
                 await FollowupAsync(embed: eb.Build(), ephemeral: true);
@@ -3711,3 +3720,4 @@ namespace LupeonBot.Module
     }
 
 }
+
