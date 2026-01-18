@@ -72,6 +72,7 @@ namespace DiscordBot
 
             // ✅ Interaction 처리 이벤트 연결
             client.InteractionCreated += HandleInteraction;
+            client.MessageReceived += OnMessageReceivedAsync;
 
             client.UserJoined += UserJoined;
             client.UserLeft += UserLeft;
@@ -123,7 +124,7 @@ namespace DiscordBot
                 .Where(t => !t.IsAbstract)
                 .Where(t => typeof(InteractionModuleBase<SocketInteractionContext>).IsAssignableFrom(t))
                 .Where(t => t != typeof(ProfileSerachModule));
-            
+
             foreach (var t in moduleTypes)
             {
                 await lupeonSvc.AddModuleAsync(t, _services);
@@ -204,6 +205,33 @@ namespace DiscordBot
             }
         }
 
+        const ulong WATCH_CATEGORY_ID = 595596190666588185; // 감시할 카테고리
+        const ulong TARGET_CATEGORY_ID = 1435983876857008138; // 기본 이동 카테고리
+
+        private async Task OnMessageReceivedAsync(SocketMessage message)
+        {
+            if (message is not SocketUserMessage msg) return;
+            if (msg.Author.IsBot) return;
+
+            if (msg.Channel is not SocketTextChannel channel) return;
+            if (channel.CategoryId != WATCH_CATEGORY_ID) return;
+
+            var guild = channel.Guild;
+
+            // 이동 대상 카테고리 결정
+            var targetCategory = await GetOrCreateAvailableCategoryAsync(
+                guild,
+                TARGET_CATEGORY_ID,
+                "자동생성"
+            );
+
+            // 채널 이동
+            await channel.ModifyAsync(x =>
+            {
+                x.CategoryId = targetCategory.Id;
+            });
+        }
+
         public static class EmoteCache
         {
             public static Dictionary<string, Emote> Emotes { get; } = new();
@@ -237,7 +265,7 @@ namespace DiscordBot
                 $"<#1058371903762468934>을 확인 후 반드시 지켜주세요.\n\n" +
                 $"- 거래시 판매자가 골드 및 아이템을 보유 중인지 확인 후 거래하시기 바랍니다.\n\n" +
                 $"- 거래도중 의심이 든다면 <#884395336959918100>로 신고해주시기 바랍니다.\n\n" +
-                $"- 판매글은 3줄 이하로 작성해주세요.\n\n"+
+                $"- 판매글은 3줄 이하로 작성해주세요.\n\n" +
                 $"- 거래소 갱신이 진행 중입니다. 미갱신자는 확인 후 갱신하시기 바랍니다.";
 
             // 아이템팝니다.
@@ -272,7 +300,7 @@ namespace DiscordBot
                 $"- 보석 변환 가능한 티어 / 레벨\n" +
                 $"- 본캐 레벨 / 원정대 레벨\n" +
                 $"- 보석 변환 비용\n\n" +
-                $"- 보석 변환 글 재작성 시 이전 글을 반드시 삭제하고 올려주세요.\n\n"+
+                $"- 보석 변환 글 재작성 시 이전 글을 반드시 삭제하고 올려주세요.\n\n" +
                 $"- 거래소 갱신이 진행 중입니다. 미갱신자는 확인 후 갱신하시기 바랍니다.";
 
             _sticky.UpsertChannel(
@@ -287,6 +315,73 @@ namespace DiscordBot
             #endregion
 
             _sticky.Start();
+        }
+        private async Task<ICategoryChannel> GetOrCreateAvailableCategoryAsync(SocketGuild guild, ulong baseCategoryId, string autoCategoryPrefix)
+        {
+            var baseCategory = guild.GetCategoryChannel(baseCategoryId);
+            if (baseCategory == null)
+                throw new Exception("기본 카테고리를 찾을 수 없습니다.");
+
+            // 현재 카테고리 채널 수
+            if (baseCategory.Channels.Count < 50)
+                return baseCategory;
+
+            // 같은 Prefix의 카테고리들 검색
+            var siblings = guild.CategoryChannels
+                .Where(c => c.Name.StartsWith(baseCategory.Name))
+                .OrderBy(c => c.Position)
+                .ToList();
+
+            foreach (var cat in siblings)
+            {
+                if (cat.Channels.Count < 50)
+                    return cat;
+            }
+
+            // 전부 꽉 찼으면 새 카테고리 생성
+            return await CreateNextCategoryAsync(guild, baseCategory, autoCategoryPrefix);
+        }
+
+        private async Task<ICategoryChannel> CreateNextCategoryAsync(SocketGuild guild, SocketCategoryChannel baseCategory,string prefix)
+        {
+            // 새 카테고리 이름 (예: 거래-자동생성-2)
+            int index = 1;
+            string newName;
+            do
+            {
+                index++;
+                newName = $"{baseCategory.Name}-{prefix}-{index}";
+            }
+            while (guild.CategoryChannels.Any(c => c.Name == newName));
+
+            var newCategory = await guild.CreateCategoryChannelAsync(newName);
+
+            // 🔹 권한 동기화
+            foreach (var overwrite in baseCategory.PermissionOverwrites)
+            {
+                if (overwrite.TargetType == PermissionTarget.Role)
+                {
+                    await newCategory.AddPermissionOverwriteAsync(
+                        guild.GetRole(overwrite.TargetId),
+                        overwrite.Permissions
+                    );
+                }
+                else if (overwrite.TargetType == PermissionTarget.User)
+                {
+                    await newCategory.AddPermissionOverwriteAsync(
+                        guild.GetUser(overwrite.TargetId),
+                        overwrite.Permissions
+                    );
+                }
+            }
+
+            // 🔹 위치를 기존 카테고리 바로 아래로
+            await newCategory.ModifyAsync(x =>
+            {
+                x.Position = baseCategory.Position + 1;
+            });
+
+            return newCategory;
         }
 
         public Task Log(LogMessage msg)
