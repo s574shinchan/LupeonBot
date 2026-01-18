@@ -8,6 +8,7 @@ using LupeonBot.Client;
 using LupeonBot.Module;
 using LupeonBot.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Supabase.Gotrue;
 using Supabase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,7 @@ namespace DiscordBot
         public static string LostArkJwt = string.Empty; // ✅ 로아 Open API JWT
 
         private bool _registered;
+        private static UserLeftQueue _userLeftQueue;
 
         public async Task MainAsync()
         {
@@ -70,6 +72,9 @@ namespace DiscordBot
             publicSvc = new InteractionService(client.Rest);
             lupeonSvc = new InteractionService(client.Rest);
 
+            _userLeftQueue = new UserLeftQueue(HandleUserLeftAsync, ex => Console.WriteLine(ex));
+            _userLeftQueue.Start();
+
             // ✅ Interaction 처리 이벤트 연결
             client.InteractionCreated += HandleInteraction;
             client.MessageReceived += OnMessageReceivedAsync;
@@ -85,29 +90,44 @@ namespace DiscordBot
             await Task.Delay(-1); // 프로그램 종료시까지 태스크 유지
         }
 
-        private async Task UserLeft(SocketGuild arg1, SocketUser arg2)
+        private Task UserLeft(SocketGuild arg1, SocketUser arg2)
         {
-            var guild = client.GetGuild(513799663086862336);
-            var voiceChannel = guild.GetVoiceChannel(1457106002553081958);
-            await voiceChannel.ModifyAsync(x => x.Name = "All Members : " + guild.MemberCount);
-
-            var dbRow = await SupabaseClient.GetSingUpByUserIdAsync(arg2.Id.ToString());
-
-            if (dbRow != null)
-            {
-                await SupabaseClient.DeleteSignUpByUserIdAsync(arg2.Id.ToString());
-            }
+            // ✅ 이벤트에서는 큐에만 넣고 즉시 반환 (절대 await로 무거운거 하지마)
+            _userLeftQueue.Enqueue(new UserLeftJob(arg1.Id, arg2.Id));
+            return Task.CompletedTask;
         }
 
-        private async Task UserJoined(SocketGuildUser arg)
+        //private async Task UserJoined(SocketGuildUser arg)
+        //{
+        //    var guild = client.GetGuild(513799663086862336);
+
+        //    var m_UnSignUp = guild.GetRole(902213602889568316);
+        //    await arg.AddRoleAsync(m_UnSignUp);
+
+        //    var voiceChannel = guild.GetVoiceChannel(1457106002553081958);
+        //    await voiceChannel.ModifyAsync(x => x.Name = "All Members : " + guild.MemberCount);
+        //}
+        private Task UserJoined(SocketGuildUser arg)
         {
-            var guild = client.GetGuild(513799663086862336);
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var guild = client.GetGuild(513799663086862336);
 
-            var m_UnSignUp = guild.GetRole(902213602889568316);
-            await arg.AddRoleAsync(m_UnSignUp);
+                    var m_UnSignUp = guild.GetRole(902213602889568316);
+                    await arg.AddRoleAsync(m_UnSignUp);
 
-            var voiceChannel = guild.GetVoiceChannel(1457106002553081958);
-            await voiceChannel.ModifyAsync(x => x.Name = "All Members : " + guild.MemberCount);
+                    var voiceChannel = guild.GetVoiceChannel(1457106002553081958);
+                    await voiceChannel.ModifyAsync(x => x.Name = "All Members : " + guild.MemberCount);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[UserJoined] {ex}");
+                }
+            });
+
+            return Task.CompletedTask;
         }
 
         public async Task Ready()
@@ -383,6 +403,48 @@ namespace DiscordBot
 
             return newCategory;
         }
+
+        private async Task HandleUserLeftAsync(UserLeftJob job, CancellationToken ct)
+        {
+            // 니 코드에서 하드코딩하던 값들
+            const ulong GUILD_ID = 513799663086862336;
+            const ulong VOICE_ID = 1457106002553081958;
+
+            // 들어온 길드가 타겟 길드가 아니면 스킵 (안전)
+            if (job.GuildId != GUILD_ID) return;
+
+            var guild = client.GetGuild(GUILD_ID);
+            if (guild == null) return;
+
+            // ✅ 1) 보이스 채널 이름 갱신 (느릴 수 있으니 여기서만)
+            var voiceChannel = guild.GetVoiceChannel(VOICE_ID);
+            if (voiceChannel != null)
+            {
+                // 예외/레이트리밋으로 죽지 않게 try/catch
+                try
+                {
+                    await voiceChannel.ModifyAsync(x => x.Name = "All Members : " + guild.MemberCount);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[UserLeft] voice modify failed: {ex.Message}");
+                }
+            }
+
+            // ✅ 2) Supabase 처리 (느릴 수 있으니 여기서만)
+            try
+            {
+                var userId = job.UserId.ToString();
+                var dbRow = await SupabaseClient.GetSingUpByUserIdAsync(userId);
+                if (dbRow != null)
+                    await SupabaseClient.DeleteSignUpByUserIdAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UserLeft] supabase failed: {ex.Message}");
+            }
+        }
+
 
         public Task Log(LogMessage msg)
         {
