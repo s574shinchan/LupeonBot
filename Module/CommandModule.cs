@@ -642,12 +642,25 @@ namespace LupeonBot.Module
                     }
 
                     // ✅ 4) DB 저장 성공했으면 역할 부여
-                    SocketRole mRole = admin.Guild.GetRole(Convert.ToUInt64(1458795051030286499));
-                    await target.AddRoleAsync(mRole);
+                    ulong BASE_ROLE_ID = 1458795051030286499UL;
+                    var baseRole = admin.Guild.GetRole(BASE_ROLE_ID);
 
-                    // ✅ 역할 이름 = 직업명 으로 바로 찾기
-                    var jobrole = Context.Guild.Roles.FirstOrDefault(r => r.Name.Equals(profile.직업, StringComparison.OrdinalIgnoreCase));
-                    await target.AddRoleAsync(jobrole);
+                    if (baseRole != null && !target.Roles.Any(r => r.Id == baseRole.Id))
+                    {
+                        await target.AddRoleAsync(baseRole);
+                    }
+
+                    // ✅ 2) 직업 역할 부여
+                    if (!string.IsNullOrWhiteSpace(profile.직업))
+                    {
+                        var jobRole = admin.Guild.Roles.FirstOrDefault(r =>
+                            string.Equals(r.Name.Trim(), profile.직업.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                        if (jobRole != null && !target.Roles.Any(r => r.Id == jobRole.Id))
+                        {
+                            await target.AddRoleAsync(jobRole);
+                        }
+                    }
                     
                     // ✅ 5) 인증성공 메세지 로그(너 기존)
                     string Safe(string v) => string.IsNullOrWhiteSpace(v) ? "-" : v;
@@ -3738,6 +3751,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
