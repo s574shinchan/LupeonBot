@@ -529,7 +529,7 @@ namespace LupeonBot.Module
                 }
 
                 // 6) 프로필 + 보유캐릭 가져오기
-                var profile = await ProfileMethod.GetCertProfile(m_NickNm);
+                var profile = await ProfileMethod.GetSimpleProfile(m_NickNm);
 
                 // 7) DB 기존 데이터 조회 (UserId 기준)
                 var dbRow = await GetCertInfoByUserIdAsync(s_userid.ToString());
@@ -3751,6 +3751,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
