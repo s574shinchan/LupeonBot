@@ -115,9 +115,13 @@ namespace LupeonBot.Module
 
             // ✅ 기존 로직: everyone 제외한 역할이 하나도 없으면 차단
             int mRoleYn = 0;
+            bool CertYn = false;
+
             foreach (var role in guildUser.Roles)
             {
                 if (role.Id != EveryoneRoleId) mRoleYn++;
+
+                if(role.Id == 1458795051030286499) CertYn = true;
             }
 
             if (mRoleYn == 0)
@@ -126,6 +130,12 @@ namespace LupeonBot.Module
                 return;
             }
 
+            if (CertYn)
+            {
+                await RespondAsync("이미 거래소 역할을 보유 중입니다. 인증 대상자가 아닙니다.", ephemeral: true);
+                return;
+
+            }
             // 모달 띄우기
             await Context.Interaction.RespondWithModalAsync<CertModalData>("CertModal");
         }
@@ -3715,15 +3725,4 @@ namespace LupeonBot.Module
             return list;
         }
     }
-
 }
-
-
-
-
-
-
-
-
-
-
