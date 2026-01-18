@@ -238,7 +238,7 @@ namespace LupeonBot.Module
                 $"- 인게임채팅으로 전송 : `{m_disCord}`\n" +
                 $"- 현재시각/캐릭터모습/닉네임/아이템레벨\n" +
                 $"- 위 4가지 항목이 모두 보이도록 스크린샷 촬영\n" +
-                $"- 본 채널에 촬영한 스크린샷을 전송\n\n" +
+                $"- 본 채널에 촬영한 스크린샷을 전송\n" +
                 $"- 본 채널에 본인의 스토브 프로필 링크전송\n\n" +
                 $"**[유의사항]**\n" +
                 $"※ 상세내용 참고 : {guideChannelMention}채널 확인\n"+
@@ -247,7 +247,7 @@ namespace LupeonBot.Module
                 var 인증채널 = new EmbedBuilder()
                     .WithColor(Color.Green)
                     .WithDescription(guideDesc)
-                    .WithFooter($"Develop by. 갱프ㆍ신청일시 : {m_dateTime}");
+                    .WithFooter($"Develop by. 갱프ㆍ신청일시 : {m_dateTime}ㆍ{m_disCord}({s_userid})");
 
                 // 캐릭터 정보 embed
                 string charDesc =
@@ -3734,4 +3734,5 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
