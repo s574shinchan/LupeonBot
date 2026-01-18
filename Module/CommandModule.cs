@@ -262,7 +262,7 @@ namespace LupeonBot.Module
                     .WithColor((Color)System.Drawing.Color.SkyBlue)
                     .WithImageUrl(Method.StoveProfileImagePath)
                     .WithThumbnailUrl(profile.ImgLink)
-                    .WithFooter($"Develop by. 갱프ㆍ신청일시 : {m_dateTime}");
+                    .WithFooter($"Develop by. 갱프ㆍ신청일시 : {m_dateTime}ㆍ{m_disCord}({s_userid})");
 
                 var comps = new ComponentBuilder()
                     .WithButton(label: "인증완료", customId: "Complete", style: ButtonStyle.Success)
@@ -3751,6 +3751,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
