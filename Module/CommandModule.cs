@@ -598,7 +598,7 @@ namespace LupeonBot.Module
                     s_embed.WithDescription(m_Context);
                     s_embed.WithColor(Color.Green);
                     s_embed.WithThumbnailUrl(target.GetAvatarUrl(ImageFormat.Auto));
-                    s_embed.WithFooter("ㆍ인증일시 : " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
+                    s_embed.WithFooter("ㆍ인증일시 : " + toDay.ToString("yyyy-mm-dd") + " " + toDay.ToString("HH:mm"));
 
                     // ✅ 2) 먼저 원본 응답 수정
                     await ModifyOriginalResponseAsync(m => m.Content = "인증완료");
@@ -3717,6 +3717,7 @@ namespace LupeonBot.Module
     }
 
 }
+
 
 
 
