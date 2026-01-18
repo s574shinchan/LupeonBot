@@ -272,13 +272,32 @@ namespace DiscordBot
                     .Build()
             );
 
-            _sticky.Start();
+             #region 보석교환
+             string mJemMsg =
+                 $"ㆍ보석 변환 글 작성 시 아래의 5가지를 반드시 포함해야합니다.\n\n" +
+                 $"ㆍ빈줄 포함 10줄 이하로 글을 작성해주세요.\n" +
+                 $"ㆍ본캐 레벨 / 원정대 레벨\n" +
+                 $"ㆍ담보 유무\n" +
+                 $"ㆍ보석 변환 가능한 티어 / 레벨\n" +
+                 $"ㆍ본캐 레벨 / 원정대 레벨\n" +
+                 $"ㆍ보석 변환 비용\n\n" +
+                 $"ㆍ보석 변환 글 재작성 시 이전 글을 반드시 삭제하고 올려주세요.";
+            
+             _sticky.UpsertChannel(
+                 channelId: 837673368945557535UL,
+                 embedFactory: () => new EmbedBuilder()
+                     .WithTitle("📌 자동공지")
+                     .WithDescription(mJemMsg)
+                     .WithColor(Color.Orange)
+                     .WithFooter("Develop by. 갱프")
+                     .Build()
+             );
+             #endregion
+            
+             _sticky.Start();
         }
 
-        private async Task<ICategoryChannel> GetOrCreateAvailableCategoryAsync(
-            SocketGuild guild,
-            ulong baseCategoryId,
-            string autoCategoryPrefix)
+        private async Task<ICategoryChannel> GetOrCreateAvailableCategoryAsync(SocketGuild guild, ulong baseCategoryId, string autoCategoryPrefix)
         {
             var baseCategory = guild.GetCategoryChannel(baseCategoryId);
             if (baseCategory == null)
@@ -301,10 +320,7 @@ namespace DiscordBot
             return await CreateNextCategoryAsync(guild, baseCategory, autoCategoryPrefix);
         }
 
-        private async Task<ICategoryChannel> CreateNextCategoryAsync(
-            SocketGuild guild,
-            SocketCategoryChannel baseCategory,
-            string prefix)
+        private async Task<ICategoryChannel> CreateNextCategoryAsync(SocketGuild guild, SocketCategoryChannel baseCategory, string prefix)
         {
             int index = 1;
             string newName;
@@ -375,3 +391,4 @@ namespace DiscordBot
         }
     }
 }
+
