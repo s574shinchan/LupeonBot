@@ -645,6 +645,10 @@ namespace LupeonBot.Module
                     SocketRole mRole = admin.Guild.GetRole(Convert.ToUInt64(1458795051030286499));
                     await target.AddRoleAsync(mRole);
 
+                    // ✅ 역할 이름 = 직업명 으로 바로 찾기
+                    var jobrole = Context.Guild.Roles.FirstOrDefault(r => r.Name.Equals(profile.직업, StringComparison.OrdinalIgnoreCase));
+                    await target.AddRoleAsync(jobrole);
+                    
                     // ✅ 5) 인증성공 메세지 로그(너 기존)
                     string Safe(string v) => string.IsNullOrWhiteSpace(v) ? "-" : v;
 
@@ -3734,6 +3738,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
