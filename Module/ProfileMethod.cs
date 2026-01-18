@@ -30,6 +30,7 @@ namespace LupeonBot.Module
                 서버 = prof.ServerName ?? "",
                 직업 = prof.CharacterClassName ?? "",
                 아이템레벨 = prof.ItemMaxLevel ?? prof.ItemAvgLevel ?? "",
+                전투력 = prof.CombatPower?.ToString() ?? "",
                 캐릭터명 = 캐릭터명,
                 ImgLink = prof.CharacterImage ?? "",
                 보유캐릭 = BuildSiblingsLineText(siblings, 캐릭터명),
@@ -95,4 +96,5 @@ namespace LupeonBot.Module
         }
 
     }
+
 }
