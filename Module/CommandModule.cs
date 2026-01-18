@@ -227,7 +227,7 @@ namespace LupeonBot.Module
                 m_disCord = Context.User.Username;
                 s_userid = Context.User.Id;
 
-                string m_dateTime = DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss");
+                string m_dateTime = DateTime.UtcNow.AddHours(9).ToString("yyyy-MM-dd HH:mm");
 
                 var guideChannelMention = $"<#{GuideChannelId}>";
 
@@ -3751,6 +3751,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
