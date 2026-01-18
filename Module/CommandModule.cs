@@ -676,7 +676,7 @@ namespace LupeonBot.Module
                 Console.WriteLine(ex);
                 try
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = "처리 중 오류가 발생했습니다.");
+                    await ModifyOriginalResponseAsync(m => m.Content = $"처리 중 오류가 발생했습니다.{ex}");
                 }
                 catch { }
             }
@@ -3738,6 +3738,7 @@ namespace LupeonBot.Module
         }
     }
 }
+
 
 
 
