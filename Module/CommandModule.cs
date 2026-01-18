@@ -116,26 +116,34 @@ namespace LupeonBot.Module
             // ✅ 기존 로직: everyone 제외한 역할이 하나도 없으면 차단
             int mRoleYn = 0;
             bool CertYn = false;
-
+            bool UpYn = false;
             foreach (var role in guildUser.Roles)
             {
                 if (role.Id != EveryoneRoleId) mRoleYn++;
-
+            
                 if(role.Id == 1458795051030286499) CertYn = true;
+            
+                if(role.Id == 1264901726251647086) UpYn = true;
             }
-
+            
             if (mRoleYn == 0)
             {
                 await RespondAsync("인증에 필요한 최소역할이 없습니다. 직업역할을 부여받으시기 바랍니다.", ephemeral: true);
                 return;
             }
-
+            
             if (CertYn)
             {
                 await RespondAsync("이미 거래소 역할을 보유 중입니다. 인증 대상자가 아닙니다.", ephemeral: true);
                 return;
-
             }
+            
+            if(UpYn)
+            {
+                await RespondAsync("이미 거래소 역할을 보유 중입니다. 인증 대상자가 아닙니다.", ephemeral: true);
+                return;
+            }
+            
             // 모달 띄우기
             await Context.Interaction.RespondWithModalAsync<CertModalData>("CertModal");
         }
@@ -3726,3 +3734,4 @@ namespace LupeonBot.Module
         }
     }
 }
+
