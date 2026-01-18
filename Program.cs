@@ -224,7 +224,7 @@ namespace DiscordBot
                 .BuildServiceProvider();
         }
 
-                private void InitStickyIfNeeded()
+        private void InitStickyIfNeeded()
         {
             if (_stickyInitialized) return;
             _stickyInitialized = true;
@@ -296,6 +296,3 @@ namespace DiscordBot
         }
     }
 }
-
-
-
